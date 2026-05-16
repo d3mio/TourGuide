@@ -15,9 +15,9 @@ export default function Explore() {
     : (PROVINCES[currentProvince] || []).map(p => ({ ...p, prov: currentProvince }));
 
   return (
-    <section className="max-w-7xl mx-auto px-8 py-16">
+    <section className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
       <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-3">{t("exp_eyebrow")}</div>
-      <h1 className="font-serif text-[2.8rem] mb-8">{t("exp_title")}</h1>
+      <h1 className="font-serif text-[2.2rem] md:text-[2.8rem] mb-6 md:mb-8">{t("exp_title")}</h1>
       
       <div className="flex flex-wrap gap-2 mb-8">
         {provinces.map((p) => (

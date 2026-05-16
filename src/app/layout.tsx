@@ -15,7 +15,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Ceylon & Co. — Sri Lanka",
+  title: "VisitCeylon — Sri Lanka",
   description: "An uncharted editorial journey through heritage citadels, emerald highlands, and shores that redefine the horizon.",
 };
 

@@ -1,13 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation, useAppStore } from "@/store";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { t, lang } = useTranslation();
   const { setLang, toggleTheme, theme } = useAppStore();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const links = [
     { href: "/", label: "nav_home" },
@@ -19,14 +22,15 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center h-14 px-8 bg-bg/80 backdrop-blur-md border-b border-bordercolor transition-colors duration-400">
-      <div className="mr-12 whitespace-nowrap">
-        <Link href="/" className="font-serif text-[1.35rem] font-medium tracking-wide text-textcolor transition-colors">
-          Ceylon <span className="text-emerald-500">&amp;</span> Co.
+    <nav className="sticky top-0 z-50 flex items-center justify-between h-14 px-4 md:px-8 bg-bg/80 backdrop-blur-md border-b border-bordercolor transition-colors duration-400">
+      <div className="md:mr-12 whitespace-nowrap">
+        <Link href="/" onClick={() => setMobileOpen(false)} className="font-serif text-[1.35rem] font-medium tracking-wide text-textcolor transition-colors">
+          Visit<span className="text-emerald-500">Ceylon</span>
         </Link>
       </div>
       
-      <ul className="flex flex-1 gap-0 list-none">
+      {/* Desktop Links */}
+      <ul className="hidden md:flex flex-1 gap-0 list-none">
         {links.map((link) => {
           const isActive = pathname === link.href;
           return (
@@ -51,7 +55,8 @@ export default function Navbar() {
         })}
       </ul>
       
-      <div className="flex items-center gap-4 ml-auto">
+      {/* Desktop Controls */}
+      <div className="hidden md:flex items-center gap-4 ml-auto">
         <select 
           value={lang}
           onChange={(e) => setLang(e.target.value)}
@@ -70,6 +75,58 @@ export default function Navbar() {
           {theme === "dark" ? "☀ Light" : "☾ Dark"}
         </button>
       </div>
+
+      {/* Mobile Menu Button */}
+      <button 
+        className="md:hidden text-textcolor p-1"
+        onClick={() => setMobileOpen(!mobileOpen)}
+      >
+        {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Mobile Menu Overlay */}
+      {mobileOpen && (
+        <div className="absolute top-14 left-0 w-full h-[calc(100vh-56px)] bg-bg/95 backdrop-blur-xl border-b border-bordercolor flex flex-col items-center justify-center gap-6 p-6 md:hidden animate-[fadeIn_0.2s_ease-out]">
+          <ul className="flex flex-col items-center gap-6 w-full">
+            {links.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`text-lg font-medium tracking-widest uppercase transition-colors duration-200 ${
+                      isActive ? "text-emerald-500" : "text-muted hover:text-textcolor"
+                    }`}
+                  >
+                    {t(link.label)}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+          
+          <div className="flex gap-4 mt-8 pt-8 border-t border-bordercolor w-full justify-center">
+            <select 
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              className="bg-surface border border-bordercolor text-textcolor text-sm px-3 py-2 rounded outline-none"
+            >
+              <option value="en">EN</option>
+              <option value="fr">FR</option>
+              <option value="de">DE</option>
+              <option value="it">IT</option>
+            </select>
+            
+            <button 
+              onClick={toggleTheme}
+              className="bg-surface border border-bordercolor text-textcolor text-sm px-4 py-2 rounded"
+            >
+              {theme === "dark" ? "☀ Light" : "☾ Dark"} Mode
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

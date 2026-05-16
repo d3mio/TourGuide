@@ -9,11 +9,11 @@ export default function Profile() {
   const myReviews = reviews.filter((r) => r.isMine || r.name === 'Aanya Sharma' || reviews.indexOf(r) < 3);
 
   return (
-    <section className="max-w-7xl mx-auto px-8 py-16">
+    <section className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
       <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-3">{t("prof_eyebrow")}</div>
-      <h1 className="font-serif text-[2.5rem] mb-8">{t("prof_title")}</h1>
+      <h1 className="font-serif text-[2.2rem] md:text-[2.5rem] mb-6 md:mb-8">{t("prof_title")}</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 md:gap-8 items-start">
         {/* Sidebar */}
         <div className="bg-surface border border-bordercolor rounded-xl p-6 text-center">
           <div className="w-[72px] h-[72px] rounded-full bg-accentdim border-[1.5px] border-accent flex items-center justify-center font-serif text-[1.6rem] text-accent mx-auto mb-4">A</div>

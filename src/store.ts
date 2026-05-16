@@ -51,7 +51,7 @@ export const useAppStore = create<AppState>()(
       })
     }),
     {
-      name: 'ceylon-storage',
+      name: 'visitceylon-storage',
     }
   )
 );

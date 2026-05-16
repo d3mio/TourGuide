@@ -7,10 +7,10 @@ export default function Culture() {
   const { t } = useTranslation();
 
   return (
-    <section className="max-w-7xl mx-auto px-8 py-16">
+    <section className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
       <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-3">{t("cult_eyebrow")}</div>
-      <h1 className="font-serif text-[2.8rem] mb-2">{t("cult_title")}</h1>
-      <p className="text-[0.9rem] text-muted mb-10 max-w-[560px]">{t("cult_sub")}</p>
+      <h1 className="font-serif text-[2.2rem] md:text-[2.8rem] mb-2">{t("cult_title")}</h1>
+      <p className="text-[0.85rem] md:text-[0.9rem] text-muted mb-8 md:mb-10 max-w-[560px]">{t("cult_sub")}</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {CULTURE_ITEMS.map((c, i) => (

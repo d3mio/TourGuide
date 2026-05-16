@@ -31,14 +31,14 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="max-w-7xl mx-auto px-8">
-        <div className="py-24 md:py-32 grid grid-cols-1 md:grid-cols-[1fr_420px] gap-16 items-center border-b border-bordercolor">
+      <section className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="py-24 md:py-32 grid grid-cols-1 md:grid-cols-[1fr_420px] gap-12 md:gap-16 items-center border-b border-bordercolor">
           <div>
             <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-3">{t("home_eyebrow")}</div>
-            <h1 className="font-serif text-[clamp(3rem,6vw,5.5rem)] leading-[1.05] font-light tracking-tight mb-6">
+            <h1 className="font-serif text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.05] font-light tracking-tight mb-6">
               Sri Lanka:<br /><em className="text-accent not-italic">Ancient</em> Wonders,<br />Living Magic.
             </h1>
-            <p className="text-muted text-base leading-relaxed max-w-[480px] mb-10">
+            <p className="text-muted text-[0.95rem] md:text-base leading-relaxed max-w-[480px] mb-10">
               {t("home_sub")}
             </p>
             <Link
@@ -57,9 +57,9 @@ export default function Home() {
 
       {/* Marquee */}
       <div className="overflow-hidden border-b border-bordercolor py-4">
-        <div className="flex gap-12 animate-[marquee_28s_linear_infinite] whitespace-nowrap" style={{ width: "fit-content" }}>
+        <div className="flex gap-8 md:gap-12 animate-[marquee_28s_linear_infinite] whitespace-nowrap" style={{ width: "fit-content" }}>
           {doubledMarquee.map((item, i) => (
-            <div key={i} className="flex items-center gap-3 text-[0.8rem] text-muted">
+            <div key={i} className="flex items-center gap-2 md:gap-3 text-[0.75rem] md:text-[0.8rem] text-muted">
               <span className="text-textcolor font-medium">{item.name}</span>
               <span className="text-ambercolor">★</span>
               <span>{item.r}</span>
@@ -69,46 +69,46 @@ export default function Home() {
       </div>
 
       {/* Why Sri Lanka */}
-      <section className="max-w-7xl mx-auto px-8 py-16">
+      <section className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
         <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-3">{t("why_eyebrow")}</div>
-        <h2 className="font-serif text-4xl mb-8">{t("why_title")}</h2>
+        <h2 className="font-serif text-3xl md:text-4xl mb-6 md:mb-8">{t("why_title")}</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] auto-rows-auto gap-[1px] bg-bordercolor border border-bordercolor rounded-2xl overflow-hidden">
-          <div className="bg-surface hover:bg-bg transition-colors p-10 md:row-span-2">
+          <div className="bg-surface hover:bg-bg transition-colors p-6 md:p-10 md:row-span-2">
             <div className="text-3xl mb-4">🏛️</div>
-            <h3 className="font-serif text-2xl mb-2">{t("bento_heritage_title")}</h3>
+            <h3 className="font-serif text-[1.35rem] md:text-2xl mb-2">{t("bento_heritage_title")}</h3>
             <p className="text-[0.82rem] text-muted leading-relaxed mb-6">{t("bento_heritage_desc")}</p>
             <span className="inline-flex items-center px-3 py-1 rounded-full text-[0.7rem] tracking-[0.06em] font-medium uppercase border border-accent text-accent bg-accentdim">UNESCO × 8</span>
           </div>
-          <div className="bg-surface hover:bg-bg transition-colors p-8">
+          <div className="bg-surface hover:bg-bg transition-colors p-6 md:p-8">
             <div className="text-3xl mb-4">🌿</div>
-            <h3 className="font-serif text-[1.35rem] mb-2">{t("bento_bio_title")}</h3>
+            <h3 className="font-serif text-[1.25rem] md:text-[1.35rem] mb-2">{t("bento_bio_title")}</h3>
             <p className="text-[0.82rem] text-muted leading-relaxed">{t("bento_bio_desc")}</p>
           </div>
-          <div className="bg-surface hover:bg-bg transition-colors p-8">
+          <div className="bg-surface hover:bg-bg transition-colors p-6 md:p-8">
             <div className="text-3xl mb-4">🌊</div>
-            <h3 className="font-serif text-[1.35rem] mb-2">{t("bento_coast_title")}</h3>
+            <h3 className="font-serif text-[1.25rem] md:text-[1.35rem] mb-2">{t("bento_coast_title")}</h3>
             <p className="text-[0.82rem] text-muted leading-relaxed">{t("bento_coast_desc")}</p>
           </div>
-          <div className="bg-surface hover:bg-bg transition-colors p-8">
+          <div className="bg-surface hover:bg-bg transition-colors p-6 md:p-8">
             <div className="text-3xl mb-4">🫖</div>
-            <h3 className="font-serif text-[1.35rem] mb-2">{t("bento_hosp_title")}</h3>
+            <h3 className="font-serif text-[1.25rem] md:text-[1.35rem] mb-2">{t("bento_hosp_title")}</h3>
             <p className="text-[0.82rem] text-muted leading-relaxed">{t("bento_hosp_desc")}</p>
           </div>
-          <div className="bg-surface hover:bg-bg transition-colors p-8">
+          <div className="bg-surface hover:bg-bg transition-colors p-6 md:p-8">
             <div className="text-3xl mb-4">📸</div>
-            <h3 className="font-serif text-[1.35rem] mb-2">{t("bento_photo_title")}</h3>
+            <h3 className="font-serif text-[1.25rem] md:text-[1.35rem] mb-2">{t("bento_photo_title")}</h3>
             <p className="text-[0.82rem] text-muted leading-relaxed">{t("bento_photo_desc")}</p>
           </div>
         </div>
       </section>
 
       {/* Review Terminal */}
-      <section className="max-w-7xl mx-auto px-8 py-16 border-t border-bordercolor">
+      <section className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16 border-t border-bordercolor">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <div>
             <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-3">{t("reviews_eyebrow")}</div>
-            <h2 className="font-serif text-3xl">{t("reviews_title")}</h2>
+            <h2 className="font-serif text-2xl md:text-3xl">{t("reviews_title")}</h2>
           </div>
           <input 
             type="text" 

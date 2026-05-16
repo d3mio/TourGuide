@@ -34,13 +34,13 @@ export default function Experiences() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-8 py-16">
+    <section className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
       <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-3">{t("exppage_eyebrow")}</div>
-      <h1 className="font-serif text-[2.5rem] mb-8">{t("exppage_title")}</h1>
+      <h1 className="font-serif text-[2.2rem] md:text-[2.5rem] mb-6 md:mb-8">{t("exppage_title")}</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8 items-start">
         {/* Form */}
-        <div className="bg-surface border border-bordercolor rounded-xl p-6 sticky top-20">
+        <div className="bg-surface border border-bordercolor rounded-xl p-5 md:p-6 relative lg:sticky lg:top-20">
           <div className="mb-4">
             <label className="block text-[0.75rem] tracking-[0.06em] uppercase text-muted mb-1.5">{t("form_name")}</label>
             <input 
