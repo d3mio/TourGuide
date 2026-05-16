@@ -51,7 +51,7 @@ export default function Footer() {
           </p>
           <div className="flex gap-4">
             <span className="text-[0.75rem] text-muted tracking-wide">
-              Developed by <span className="text-textcolor font-medium">d3mio</span>
+              Developed by <a href="https://instagram.com/disas_10.20" target="_blank" rel="noopener noreferrer" className="text-textcolor font-medium hover:text-emerald-500 transition-colors">d3mio</a>
             </span>
           </div>
         </div>
