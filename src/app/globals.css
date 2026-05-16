@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  min-height: 100%;
+}
+
 :root {
   --bg: #09090b;
   --surface: #18181b;

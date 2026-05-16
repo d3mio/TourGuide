@@ -19,6 +19,17 @@ export const metadata: Metadata = {
   description: "An uncharted editorial journey through heritage citadels, emerald highlands, and shores that redefine the horizon.",
 };
 
+export const viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fafafa' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

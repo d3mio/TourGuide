@@ -17,6 +17,17 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (mounted) {
       document.documentElement.setAttribute('data-theme', theme);
+      
+      // Update theme-color meta tag dynamically
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) {
+        meta.setAttribute('content', theme === 'dark' ? '#09090b' : '#fafafa');
+      } else {
+        const newMeta = document.createElement('meta');
+        newMeta.name = 'theme-color';
+        newMeta.content = theme === 'dark' ? '#09090b' : '#fafafa';
+        document.head.appendChild(newMeta);
+      }
     }
   }, [theme, mounted]);
 
@@ -25,7 +36,7 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-[100dvh] bg-bg">
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
