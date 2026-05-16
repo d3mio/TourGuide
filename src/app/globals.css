@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #09090b;
+  --surface: #18181b;
+  --border: #27272a;
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --accent: #10b981;
+  --accent-dim: #064e3b;
+  --amber: #f59e0b;
+  --amber-dim: #78350f;
+}
+
+[data-theme="light"] {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e4e4e7;
+  --text: #09090b;
+  --muted: #71717a;
+  --accent: #059669;
+  --accent-dim: #d1fae5;
+  --amber: #d97706;
+  --amber-dim: #fef3c7;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-bordercolor: var(--border);
+  --color-textcolor: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accentdim: var(--accent-dim);
+  --color-ambercolor: var(--amber);
+  --color-amberdim: var(--amber-dim);
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-serif: var(--font-serif), Georgia, serif;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Custom slider thumb */
+input[type=range] {
+  -webkit-appearance: none; height: 3px;
+  background: var(--border); border-radius: 2px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+}
