@@ -63,7 +63,7 @@ export default function Home() {
         id="hero"
         className="relative min-h-[100svh] flex items-center pt-16 pb-12 md:pt-20 md:pb-16 overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-[#0e1626] to-[#090d16] pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-bg to-bg pointer-events-none z-0" />
         <div className="max-w-7xl mx-auto px-4 md:px-8 w-full grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-12 items-center relative z-10">
 
           {/* Text Content */}
@@ -77,19 +77,32 @@ export default function Home() {
             <p className="text-muted text-[0.92rem] md:text-[1.05rem] leading-relaxed max-w-[520px] mb-8">
               {t("hero_sub")}
             </p>
-            {/* CTA Pill */}
-            <div className="flex items-center bg-surface/85 border border-bordercolor rounded-full p-1 pl-4 sm:pl-6 pr-1 shadow-lg backdrop-blur-md w-fit max-w-full">
-              <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-muted uppercase mr-3 sm:mr-6 hidden xs:inline-block sm:inline-block">
-                Customize Your Tour
-              </span>
-              <Link
-                href="/planner"
-                className="px-5 sm:px-6 py-2.5 bg-accent hover:opacity-85 text-white font-medium uppercase tracking-[0.06em] text-[0.7rem] rounded-full transition-all duration-200 shadow-md shadow-accent/20 cursor-pointer whitespace-nowrap"
+            {/* CTA Pill & Watch Film */}
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex items-center bg-surface/85 border border-bordercolor rounded-full p-1 pl-4 sm:pl-6 pr-1 shadow-lg backdrop-blur-md w-fit max-w-full">
+                <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-muted uppercase mr-3 sm:mr-6 hidden xs:inline-block sm:inline-block">
+                  {t("hero_cta_label")}
+                </span>
+                <Link
+                  href="/planner"
+                  className="px-5 sm:px-6 py-2.5 bg-accent hover:opacity-85 text-white font-medium uppercase tracking-[0.06em] text-[0.7rem] rounded-full transition-all duration-200 shadow-md shadow-accent/20 cursor-pointer whitespace-nowrap"
+                >
+                  {t("hero_cta_btn")}
+                </Link>
+              </div>
+
+              <button
+                onClick={() => window.dispatchEvent(new Event("replay-splash"))}
+                className="flex items-center gap-2 px-5 py-2.5 bg-surface/60 hover:bg-surface/85 border border-bordercolor hover:border-accent/40 text-textcolor font-medium uppercase tracking-[0.08em] text-[0.7rem] rounded-full transition-all duration-200 cursor-pointer shadow-md backdrop-blur-md"
               >
-                Craft Custom Journey
-              </Link>
+                <svg className="w-3 h-3 fill-accent text-accent" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                <span>{t("watch_intro")}</span>
+              </button>
             </div>
           </div>
+
 
           {/* Interactive Split-Screen Image Slider */}
           <div className="w-full mt-4 lg:mt-0">

@@ -1,45 +1,93 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useAppStore } from '@/store';
-import Navbar from './Navbar';
-
-import Footer from './Footer';
+import { useEffect, useState } from "react";
+import { useAppStore } from "@/store";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
+import SplashIntro from "./SplashIntro";
 
 export default function ClientWrapper({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
   const theme = useAppStore((state) => state.theme);
+  const lang = useAppStore((state) => state.lang);
 
+  // Mark mounted and check splash screen
   useEffect(() => {
     setMounted(true);
+    const hasSeen = sessionStorage.getItem("hasSeenSplash");
+    if (hasSeen !== "true") {
+      setShowSplash(true);
+    }
   }, []);
 
+  // Listen for replay requests
   useEffect(() => {
-    if (mounted) {
-      document.documentElement.setAttribute('data-theme', theme);
-      
-      // Update theme-color meta tag dynamically
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) {
-        meta.setAttribute('content', theme === 'dark' ? '#09090b' : '#fafafa');
-      } else {
-        const newMeta = document.createElement('meta');
-        newMeta.name = 'theme-color';
-        newMeta.content = theme === 'dark' ? '#09090b' : '#fafafa';
-        document.head.appendChild(newMeta);
-      }
+    const handleReplay = () => {
+      setShowSplash(true);
+    };
+    window.addEventListener("replay-splash", handleReplay);
+    return () => {
+      window.removeEventListener("replay-splash", handleReplay);
+    };
+  }, []);
+
+  // Lock scroll when splash is active
+  useEffect(() => {
+    if (showSplash) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
     }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showSplash]);
+
+  // Apply theme to <html> data-theme attribute
+  useEffect(() => {
+    if (!mounted) return;
+    document.documentElement.setAttribute("data-theme", theme);
+
+    // Update browser theme-color meta tag
+    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "theme-color";
+      document.head.appendChild(meta);
+    }
+    meta.content = theme === "dark" ? "#09090b" : "#f5f5f7";
   }, [theme, mounted]);
 
+  // Apply lang to <html lang=""> attribute for accessibility + SEO
+  useEffect(() => {
+    if (!mounted) return;
+    document.documentElement.setAttribute("lang", lang);
+  }, [lang, mounted]);
+
+  // Prevent showing wrong theme flash before mount
   if (!mounted) {
-    return <div className="invisible">{children}</div>; // Prevent hydration flash
+    return (
+      <div style={{ visibility: "hidden", pointerEvents: "none" }}>
+        {children}
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-bg">
+    <div className="flex flex-col min-h-[100dvh] bg-bg text-textcolor transition-colors duration-300">
+      {showSplash && (
+        <SplashIntro
+          onComplete={() => {
+            setShowSplash(false);
+            sessionStorage.setItem("hasSeenSplash", "true");
+          }}
+        />
+      )}
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
     </div>
   );
 }
+

@@ -1,9 +1,13 @@
 @import "tailwindcss";
 
+/* =========================================
+   BASE RESET
+   ========================================= */
 html, body {
   margin: 0;
   padding: 0;
   background-color: var(--bg);
+  color: var(--text);
   min-height: 100%;
   overflow-x: hidden;
 }
@@ -12,36 +16,62 @@ html, body {
   box-sizing: border-box;
 }
 
-
+/* =========================================
+   THEME TOKENS — DARK (default)
+   ========================================= */
 :root {
   --bg: #09090b;
   --surface: #18181b;
+  --surface2: #1c1c1f;
   --border: #27272a;
   --text: #f4f4f5;
+  --text-dim: #d4d4d8;
   --muted: #a1a1aa;
   --accent: #10b981;
   --accent-dim: #064e3b;
+  --accent-glow: rgba(16, 185, 129, 0.35);
   --amber: #f59e0b;
   --amber-dim: #78350f;
+  --overlay-bg: rgba(9, 9, 11, 0.78);
+  --overlay-strong: rgba(9, 9, 11, 0.92);
+  --gradient-panel: rgba(9, 9, 11, 0.97);
+  --shadow-card: 0 4px 32px rgba(0, 0, 0, 0.45);
+  --shadow-accent: 0 4px 24px rgba(16, 185, 129, 0.2);
 }
 
+/* =========================================
+   THEME TOKENS — LIGHT
+   ========================================= */
 [data-theme="light"] {
-  --bg: #fafafa;
+  --bg: #f5f5f7;
   --surface: #ffffff;
-  --border: #e4e4e7;
+  --surface2: #f0f0f3;
+  --border: #d1d1d6;
   --text: #09090b;
-  --muted: #71717a;
+  --text-dim: #3f3f46;
+  --muted: #6b6b72;
   --accent: #059669;
   --accent-dim: #d1fae5;
-  --amber: #d97706;
+  --accent-glow: rgba(5, 150, 105, 0.18);
+  --amber: #b45309;
   --amber-dim: #fef3c7;
+  --overlay-bg: rgba(245, 245, 247, 0.82);
+  --overlay-strong: rgba(245, 245, 247, 0.96);
+  --gradient-panel: rgba(15, 15, 20, 0.94);
+  --shadow-card: 0 4px 32px rgba(0, 0, 0, 0.10);
+  --shadow-accent: 0 4px 24px rgba(5, 150, 105, 0.12);
 }
 
+/* =========================================
+   TAILWIND COLOR BRIDGE
+   ========================================= */
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
   --color-bordercolor: var(--border);
   --color-textcolor: var(--text);
+  --color-textdim: var(--text-dim);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accentdim: var(--accent-dim);
@@ -51,40 +81,47 @@ html, body {
   --font-serif: var(--font-serif), Georgia, serif;
 }
 
+/* =========================================
+   SCROLLBAR
+   ========================================= */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-/* Custom slider thumb */
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* =========================================
+   RANGE INPUT
+   ========================================= */
 input[type=range] {
   -webkit-appearance: none; height: 3px;
   background: var(--border); border-radius: 2px; outline: none;
 }
 input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 16px; height: 16px;
+  -webkit-appearance: none; width: 18px; height: 18px;
   border-radius: 50%; background: var(--accent); cursor: pointer;
+  box-shadow: 0 0 6px var(--accent-glow);
 }
 
-/* Hide scrollbar for clean mobile layouts */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* =========================================
+   TRANSITIONS — theme change smoothing
+   ========================================= */
+body, .bg-bg, .bg-surface, .text-textcolor, .text-muted,
+.border-bordercolor, nav, footer, section, article {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* ==========================================================================
-   Custom Redesign Styles - Slider, Drawers & Customizer
-   ========================================================================== */
-
-/* Split-Screen Slider */
+/* =========================================
+   SPLIT-SCREEN SLIDER
+   ========================================= */
 .split-slider-wrapper {
   position: relative;
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-card);
   border: 1px solid var(--border);
   aspect-ratio: 4/3;
 }
@@ -120,39 +157,29 @@ input[type=range]::-webkit-slider-thumb {
   pointer-events: none;
 }
 
-.panel-right {
-  z-index: 1;
-}
+.panel-right { z-index: 1; }
+.panel-left { z-index: 2; border-right: 0px solid transparent; }
 
-.panel-left {
-  z-index: 2;
-  border-right: 0px solid transparent;
-}
-
-/* Overriding image position to align them perfectly */
 .split-slider .slider-panel img {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
 }
 
+/* Panel overlay — always dark gradient regardless of theme (photo background) */
 .panel-overlay-content {
   position: absolute;
   bottom: 0;
   width: 100%;
   padding: 1.25rem 1rem;
-  background: linear-gradient(180deg, transparent 0%, rgba(9, 9, 11, 0.95) 100%);
+  background: linear-gradient(180deg, transparent 0%, var(--gradient-panel) 100%);
   z-index: 3;
   pointer-events: none;
 }
 
 @media (min-width: 640px) {
-  .panel-overlay-content {
-    padding: 2.5rem 2rem;
-  }
+  .panel-overlay-content { padding: 2.5rem 2rem; }
 }
 
 .slider-handle {
@@ -175,33 +202,33 @@ input[type=range]::-webkit-slider-thumb {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--bg);
+  background: var(--surface);
   border: 2px solid var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--accent);
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 12px var(--accent-glow);
   font-size: 0.85rem;
   cursor: ew-resize;
   touch-action: none;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.3s ease;
 }
 
 .slider-handle:hover .handle-circle {
   transform: scale(1.1);
 }
 
-/* Slide Drawer Overlay */
+/* =========================================
+   DRAWER (Culture pillar slide panel)
+   ========================================= */
 .drawer-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(9, 9, 11, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 2000;
   opacity: 0;
   pointer-events: none;
@@ -215,14 +242,13 @@ input[type=range]::-webkit-slider-thumb {
 
 .drawer {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 0; right: 0;
   width: 100%;
   max-width: 500px;
   height: 100%;
   background: var(--surface);
   border-left: 1px solid var(--border);
-  box-shadow: -10px 0 45px rgba(0, 0, 0, 0.5);
+  box-shadow: -10px 0 50px rgba(0, 0, 0, 0.3);
   padding: 3rem 2rem;
   overflow-y: auto;
   transform: translateX(100%);
@@ -231,7 +257,6 @@ input[type=range]::-webkit-slider-thumb {
   flex-direction: column;
 }
 
-/* Mobile: drawer takes full width */
 @media (max-width: 640px) {
   .drawer {
     max-width: 100%;
@@ -243,13 +268,10 @@ input[type=range]::-webkit-slider-thumb {
   transform: translateX(0);
 }
 
-/* Drawer close button */
 .drawer-close-btn {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 2rem;
-  height: 2rem;
+  top: 1rem; right: 1rem;
+  width: 2.25rem; height: 2.25rem;
   border-radius: 50%;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -262,44 +284,21 @@ input[type=range]::-webkit-slider-thumb {
   z-index: 10;
 }
 .drawer-close-btn:hover {
-  background: var(--surface);
+  background: var(--surface2);
   color: var(--text);
   border-color: var(--accent);
 }
 
-/* Animations */
-@keyframes pulse-accent-glow {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-.pulse-glow {
-  animation: pulse-accent-glow 2s infinite;
-}
-
-@keyframes draw-path {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-.animated-route-path {
-  stroke-dasharray: 8;
-  stroke-dashoffset: 80;
-  animation: draw-path 3s linear infinite;
-}
-
-/* Modal Overlay */
+/* =========================================
+   MODAL OVERLAY
+   ========================================= */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(9, 9, 11, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--overlay-strong);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   z-index: 3000;
   display: flex;
   align-items: center;
@@ -316,13 +315,75 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 .modal-card {
-  transform: scale(0.95);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  transform: translateY(12px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
+  max-width: 440px;
+  border-radius: 1.25rem;
+  padding: 2rem;
 }
 
 .modal-overlay.open .modal-card {
-  transform: scale(1);
+  transform: translateY(0) scale(1);
 }
 
+/* =========================================
+   ANIMATIONS
+   ========================================= */
+@keyframes pulse-accent-glow {
+  0%   { box-shadow: 0 0 0 0 var(--accent-glow); }
+  70%  { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
 
+.pulse-glow { animation: pulse-accent-glow 2.2s ease-out infinite; }
+
+@keyframes draw-path {
+  to { stroke-dashoffset: 0; }
+}
+
+.animated-route-path {
+  stroke-dasharray: 8;
+  stroke-dashoffset: 80;
+  animation: draw-path 3s linear infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   LIGHT MODE: Special overrides for
+   components that use dark hardcoded styles
+   ========================================= */
+
+/* Navbar backdrop in light mode */
+[data-theme="light"] nav {
+  background: rgba(245, 245, 247, 0.88);
+}
+
+/* Cards that use bg-surface/30 — in light this needs a border lift */
+[data-theme="light"] .bg-surface\/30 {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Select / input elements */
+[data-theme="light"] select,
+[data-theme="light"] input,
+[data-theme="light"] textarea {
+  color-scheme: light;
+}
+
+/* Amber badge text contrast in light */
+[data-theme="light"] .text-amber-500 {
+  color: var(--amber);
+}
+
+/* Pillar cards with background images — overlay stays dark for readability */
+[data-theme="light"] .group.relative.h-\[280px\] .absolute.inset-0 {
+  /* photo cards — overlay unchanged */
+}

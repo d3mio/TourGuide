@@ -16,18 +16,17 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   title: "Sri Lankan Serendib Tours",
-  description: "An uncharted editorial journey through heritage citadels, emerald highlands, and shores that redefine the horizon.",
+  description:
+    "An uncharted editorial journey through heritage citadels, emerald highlands, and shores that redefine the horizon.",
 };
 
 export const viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fafafa' },
-    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+    { media: "(prefers-color-scheme: light)", color: "#f5f5f7" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
   ],
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({
@@ -36,11 +35,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="dark">
-      <body className={`${dmSans.variable} ${cormorant.variable} font-sans antialiased bg-bg text-textcolor transition-colors duration-400`}>
-        <ClientWrapper>
-          {children}
-        </ClientWrapper>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Inline script: sets data-theme BEFORE first paint to avoid flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var stored = localStorage.getItem('visitceylon-storage');
+                  var theme = 'dark';
+                  if (stored) {
+                    var parsed = JSON.parse(stored);
+                    if (parsed && parsed.state && parsed.state.theme) {
+                      theme = parsed.state.theme;
+                    }
+                  }
+                  document.documentElement.setAttribute('data-theme', theme);
+                } catch(e) {
+                  document.documentElement.setAttribute('data-theme', 'dark');
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body
+        className={`${dmSans.variable} ${cormorant.variable} font-sans antialiased bg-bg text-textcolor`}
+      >
+        <ClientWrapper>{children}</ClientWrapper>
       </body>
     </html>
   );
