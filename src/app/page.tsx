@@ -275,19 +275,19 @@ export default function Home() {
             <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-accent/10 filter blur-[80px] rounded-full pointer-events-none" />
 
             <span className="text-[0.68rem] tracking-[0.2em] uppercase text-accent font-bold mb-4 block">
-              Bespoke Planner
+              {t("home_cta_eyebrow")}
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl md:text-5xl text-textcolor mb-5 md:mb-6 leading-tight">
               {t("customizer_title")}
             </h2>
             <p className="text-muted text-xs md:text-sm leading-relaxed max-w-xl mx-auto mb-7 md:mb-8 px-2">
-              Every traveler&apos;s pace is different. Tailor this travel plan directly by adjusting the duration, picking pillars that appeal to your interests, setting your budget, and letting our island experts craft your personal dream itinerary.
+              {t("home_cta_desc")}
             </p>
             <Link
               href="/planner"
               className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-accent hover:opacity-85 text-white font-medium uppercase tracking-wider text-[0.72rem] sm:text-xs rounded-xl shadow-lg shadow-accent/25 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
             >
-              Customize Now <ArrowRight className="w-4 h-4" />
+              {t("home_cta_btn_customize")} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>

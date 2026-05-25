@@ -124,12 +124,12 @@ function PlannerContent() {
   const packageMeta = useMemo(() => {
     const p = activePackage;
     return {
-      audience: `${p.tags[0]} / ${p.tags[1]}`,
+      audience: `${t(p.tags[0])} / ${t(p.tags[1])}`,
       cost:
-        p.tags[2] === "Budget" ? "Budget ($)" :
-        p.tags[2] === "Comfort" ? "Comfort ($$)" :
-        p.tags[2] === "Luxury" ? "Luxury ($$$)" : "Ultra-Lux ($$$$)",
-      duration: `${p.itinerary.length} ${t("plan_duration") || "Days"}`,
+        p.tags[2] === "Budget" ? t("Budget ($)") :
+        p.tags[2] === "Comfort" ? t("Comfort ($$)") :
+        p.tags[2] === "Luxury" ? t("Luxury ($$$)") : t("Ultra-Lux ($$$$)"),
+      duration: `${p.itinerary.length} ${t("days") || "Days"}`,
     };
   }, [activePackage, t]);
 
@@ -164,19 +164,22 @@ function PlannerContent() {
 
   const lodgingSummary = useMemo(() => {
     const styles = selectedLodgingStyles.length > 0
-      ? selectedLodgingStyles.map((k) => LODGE_OPTIONS.find((o) => o.key === k)?.name).filter(Boolean).join(", ")
-      : "Standard";
-    return `${styles} ${usePartnerLodging ? "(Partner Network)" : "(Independent)"}`;
-  }, [selectedLodgingStyles, usePartnerLodging]);
+      ? selectedLodgingStyles.map((k) => t(LODGE_OPTIONS.find((o) => o.key === k)?.name || "")).filter(Boolean).join(", ")
+      : t("Standard") || "Standard";
+    const partnerText = usePartnerLodging 
+      ? `(${t("partner_network") || "Partner Network"})` 
+      : `(${t("independent") || "Independent"})`;
+    return `${styles} ${partnerText}`;
+  }, [selectedLodgingStyles, usePartnerLodging, t]);
 
   const modalData = [
-    [t("modal_destinations"), selectedDestinations.join(", ") || "—"],
-    [t("modal_budget"), budgetTier],
-    [t("modal_themes"), selectedThemes.join(", ") || "None"],
-    [t("modal_duration"), `${tripDuration} Days`],
-    [t("modal_companions"), companions || "—"],
+    [t("modal_destinations"), selectedDestinations.map(d => t(d)).join(", ") || "—"],
+    [t("modal_budget"), t(budgetTier)],
+    [t("modal_themes"), selectedThemes.map(th => t(th)).join(", ") || "None"],
+    [t("modal_duration"), `${tripDuration} ${t("days")}`],
+    [t("modal_companions"), t(`plan_cohort_${companions.toLowerCase()}`) || companions || "—"],
     [t("modal_lodging"), lodgingSummary],
-    [t("modal_activities"), selectedActivities.join(", ") || "None"],
+    [t("modal_activities"), selectedActivities.map(a => t(a)).join(", ") || "None"],
     [t("modal_saved"), t("modal_saved_val")],
   ];
 
@@ -218,7 +221,7 @@ function PlannerContent() {
                     : "text-muted hover:text-textcolor"
                 }`}
               >
-                {tier}
+                {t(tier)}
               </button>
             ))}
           </div>
@@ -244,7 +247,7 @@ function PlannerContent() {
                       className={pt.type === "start" ? "pulse-glow" : ""}
                     />
                     <text x={pt.x + 4.5} y={pt.y + 1} fill="var(--muted)" fontSize="3.2" fontWeight="600" fontFamily="system-ui">
-                      {pt.name}
+                      {t(pt.name)}
                     </text>
                   </g>
                 ))}
@@ -266,9 +269,9 @@ function PlannerContent() {
               </span>
             </div>
 
-            <h4 className="font-serif text-base md:text-lg text-textcolor">{activePackage.name}</h4>
-            <p className="text-muted text-[0.78rem] leading-relaxed">{activePackage.desc}</p>
-
+            <h4 className="font-serif text-base md:text-lg text-textcolor">{t(activePackage.name)}</h4>
+            <p className="text-muted text-[0.78rem] leading-relaxed">{t(activePackage.desc)}</p>
+ 
             <div className="border-t border-bordercolor pt-3">
               <h5 className="text-[0.65rem] tracking-[0.08em] uppercase font-bold text-accent mb-2">
                 {t("plan_highlights")}:
@@ -277,18 +280,18 @@ function PlannerContent() {
                 {activePackage.itinerary.map((day, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-[0.72rem] text-muted leading-relaxed">
                     <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0 mt-0.5" />
-                    <span>{day}</span>
+                    <span>{t(day)}</span>
                   </li>
                 ))}
               </ul>
             </div>
-
+ 
             <div className="border-l-2 border-accent/40 pl-3 py-1">
               <span className="block text-[0.62rem] uppercase tracking-wider text-muted font-bold mb-0.5">
                 {t("plan_lodging_transit")}
               </span>
               <p className="text-[0.68rem] text-muted leading-relaxed">
-                {activePackage.accommodation} · {activePackage.transport}
+                {t(activePackage.accommodation)} · {t(activePackage.transport)}
               </p>
             </div>
           </div>
@@ -324,7 +327,7 @@ function PlannerContent() {
                               : "border-bordercolor text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"
                           }`}
                         >
-                          {d}
+                          {t(d)}
                         </button>
                       );
                     })}
@@ -349,7 +352,7 @@ function PlannerContent() {
                               : "border-bordercolor text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"
                           }`}
                         >
-                          {theme}
+                          {t(theme)}
                         </button>
                       );
                     })}
@@ -377,7 +380,7 @@ function PlannerContent() {
                           }`}>
                             {isSelected ? "✓" : ""}
                           </div>
-                          <span className="text-[0.68rem] font-semibold text-textcolor leading-tight">{a}</span>
+                          <span className="text-[0.68rem] font-semibold text-textcolor leading-tight">{t(a)}</span>
                         </div>
                       );
                     })}
@@ -393,7 +396,7 @@ function PlannerContent() {
                     <label className="text-[0.65rem] font-bold uppercase tracking-wider text-muted">
                       {t("plan_duration")}
                     </label>
-                    <strong className="text-xs font-serif text-accent">{tripDuration} Days</strong>
+                    <strong className="text-xs font-serif text-accent">{tripDuration} {t("days")}</strong>
                   </div>
                   <input
                     type="range" min="3" max="28"
@@ -446,7 +449,7 @@ function PlannerContent() {
                           }`}>
                             <l.Icon className="w-3.5 h-3.5" />
                           </div>
-                          <span className="text-[0.65rem] font-semibold text-textcolor truncate">{l.name}</span>
+                          <span className="text-[0.65rem] font-semibold text-textcolor truncate">{t(l.name)}</span>
                         </div>
                       );
                     })}

@@ -73,9 +73,9 @@ export default function Profile() {
             <div className="text-center sm:text-left lg:text-center">
               <h2 className="text-xl font-serif text-textcolor mb-1">Aanya Sharma</h2>
               <span className="inline-flex items-center px-3 py-0.5 rounded-full text-[0.65rem] tracking-wider font-bold border border-accent/20 text-accent bg-accentdim/15 uppercase">
-                Explorer Elite
+                {t("Explorer Elite")}
               </span>
-              <p className="text-xs text-muted mt-2">Colombo, Sri Lanka</p>
+              <p className="text-xs text-muted mt-2">{t("Colombo, Sri Lanka")}</p>
             </div>
           </div>
 
@@ -83,15 +83,15 @@ export default function Profile() {
           <div className="grid grid-cols-3 gap-2 py-4 mb-5 border-y border-bordercolor text-center">
             <div>
               <span className="block text-lg font-bold text-textcolor">{drafts.length}</span>
-              <span className="text-[0.62rem] text-muted uppercase">Drafts</span>
+              <span className="text-[0.62rem] text-muted uppercase">{t("Drafts")}</span>
             </div>
             <div>
               <span className="block text-lg font-bold text-textcolor">{wishlist.length}</span>
-              <span className="text-[0.62rem] text-muted uppercase">Saved</span>
+              <span className="text-[0.62rem] text-muted uppercase">{t("Saved")}</span>
             </div>
             <div>
               <span className="block text-lg font-bold text-textcolor">{myReviews.length}</span>
-              <span className="text-[0.62rem] text-muted uppercase">Reviews</span>
+              <span className="text-[0.62rem] text-muted uppercase">{t("Reviews")}</span>
             </div>
           </div>
 
@@ -102,7 +102,7 @@ export default function Profile() {
               return (
                 <span key={tag.label} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.72rem] border border-bordercolor text-muted">
                   <Icon className="w-3.5 h-3.5 text-accent" />
-                  {tag.label}
+                  {t(tag.label)}
                 </span>
               );
             })}
@@ -118,7 +118,7 @@ export default function Profile() {
             <div>
               <div className="text-[0.68rem] tracking-[0.1em] uppercase text-textcolor font-bold mb-4 pb-2 border-b border-bordercolor flex items-center justify-between">
                 <span>{t("prof_drafts") || "Saved Trip Drafts"}</span>
-                <span className="text-[0.62rem] bg-accentdim/20 text-accent px-2 py-0.5 rounded font-bold uppercase">{drafts.length} Drafts</span>
+                <span className="text-[0.62rem] bg-accentdim/20 text-accent px-2 py-0.5 rounded font-bold uppercase">{drafts.length} {t("Drafts")}</span>
               </div>
               
               {drafts.length > 0 ? (
@@ -146,12 +146,12 @@ export default function Profile() {
               </div>
               <div className="divide-y divide-bordercolor">
                 <div className="flex items-center justify-between py-3 text-xs md:text-sm first:pt-0">
-                  <span className="font-medium text-textcolor">Cultural Heritage Circuit (10 Days)</span>
-                  <span className="inline-flex px-2.5 py-0.5 rounded text-[0.62rem] tracking-wider font-bold border border-accent/20 text-accent bg-accentdim/15 uppercase">Done</span>
+                  <span className="font-medium text-textcolor">{t("Cultural Heritage Circuit (10 Days)")}</span>
+                  <span className="inline-flex px-2.5 py-0.5 rounded text-[0.62rem] tracking-wider font-bold border border-accent/20 text-accent bg-accentdim/15 uppercase">{t("Done")}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 text-xs md:text-sm last:pb-0">
-                  <span className="font-medium text-textcolor">Southern Coastal Retreat (7 Days)</span>
-                  <span className="inline-flex px-2.5 py-0.5 rounded text-[0.62rem] tracking-wider font-bold border border-accent/20 text-accent bg-accentdim/15 uppercase">Done</span>
+                  <span className="font-medium text-textcolor">{t("Southern Coastal Retreat (7 Days)")}</span>
+                  <span className="inline-flex px-2.5 py-0.5 rounded text-[0.62rem] tracking-wider font-bold border border-accent/20 text-accent bg-accentdim/15 uppercase">{t("Done")}</span>
                 </div>
               </div>
             </div>
@@ -178,8 +178,8 @@ export default function Profile() {
                           <img src={imageSrc} alt={w} className="w-full h-full object-cover" />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-semibold text-xs text-textcolor truncate">{w}</h4>
-                          <span className="text-[0.62rem] uppercase font-bold text-accent bg-accentdim/10 px-2 py-0.5 rounded">Saved</span>
+                          <h4 className="font-semibold text-xs text-textcolor truncate">{t(w)}</h4>
+                          <span className="text-[0.62rem] uppercase font-bold text-accent bg-accentdim/10 px-2 py-0.5 rounded">{t("Saved")}</span>
                         </div>
                       </div>
                       

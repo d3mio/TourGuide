@@ -45,11 +45,13 @@ export default function Explore() {
     ? Object.entries(PROVINCES).flatMap(([prov, list]) => list.map(p => ({ ...p, prov })))
     : (PROVINCES[currentProvince] || []).map(p => ({ ...p, prov: currentProvince }));
 
-  const filteredPlaces = places.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    p.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.prov.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredPlaces = places.filter(p => {
+    const name = t(p.name).toLowerCase();
+    const desc = t(p.desc).toLowerCase();
+    const prov = t(p.prov).toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return name.includes(query) || desc.includes(query) || prov.includes(query);
+  });
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-24">
@@ -80,7 +82,7 @@ export default function Explore() {
                   : "border-bordercolor text-muted hover:border-accent/40 hover:text-textcolor bg-surface/30"
               }`}
             >
-              {p}
+              {p === "All" ? (t("All") || "All") : t(p)}
             </button>
           ))}
         </div>
@@ -125,7 +127,7 @@ export default function Explore() {
                   
                   {/* Category Pill */}
                   <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded bg-surface/90 backdrop-blur-sm text-[0.68rem] tracking-wider font-semibold text-accent uppercase border border-bordercolor">
-                    <MapPin className="w-3 h-3" /> {p.prov}
+                    <MapPin className="w-3 h-3" /> {t(p.prov)}
                   </span>
 
                   {/* Wishlist Toggle Heart Button */}
@@ -143,14 +145,14 @@ export default function Explore() {
                 {/* Card Info Content */}
                 <div className="p-6 flex-1 flex flex-col">
                   <div className="flex items-center justify-between mb-3.5">
-                    <h3 className="text-xl font-serif text-textcolor">{p.name}</h3>
+                    <h3 className="text-xl font-serif text-textcolor">{t(p.name)}</h3>
                     <span className="flex items-center gap-1 text-[0.8rem] font-bold text-amber-500">
                       <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> {p.rating}
                     </span>
                   </div>
                   
                   <p className="text-xs md:text-[0.82rem] text-muted leading-relaxed mb-6 flex-1">
-                    {p.desc}
+                    {t(p.desc)}
                   </p>
 
                   <Link 
@@ -191,24 +193,24 @@ export default function Explore() {
                 </div>
 
                 <div className="mb-4 pr-16">
-                  <h3 className="font-serif text-xl md:text-2xl text-textcolor mb-1">{ex.title}</h3>
+                  <h3 className="font-serif text-xl md:text-2xl text-textcolor mb-1">{t(ex.title)}</h3>
                   <span className="inline-flex items-center gap-1 text-[0.72rem] text-accent font-semibold bg-accentdim/15 px-2 py-0.5 rounded">
                     <Clock className="w-3.5 h-3.5" /> {ex.duration}
                   </span>
                 </div>
 
                 <p className="text-muted text-xs md:text-[0.82rem] leading-relaxed mb-6 flex-grow">
-                  {ex.desc}
+                  {t(ex.desc)}
                 </p>
 
                 <div className="w-full flex flex-wrap gap-4 border-t border-bordercolor pt-4 mb-4">
                   <div className="flex items-center gap-1.5 text-xs text-muted">
                     <MapPin className="w-3.5 h-3.5 text-accent" />
-                    <span><strong>Stops:</strong> {ex.stops.split(', ').slice(0, 2).join(', ')}</span>
+                    <span><strong>{t("stops")}:</strong> {ex.stops.split(', ').slice(0, 2).map(s => t(s)).join(', ')}</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-xs text-muted">
                     <Compass className="w-3.5 h-3.5 text-accent" />
-                    <span><strong>Drive:</strong> {ex.travelInfo.split(' (')[0]}</span>
+                    <span><strong>{t("drive")}:</strong> {ex.travelInfo.split(' (')[0]}</span>
                   </div>
                 </div>
 
@@ -217,7 +219,7 @@ export default function Explore() {
                     onClick={() => setExpandedExcursion(isExpanded ? null : ex.id)}
                     className="text-xs font-bold text-accent hover:text-textcolor transition-colors flex items-center gap-1 cursor-pointer bg-transparent border-0 outline-none"
                   >
-                    {isExpanded ? "Hide Itinerary" : "View Full Itinerary"}
+                    {isExpanded ? t("ex_hide_itinerary") : t("ex_view_itinerary")}
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
                   
@@ -225,14 +227,14 @@ export default function Explore() {
                     href={`/planner?notes=${encodeURIComponent(`I am interested in booking the one-day excursion: ${ex.title}.`)}`}
                     className="text-[0.7rem] font-bold uppercase tracking-wider text-textcolor border border-bordercolor hover:border-accent hover:text-accent px-3 py-1.5 rounded transition-all duration-200"
                   >
-                    Book Now
+                    {t("ex_book_now")}
                   </Link>
                 </div>
 
                 {/* Expanded Timeline details */}
                 {isExpanded && (
                   <div className="w-full border-t border-dashed border-bordercolor mt-5 pt-5 animate-[fadeIn_0.3s_ease]">
-                    <h5 className="text-[0.75rem] font-bold uppercase tracking-wider text-amber-500 mb-3.5">Hour-By-Hour Route Plan</h5>
+                    <h5 className="text-[0.75rem] font-bold uppercase tracking-wider text-amber-500 mb-3.5">{t("ex_route_plan")}</h5>
                     <div className="relative pl-4 border-l border-bordercolor flex flex-col gap-4">
                       {ex.itinerary.map((item, idx) => (
                         <div key={idx} className="relative flex flex-col sm:flex-row gap-1 sm:gap-4 items-start text-[0.8rem]">

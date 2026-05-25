@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { DICTIONARIES } from './data/dictionaries';
+import { CONTENT_TRANSLATIONS } from './data/contentTranslations';
 import { Review } from './data/mockData';
 import { INITIAL_REVIEWS } from './data/mockData';
 
@@ -59,7 +60,14 @@ export const useAppStore = create<AppState>()(
 export function useTranslation() {
   const lang = useAppStore((state) => state.lang);
   const t = (key: string) => {
-    return DICTIONARIES[lang]?.[key] || DICTIONARIES['en'][key] || key;
+    if (!key) return '';
+    return (
+      DICTIONARIES[lang]?.[key] || 
+      DICTIONARIES['en']?.[key] || 
+      CONTENT_TRANSLATIONS[lang]?.[key] || 
+      CONTENT_TRANSLATIONS['en']?.[key] || 
+      key
+    );
   };
   return { t, lang };
 }

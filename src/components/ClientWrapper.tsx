@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { useAppStore } from "@/store";
+import { useAppStore, useTranslation } from "@/store";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SplashIntro from "./SplashIntro";
@@ -12,6 +12,7 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   const [showSplash, setShowSplash] = useState(false);
   const theme = useAppStore((state) => state.theme);
   const lang = useAppStore((state) => state.lang);
+  const { t } = useTranslation();
   
   const pathname = usePathname();
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -88,11 +89,20 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
     meta.content = theme === "dark" ? "#09090b" : "#f5f5f7";
   }, [theme, mounted]);
 
-  // Apply lang to <html lang=""> attribute for accessibility + SEO
+  // Apply lang, page title, and meta description for accessibility + SEO
   useEffect(() => {
     if (!mounted) return;
     document.documentElement.setAttribute("lang", lang);
-  }, [lang, mounted]);
+    document.title = t("meta_title");
+
+    let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = t("meta_description");
+  }, [lang, mounted, t]);
 
   // Prevent showing wrong theme flash before mount
   if (!mounted) {

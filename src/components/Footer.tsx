@@ -36,13 +36,13 @@ export default function Footer() {
               </div>
             </Link>
             <p className="text-[0.85rem] text-muted leading-relaxed max-w-[320px]">
-              An uncharted editorial journey through heritage citadels, emerald highlands, and shores that redefine the horizon.
+              {t("footer_desc")}
             </p>
           </div>
           
           {/* Quick Links */}
           <div>
-            <h4 className="text-[0.75rem] tracking-[0.1em] uppercase text-textcolor font-medium mb-4">Explore</h4>
+            <h4 className="text-[0.75rem] tracking-[0.1em] uppercase text-textcolor font-medium mb-4">{t("footer_explore")}</h4>
             <ul className="flex flex-col gap-2.5">
               <li><Link href="/explore" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">{t("nav_explore") || "Destinations"}</Link></li>
               <li><Link href="/planner" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">{t("nav_planner") || "Trip Planner"}</Link></li>
@@ -53,7 +53,7 @@ export default function Footer() {
           
           {/* Connect */}
           <div>
-            <h4 className="text-[0.75rem] tracking-[0.1em] uppercase text-textcolor font-medium mb-4">Connect</h4>
+            <h4 className="text-[0.75rem] tracking-[0.1em] uppercase text-textcolor font-medium mb-4">{t("footer_connect")}</h4>
             <ul className="flex flex-col gap-2.5">
               <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Instagram</a></li>
               <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Twitter (X)</a></li>
@@ -66,7 +66,7 @@ export default function Footer() {
         
         <div className="mt-12 pt-8 border-t border-bordercolor flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <p className="text-[0.75rem] text-muted tracking-wide">
-            &copy; {new Date().getFullYear()} Sri Lankan Serendib Tours. All rights reserved.
+            &copy; {new Date().getFullYear()} Sri Lankan Serendib Tours. {t("footer_rights")}
           </p>
           <div className="flex gap-4">
             <span className="text-[0.75rem] text-muted tracking-wide">
