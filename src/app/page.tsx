@@ -78,8 +78,8 @@ export default function Home() {
               {t("hero_sub")}
             </p>
             {/* CTA Pill */}
-            <div className="flex items-center bg-surface/85 border border-bordercolor rounded-full p-1 pl-4 sm:pl-6 pr-1 shadow-lg backdrop-blur-md w-fit max-w-full">
-              <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-muted uppercase mr-3 sm:mr-6 hidden xs:inline-block sm:inline-block">
+            <div className="flex items-center rounded-full w-fit max-w-full bg-transparent border border-transparent p-0 xs:bg-surface/85 xs:border-bordercolor xs:p-1 xs:pl-4 xs:pr-1 xs:shadow-lg xs:backdrop-blur-md">
+              <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-muted uppercase mr-3 sm:mr-6 hidden xs:inline-block">
                 {t("hero_cta_label")}
               </span>
               <Link

@@ -163,7 +163,7 @@ function CultureContent() {
           </button>
 
           {activePillar && (
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col">
               {/* Banner image — always dark gradient over photo */}
               <div
                 className="w-[calc(100%+2.5rem)] sm:w-[calc(100%+4rem)] -ml-5 sm:-ml-8 -mt-8 sm:-mt-12 h-[180px] sm:h-[220px] bg-cover bg-center mb-6 relative"
@@ -220,7 +220,7 @@ function CultureContent() {
                   setActivePillar(null);
                   router.push(`/planner?notes=${encodeURIComponent(`I want to plan a custom trip highlighting ${pillarName}.`)}`);
                 }}
-                className="w-full mt-auto py-2.5 bg-accent hover:opacity-85 text-white text-xs font-medium uppercase tracking-wider rounded-lg text-center cursor-pointer"
+                className="w-full py-2.5 bg-accent hover:opacity-85 text-white text-xs font-medium uppercase tracking-wider rounded-lg text-center cursor-pointer"
               >
                 {t("cult_plan_btn")} — {activePillar.toUpperCase()}
               </button>

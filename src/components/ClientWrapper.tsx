@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useAppStore } from "@/store";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -11,6 +12,10 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   const [showSplash, setShowSplash] = useState(false);
   const theme = useAppStore((state) => state.theme);
   const lang = useAppStore((state) => state.lang);
+  
+  const pathname = usePathname();
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [displayChildren, setDisplayChildren] = useState(children);
 
   // Mark mounted and check splash screen
   useEffect(() => {
@@ -40,6 +45,33 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
       document.body.style.overflow = "";
     };
   }, [showSplash]);
+
+  // Smooth route page transitions
+  useEffect(() => {
+    if (!mounted) {
+      setDisplayChildren(children);
+      return;
+    }
+
+    setIsTransitioning(true);
+    const timer = setTimeout(() => {
+      setDisplayChildren(children);
+      setIsTransitioning(false);
+    }, 280); // Premium slide & fade transition duration
+
+    return () => clearTimeout(timer);
+  }, [pathname, children, mounted]);
+
+  // Smooth language change transitions (hides instant text replacements behind a cross-fade)
+  useEffect(() => {
+    if (!mounted) return;
+    setIsTransitioning(true);
+    const timer = setTimeout(() => {
+      setIsTransitioning(false);
+    }, 280);
+
+    return () => clearTimeout(timer);
+  }, [lang, mounted]);
 
   // Apply theme to <html> data-theme attribute
   useEffect(() => {
@@ -81,9 +113,18 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
         />
       )}
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main
+        className={`flex-1 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isTransitioning
+            ? "opacity-0 translate-y-3 filter blur-[5px]"
+            : "opacity-100 translate-y-0 filter blur-0"
+        }`}
+      >
+        {displayChildren}
+      </main>
       <Footer />
     </div>
   );
 }
+
 

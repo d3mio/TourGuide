@@ -12,6 +12,16 @@ export default function Navbar() {
   const { setLang, toggleTheme, theme } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const handleThemeToggle = () => {
+    if (typeof document !== "undefined" && "startViewTransition" in document) {
+      document.startViewTransition(() => {
+        toggleTheme();
+      });
+    } else {
+      toggleTheme();
+    }
+  };
+
   const links = [
     { href: "/", label: "nav_home" },
     { href: "/explore", label: "nav_explore" },
@@ -103,7 +113,7 @@ export default function Navbar() {
 
         {/* Theme Toggle */}
         <button
-          onClick={toggleTheme}
+          onClick={handleThemeToggle}
           className="ml-1 w-8 h-8 flex items-center justify-center rounded-full border border-bordercolor text-muted hover:border-accent hover:text-accent transition-all bg-surface/50"
           aria-label="Toggle theme"
           title={theme === "dark" ? "Switch to Light" : "Switch to Dark"}
@@ -166,7 +176,7 @@ export default function Navbar() {
 
             {/* Theme toggle */}
             <button
-              onClick={() => { toggleTheme(); }}
+              onClick={handleThemeToggle}
               className="flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-bordercolor text-textcolor bg-surface/50 text-sm font-semibold hover:border-accent transition-all"
             >
               {theme === "dark" ? (

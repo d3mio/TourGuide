@@ -387,3 +387,12 @@ body, .bg-bg, .bg-surface, .text-textcolor, .text-muted,
 [data-theme="light"] .group.relative.h-\[280px\] .absolute.inset-0 {
   /* photo cards — overlay unchanged */
 }
+
+/* =========================================
+   VIEW TRANSITIONS (Premium Theme Cross-fade)
+   ========================================= */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
