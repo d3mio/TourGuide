@@ -26,32 +26,62 @@ export default function SplashIntro({ onComplete }: SplashIntroProps) {
     }, 850); // Match CSS fade animation duration
   };
 
-  // Animate loading progress
+  // Animate loading progress to represent actual resource loading
   useEffect(() => {
-    const duration = 2800; // 2.8 seconds
-    const intervalTime = 30;
-    const steps = duration / intervalTime;
-    let currentStep = 0;
+    let loaded = false;
+    let fallbackTimer: NodeJS.Timeout;
+
+    const markLoaded = () => {
+      loaded = true;
+    };
+
+    // Check loading state
+    if (typeof window !== "undefined") {
+      if (document.readyState === "complete") {
+        loaded = true;
+      } else {
+        window.addEventListener("load", markLoaded);
+        // Fallback safety: mark as loaded after 6 seconds in case load event already fired or is blocked
+        fallbackTimer = setTimeout(markLoaded, 6000);
+      }
+    } else {
+      loaded = true;
+    }
 
     const timer = setInterval(() => {
-      currentStep++;
-      const nextProgress = Math.min(100, Math.floor((currentStep / steps) * 100));
-      setProgress(nextProgress);
+      setProgress((prev) => {
+        if (loaded) {
+          if (prev >= 100) {
+            clearInterval(timer);
+            setLoadingComplete(true);
+            
+            // Auto fade out to reveal site
+            setTimeout(() => {
+              setIsFadingOut(true);
+              setTimeout(() => {
+                onComplete();
+              }, 850);
+            }, 400);
+            
+            return 100;
+          }
+          return prev + 4; // Complete loading progress quickly
+        } else {
+          if (prev >= 90) {
+            return 90; // Hold at 90% until page loads
+          }
+          return prev + 2; // Incremental loading steps (takes ~1.8 seconds to hit 90%)
+        }
+      });
+    }, 40);
 
-      if (currentStep >= steps) {
-        clearInterval(timer);
-        setLoadingComplete(true);
-        // Automatically reveal site 500ms after reaching 100%
-        setTimeout(() => {
-          setIsFadingOut(true);
-          setTimeout(() => {
-            onComplete();
-          }, 850);
-        }, 500);
+    return () => {
+      clearInterval(timer);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("load", markLoaded);
       }
-    }, intervalTime);
-
-    return () => clearInterval(timer);
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+    };
   }, [onComplete]);
 
   // Toggle mute
