@@ -15,10 +15,7 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   // Mark mounted and check splash screen
   useEffect(() => {
     setMounted(true);
-    const hasSeen = sessionStorage.getItem("hasSeenSplash");
-    if (hasSeen !== "true") {
-      setShowSplash(true);
-    }
+    setShowSplash(true);
   }, []);
 
   // Listen for replay requests
@@ -80,7 +77,6 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
         <SplashIntro
           onComplete={() => {
             setShowSplash(false);
-            sessionStorage.setItem("hasSeenSplash", "true");
           }}
         />
       )}

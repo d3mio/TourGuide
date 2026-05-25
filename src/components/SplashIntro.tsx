@@ -18,6 +18,14 @@ export default function SplashIntro({ onComplete }: SplashIntroProps) {
   
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Handle enter action
+  const handleEnter = () => {
+    setIsFadingOut(true);
+    setTimeout(() => {
+      onComplete();
+    }, 850); // Match CSS fade animation duration
+  };
+
   // Animate loading progress
   useEffect(() => {
     const duration = 2800; // 2.8 seconds
@@ -33,19 +41,18 @@ export default function SplashIntro({ onComplete }: SplashIntroProps) {
       if (currentStep >= steps) {
         clearInterval(timer);
         setLoadingComplete(true);
+        // Automatically reveal site 500ms after reaching 100%
+        setTimeout(() => {
+          setIsFadingOut(true);
+          setTimeout(() => {
+            onComplete();
+          }, 850);
+        }, 500);
       }
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, []);
-
-  // Handle enter action
-  const handleEnter = () => {
-    setIsFadingOut(true);
-    setTimeout(() => {
-      onComplete();
-    }, 850); // Match CSS fade animation duration
-  };
+  }, [onComplete]);
 
   // Toggle mute
   const toggleMute = () => {
@@ -187,30 +194,19 @@ export default function SplashIntro({ onComplete }: SplashIntroProps) {
           </p>
         </div>
 
-        {/* Loading Counter / Action CTA */}
-        <div className="w-[200px] h-[40px] flex items-center justify-center relative">
-          {!loadingComplete ? (
-            <div className="w-full flex flex-col items-center gap-3 animate-fade-out">
-              {/* Progress Track */}
-              <div className="w-full h-[1px] bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full transition-all duration-300 ease-out"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              {/* Loading percentage */}
-              <span className="text-[0.65rem] tracking-[0.2em] font-mono text-zinc-500">
-                {progress}%
-              </span>
-            </div>
-          ) : (
-            <button
-              onClick={handleEnter}
-              className="absolute px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold uppercase tracking-[0.15em] text-[0.7rem] rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] cursor-pointer hover:scale-105 animate-[fadeIn_0.5s_ease-out_both]"
-            >
-              {t("enter_journey") || "Begin Journey"}
-            </button>
-          )}
+        {/* Loading Counter */}
+        <div className="w-[200px] flex flex-col items-center gap-3">
+          {/* Progress Track */}
+          <div className="w-full h-[1px] bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          {/* Loading percentage / Ready state */}
+          <span className="text-[0.65rem] tracking-[0.2em] font-mono text-zinc-500">
+            {progress === 100 ? "READY" : `${progress}%`}
+          </span>
         </div>
       </div>
 
