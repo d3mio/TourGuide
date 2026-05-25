@@ -23,9 +23,30 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between h-14 px-4 md:px-8 bg-bg/80 backdrop-blur-md border-b border-bordercolor transition-colors duration-400">
-      <div className="md:mr-12 whitespace-nowrap">
-        <Link href="/" onClick={() => setMobileOpen(false)} className="font-serif text-[1.35rem] font-medium tracking-wide text-textcolor transition-colors">
-          Visit<span className="text-emerald-500">Ceylon</span>
+      <div className="md:mr-12 whitespace-nowrap flex items-center">
+        <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 group">
+          <div className="relative flex items-center justify-center">
+            {/* Elegant SVG Logo for Serendib Tours */}
+            <svg className="w-8 h-8 filter drop-shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-transform duration-500 group-hover:rotate-12" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="42" stroke="url(#navLogoGrad)" strokeWidth="3" strokeDasharray="6 3" className="opacity-60" />
+              {/* Traditional Sri Lankan Sun/Lotus leaf hybrid shape */}
+              <path d="M50 12 C62 30, 78 45, 50 82 C22 45, 38 30, 50 12 Z" fill="url(#navLogoGrad)" className="opacity-90" />
+              {/* Sunrise/ocean line representing Serendib */}
+              <path d="M28 58 C42 53, 58 63, 72 58" stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" />
+              <defs>
+                <linearGradient id="navLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#10b981" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">Sri Lankan</span>
+            <span className="font-serif text-[1.12rem] font-bold tracking-wide text-textcolor mt-0.5">
+              Serendib<span className="text-emerald-500 font-light">Tours</span>
+            </span>
+          </div>
         </Link>
       </div>
       
@@ -86,7 +107,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Overlay */}
       {mobileOpen && (
-        <div className="absolute top-14 left-0 w-full h-[calc(100vh-56px)] bg-bg/95 backdrop-blur-xl border-b border-bordercolor flex flex-col items-center justify-center gap-6 p-6 md:hidden animate-[fadeIn_0.2s_ease-out]">
+        <div className="fixed top-14 left-0 w-full h-[calc(100dvh-56px)] bg-bg/95 backdrop-blur-xl border-b border-bordercolor flex flex-col items-center justify-center gap-6 p-6 md:hidden animate-[fadeIn_0.2s_ease-out] z-40 overflow-y-auto">
           <ul className="flex flex-col items-center gap-6 w-full">
             {links.map((link) => {
               const isActive = pathname === link.href;

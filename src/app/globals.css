@@ -5,7 +5,13 @@ html, body {
   padding: 0;
   background-color: var(--bg);
   min-height: 100%;
+  overflow-x: hidden;
 }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 
 :root {
   --bg: #09090b;
@@ -67,3 +73,256 @@ input[type=range]::-webkit-slider-thumb {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ==========================================================================
+   Custom Redesign Styles - Slider, Drawers & Customizer
+   ========================================================================== */
+
+/* Split-Screen Slider */
+.split-slider-wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border);
+  aspect-ratio: 4/3;
+}
+
+@media (min-width: 640px) {
+  .split-slider-wrapper {
+    aspect-ratio: 16/10;
+    border-radius: 20px;
+  }
+}
+
+.split-slider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  cursor: ew-resize;
+}
+
+.slider-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.slider-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.panel-right {
+  z-index: 1;
+}
+
+.panel-left {
+  z-index: 2;
+  border-right: 0px solid transparent;
+}
+
+/* Overriding image position to align them perfectly */
+.split-slider .slider-panel img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.panel-overlay-content {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 1.25rem 1rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(9, 9, 11, 0.95) 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .panel-overlay-content {
+    padding: 2.5rem 2rem;
+  }
+}
+
+.slider-handle {
+  position: absolute;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--accent);
+  z-index: 10;
+  cursor: ew-resize;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 15px var(--accent);
+}
+
+.handle-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  font-size: 0.85rem;
+  cursor: ew-resize;
+  touch-action: none;
+  transition: transform 0.2s ease;
+}
+
+.slider-handle:hover .handle-circle {
+  transform: scale(1.1);
+}
+
+/* Slide Drawer Overlay */
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(9, 9, 11, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 500px;
+  height: 100%;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -10px 0 45px rgba(0, 0, 0, 0.5);
+  padding: 3rem 2rem;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile: drawer takes full width */
+@media (max-width: 640px) {
+  .drawer {
+    max-width: 100%;
+    padding: 2rem 1.25rem;
+  }
+}
+
+.drawer-overlay.open .drawer {
+  transform: translateX(0);
+}
+
+/* Drawer close button */
+.drawer-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+.drawer-close-btn:hover {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+/* Animations */
+@keyframes pulse-accent-glow {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.pulse-glow {
+  animation: pulse-accent-glow 2s infinite;
+}
+
+@keyframes draw-path {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animated-route-path {
+  stroke-dasharray: 8;
+  stroke-dashoffset: 80;
+  animation: draw-path 3s linear infinite;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(9, 9, 11, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 1rem;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  transform: scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+}
+
+.modal-overlay.open .modal-card {
+  transform: scale(1);
+}
+
+

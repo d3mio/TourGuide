@@ -1,9 +1,84 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useMemo, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation, useAppStore } from "@/store";
-import { PACKAGES, DESTINATIONS, PackagePricing } from "@/data/mockData";
+import { PACKAGES, DESTINATIONS } from "@/data/mockData";
+import {
+  Hotel, Palmtree, Castle, Leaf, Wallet,
+  Calendar, Compass, CheckCircle2, Send, ChevronDown, Users
+} from "lucide-react";
+
+// SVG Map routing paths & coordinates for the 4 tiers
+const TOUR_MAPS: Record<string, { mapPath: string; mapPoints: { name: string; x: number; y: number; type: string }[] }> = {
+  basic: {
+    mapPoints: [
+      { name: "Colombo", x: 50, y: 20, type: "start" },
+      { name: "Kandy", x: 48, y: 50, type: "point" },
+      { name: "Ella", x: 58, y: 65, type: "point" },
+      { name: "Mirissa", x: 48, y: 82, type: "end" },
+    ],
+    mapPath: "M 50,20 Q 56,38 48,50 T 58,65 T 48,82",
+  },
+  economic: {
+    mapPoints: [
+      { name: "Colombo", x: 50, y: 20, type: "start" },
+      { name: "Sigiriya", x: 52, y: 35, type: "point" },
+      { name: "Kandy", x: 48, y: 50, type: "point" },
+      { name: "Mirissa", x: 48, y: 82, type: "end" },
+    ],
+    mapPath: "M 50,20 Q 55,28 52,35 T 48,50 Q 58,70 48,82",
+  },
+  premium: {
+    mapPoints: [
+      { name: "Colombo", x: 50, y: 20, type: "start" },
+      { name: "Sigiriya", x: 52, y: 35, type: "point" },
+      { name: "N. Eliya", x: 54, y: 58, type: "point" },
+      { name: "Yala", x: 62, y: 78, type: "point" },
+      { name: "Galle", x: 44, y: 80, type: "end" },
+    ],
+    mapPath: "M 50,20 Q 55,28 52,35 T 54,58 T 62,78 Q 50,85 44,80",
+  },
+  vvip: {
+    mapPoints: [
+      { name: "Colombo", x: 50, y: 20, type: "start" },
+      { name: "Sigiriya (Heli)", x: 52, y: 35, type: "point" },
+      { name: "Ella (Heli)", x: 58, y: 65, type: "point" },
+      { name: "Yala (Heli)", x: 62, y: 78, type: "end" },
+    ],
+    mapPath: "M 50,20 Q 54,30 52,35 T 58,65 Q 60,72 62,78",
+  },
+};
+
+const LODGE_OPTIONS = [
+  { key: "boutique", Icon: Hotel, name: "Boutique Hotels" },
+  { key: "beach", Icon: Palmtree, name: "Beach Resorts" },
+  { key: "heritage", Icon: Castle, name: "Heritage Hotels" },
+  { key: "eco", Icon: Leaf, name: "Eco Lodges" },
+];
+
+const ACTIVITIES = ["Wild Safari", "Cultural Sites", "Beach Time", "Mountain Hikes", "Water Sports"];
+
+const budgetTierToTourKey: Record<string, string> = {
+  Basic: "basic",
+  Economic: "economic",
+  Premium: "premium",
+  VVIP: "vvip",
+};
+
+const defaultDestinations: Record<string, string[]> = {
+  Basic: ["Kandy", "Ella", "Mirissa"],
+  Economic: ["Sigiriya", "Kandy", "Mirissa", "Galle Fort"],
+  Premium: ["Sigiriya", "Nuwara Eliya", "Yala National Park", "Galle Fort"],
+  VVIP: ["Sigiriya", "Ella", "Yala National Park", "Galle Fort"],
+};
+
+const defaultDurations: Record<string, number> = {
+  Basic: 10,
+  Economic: 14,
+  Premium: 16,
+  VVIP: 14,
+};
 
 function PlannerContent() {
   const { t } = useTranslation();
@@ -12,274 +87,383 @@ function PlannerContent() {
   const { addDraft } = useAppStore();
 
   const destParam = searchParams.get("dest");
+  const notesParam = searchParams.get("notes");
 
-  const [currentMode, setCurrentMode] = useState<"packages" | "custom">(destParam ? "custom" : "packages");
-  const [currentTier, setCurrentTier] = useState<keyof PackagePricing>("solo");
-  const [expandedPkg, setExpandedPkg] = useState<string | null>(null);
+  // Form State
+  const [budgetTier, setBudgetTier] = useState("Basic");
+  const [activeTour, setActiveTour] = useState("basic");
+  const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
+  const [tripDuration, setTripDuration] = useState(10);
+  const [companions, setCompanions] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [specialNotes, setSpecialNotes] = useState(notesParam ? decodeURIComponent(notesParam) : "");
+  const [showModal, setShowModal] = useState(false);
 
-  const [wizardStep, setWizardStep] = useState(1);
-  const [wizDestinations, setWizDestinations] = useState<string[]>(destParam ? [destParam] : []);
-  const [wizBudget, setWizBudget] = useState(1);
-  const [wizNet, setWizNet] = useState(true);
-  const [wizLodging, setWizLodging] = useState<string[]>([]);
-  const [wizDays, setWizDays] = useState(7);
-  const [wizStyles, setWizStyles] = useState<string[]>([]);
-  const [wizActivities, setWizActivities] = useState<string[]>([]);
-  const [draftSaved, setDraftSaved] = useState(false);
+  // Customizer extras
+  const [selectedDestinations, setSelectedDestinations] = useState<string[]>(["Kandy", "Ella", "Mirissa"]);
+  const [usePartnerLodging, setUsePartnerLodging] = useState(true);
+  const [selectedLodgingStyles, setSelectedLodgingStyles] = useState<string[]>([]);
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
 
-  const LODGE_OPTIONS = [
-    {key:'boutique', emoji:'🏨', name:'Boutique Hotels'},
-    {key:'beach', emoji:'🌴', name:'Beach Resorts'},
-    {key:'heritage', emoji:'🏰', name:'Heritage Hotels'},
-    {key:'eco', emoji:'🌿', name:'Eco Lodges'}
-  ];
-  const STYLES = ['Adventure','Relaxation','Cultural','Photography','Romantic'];
-  const ACTIVITIES = ['Wild Safari','Cultural Sites','Beach Time','Mountain Hikes','Water Sports'];
-  const WIZARD_LABELS = ['Destinations','Budget Range','Accommodation','Lodging Category','Trip Duration','Travel Style','Activities'];
-  const BUDGET_LABELS = ['Budget','Mid-Tier','Luxury'];
+  const handleTierSelect = (tier: string) => {
+    setBudgetTier(tier);
+    setActiveTour(budgetTierToTourKey[tier] || "basic");
+    setTripDuration(defaultDurations[tier] || 10);
+    setSelectedDestinations(defaultDestinations[tier] || []);
+  };
+
+  useEffect(() => {
+    const dest = searchParams.get("dest");
+    const notes = searchParams.get("notes");
+    if (dest) setSelectedDestinations([dest]);
+    if (notes) setSpecialNotes(decodeURIComponent(notes));
+  }, [searchParams]);
+
+  const activePackage = useMemo(() => PACKAGES.find((p) => p.id === activeTour) || PACKAGES[0], [activeTour]);
+
+  const packageMeta = useMemo(() => {
+    const p = activePackage;
+    return {
+      audience: `${p.tags[0]} / ${p.tags[1]}`,
+      cost:
+        p.tags[2] === "Budget"
+          ? "Budget ($)"
+          : p.tags[2] === "Comfort"
+          ? "Comfort ($$)"
+          : p.tags[2] === "Luxury"
+          ? "Luxury ($$$)"
+          : "Ultra-Lux ($$$$)",
+      duration: `${p.itinerary.length} Days`,
+    };
+  }, [activePackage]);
 
   const toggleArr = (arr: string[], setArr: (v: string[]) => void, val: string) => {
-    if (arr.includes(val)) setArr(arr.filter(a => a !== val));
+    if (arr.includes(val)) setArr(arr.filter((a) => a !== val));
     else setArr([...arr, val]);
   };
 
-  const handleSaveDraft = (name: string) => {
-    addDraft({ name, date: new Date().toLocaleDateString() });
-    alert("Saved to your Profile!");
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    addDraft({ name: `Custom ${tripDuration}-Day ${budgetTier} Journey`, date: new Date().toLocaleDateString() });
+    setShowModal(true);
   };
 
-  const handleSaveCustomDraft = () => {
-    const name = `Custom ${wizDays}-Day ${wizStyles[0] || 'Journey'}`;
-    addDraft({ name, date: new Date().toLocaleDateString() });
-    setDraftSaved(true);
-    setTimeout(() => {
-      setDraftSaved(false);
-      router.push("/profile");
-    }, 1500);
+  const handleCloseModal = () => {
+    setShowModal(false);
+    router.push("/profile");
+    setSelectedDestinations(["Kandy", "Ella", "Mirissa"]);
+    setSelectedThemes([]);
+    setTripDuration(10);
+    setCompanions("");
+    setClientName("");
+    setClientEmail("");
+    setSelectedLodgingStyles([]);
+    setSelectedActivities([]);
+    setSpecialNotes("");
+    setBudgetTier("Basic");
+    setActiveTour("basic");
   };
+
+  const displayedSummary = useMemo(
+    () => ({
+      destinations: selectedDestinations.length > 0 ? selectedDestinations.join(", ") : "Not selected",
+      budget: budgetTier,
+      themes: selectedThemes.length > 0 ? selectedThemes.join(", ") : "None",
+      duration: `${tripDuration} Days`,
+      companions: companions || "Not specified",
+      lodging: `${
+        selectedLodgingStyles.length > 0
+          ? selectedLodgingStyles.map((k) => LODGE_OPTIONS.find((o) => o.key === k)?.name).filter(Boolean).join(", ")
+          : "Standard"
+      } ${usePartnerLodging ? "(Partner Network)" : "(Independent)"}`,
+      activities: selectedActivities.length > 0 ? selectedActivities.join(", ") : "None",
+    }),
+    [selectedDestinations, budgetTier, selectedThemes, tripDuration, companions, selectedLodgingStyles, usePartnerLodging, selectedActivities]
+  );
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
-      <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-3">{t("plan_eyebrow")}</div>
-      <h1 className="font-serif text-[2.2rem] md:text-[2.5rem] mb-2">{t("plan_title")}</h1>
-      <p className="text-[0.85rem] md:text-[0.9rem] text-muted mb-8">{t("plan_sub")}</p>
-      
-      {/* Toggle */}
-      <div className="flex bg-surface border border-bordercolor rounded-lg p-1 gap-1 mb-8 md:mb-10 w-fit max-w-full overflow-x-auto">
-        <button 
-          onClick={() => setCurrentMode("packages")}
-          className={`px-4 md:px-5 py-2 text-[0.7rem] md:text-[0.78rem] tracking-[0.06em] uppercase rounded-md transition-colors whitespace-nowrap ${currentMode === "packages" ? "bg-accent text-white" : "text-muted hover:text-textcolor"}`}
-        >
-          {t("plan_tab_pkg")}
-        </button>
-        <button 
-          onClick={() => setCurrentMode("custom")}
-          className={`px-4 md:px-5 py-2 text-[0.7rem] md:text-[0.78rem] tracking-[0.06em] uppercase rounded-md transition-colors whitespace-nowrap ${currentMode === "custom" ? "bg-accent text-white" : "text-muted hover:text-textcolor"}`}
-        >
-          {t("plan_tab_custom")}
-        </button>
+    <section className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-24">
+      {/* Page Header */}
+      <div className="mb-8 md:mb-12">
+        <span className="text-[0.68rem] tracking-[0.15em] uppercase text-accent font-bold mb-3 block">
+          {t("plan_eyebrow") || "Trip Planning Dashboard"}
+        </span>
+        <h1 className="font-serif text-[2rem] md:text-[3.2rem] leading-tight mb-3 md:mb-4 text-textcolor">
+          {t("plan_title") || "Craft Your Journey"}
+        </h1>
+        <p className="text-muted text-[0.85rem] md:text-[0.95rem] max-w-2xl">
+          {t("plan_sub") || "Choose a preset tier to populate the travel route details, then fully customize stays, activities, and duration."}
+        </p>
       </div>
 
-      {currentMode === "packages" && (
-        <div>
-          <div className="inline-flex gap-1 bg-bg border border-bordercolor p-1 rounded-md mb-6 overflow-x-auto max-w-full">
-            {(["solo", "duo", "group"] as const).map(tier => (
-              <button 
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr] gap-6 md:gap-10 items-start">
+
+        {/* Left Column: Preset Route & Details */}
+        <div className="bg-surface border border-bordercolor rounded-2xl p-5 md:p-8 space-y-5 md:space-y-6 shadow-sm">
+          <div>
+            <h3 className="font-serif text-xl text-textcolor mb-1">Base Tour Plan</h3>
+            <p className="text-muted text-xs">Select a tier to load the route and preset features.</p>
+          </div>
+
+          {/* Tier Selector Pills */}
+          <div className="flex bg-bg/50 border border-bordercolor rounded-xl p-1 gap-1 w-full overflow-x-auto hide-scrollbar">
+            {["Basic", "Economic", "Premium", "VVIP"].map((tier) => (
+              <button
                 key={tier}
-                onClick={() => setCurrentTier(tier)}
-                className={`px-3 py-1.5 text-[0.7rem] md:text-[0.73rem] tracking-[0.05em] rounded transition-all whitespace-nowrap ${currentTier === tier ? "bg-surface text-textcolor shadow-[0_0_0_0.5px_var(--color-bordercolor)]" : "text-muted hover:text-textcolor"}`}
+                type="button"
+                onClick={() => handleTierSelect(tier)}
+                className={`flex-1 py-2 rounded-lg text-center text-[0.68rem] sm:text-xs font-semibold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap min-w-[60px] ${
+                  budgetTier === tier ? "bg-accent text-white shadow-sm" : "text-muted hover:text-textcolor"
+                }`}
               >
-                {t(`tier_${tier}`)}
+                {tier}
               </button>
             ))}
           </div>
 
+          {/* Map Illustration */}
+          <div className="flex justify-center relative bg-bg/30 border border-bordercolor rounded-xl p-4 overflow-hidden min-h-[180px] md:min-h-[220px]">
+            <div className="absolute w-[140px] h-[140px] bg-accent/15 filter blur-[80px] pointer-events-none rounded-full" />
+            {TOUR_MAPS[activeTour] && (
+              <svg viewBox="0 0 100 100" className="w-full max-w-[240px] md:max-w-[280px] aspect-square filter drop-shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                <path d={TOUR_MAPS[activeTour].mapPath} fill="none" stroke="url(#mapGrad)" strokeWidth="2" className="animated-route-path" />
+                <defs>
+                  <linearGradient id="mapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#f59e0b" />
+                  </linearGradient>
+                </defs>
+                {TOUR_MAPS[activeTour].mapPoints.map((pt, i) => (
+                  <g key={i}>
+                    <circle cx={pt.x} cy={pt.y} r={pt.type === "start" || pt.type === "end" ? "3.5" : "2.5"} fill={pt.type === "start" ? "#10b981" : pt.type === "end" ? "#f59e0b" : "#ffffff"} className={pt.type === "start" ? "pulse-glow" : ""} />
+                    <text x={pt.x + 4.5} y={pt.y + 1} fill="#ffffff" fontSize="3.2" fontWeight="600" fontFamily="var(--font-sans)">
+                      {pt.name}
+                    </text>
+                  </g>
+                ))}
+              </svg>
+            )}
+          </div>
+
+          {/* Package Meta */}
           <div className="space-y-3">
-            {PACKAGES.map(pkg => {
-              const price = pkg.pricing[currentTier];
-              const isExp = expandedPkg === pkg.id;
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[0.65rem] font-semibold uppercase bg-accentdim/20 text-accent">
+                <Users className="w-3 h-3" /> {packageMeta.audience}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[0.65rem] font-semibold uppercase bg-amber-500/10 text-amber-500 border border-amber-500/10">
+                <Wallet className="w-3 h-3" /> {packageMeta.cost}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[0.65rem] font-semibold uppercase bg-white/5 text-textcolor">
+                <Calendar className="w-3 h-3" /> {packageMeta.duration}
+              </span>
+            </div>
 
-              return (
-                <div key={pkg.id}>
-                  <div 
-                    onClick={() => setExpandedPkg(isExp ? null : pkg.id)}
-                    className={`bg-surface border border-bordercolor p-5 md:p-6 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-center cursor-pointer transition-colors ${isExp ? "rounded-t-xl border-accent" : "rounded-xl hover:border-accent"}`}
-                  >
-                    <div>
-                      <h3 className="text-[1.2rem] md:text-[1.3rem] font-serif mb-2">{pkg.name}</h3>
-                      <div className="flex flex-wrap gap-1.5">
-                        {pkg.tags.map(tag => (
-                          <span key={tag} className="inline-flex items-center px-2 py-0.5 rounded-full text-[0.65rem] md:text-[0.7rem] tracking-[0.06em] font-medium border border-bordercolor text-muted uppercase">{tag}</span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="text-left md:text-right border-t md:border-0 border-bordercolor pt-3 md:pt-0">
-                      <div className="text-[1.2rem] md:text-[1.4rem] font-serif text-accent md:text-textcolor">{currentTier==='group'?'From ':''}${price}</div>
-                      <div className="text-[0.7rem] md:text-[0.72rem] text-muted">{currentTier==='solo'?'per person':currentTier==='duo'?'for 2 persons':'per person (group)' }</div>
-                    </div>
-                  </div>
-                  
-                  {isExp && (
-                    <div className="bg-surface border border-accent border-t-0 rounded-b-xl p-5 md:p-6 animate-[fadeIn_0.25s_ease]">
-                      <p className="text-[0.8rem] md:text-[0.85rem] text-muted mb-4">{pkg.desc}</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div><div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-1">Accommodation</div><p className="text-[0.82rem] text-muted">{pkg.accommodation}</p></div>
-                        <div><div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-1">Transport</div><p className="text-[0.82rem] text-muted">{pkg.transport}</p></div>
-                      </div>
-                      <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted mb-2">Itinerary</div>
-                      <ul className="space-y-3">
-                        {pkg.itinerary.map((day, i) => (
-                          <li key={i} className="flex items-start gap-3 md:gap-4 pb-3 border-b border-bordercolor text-[0.8rem] md:text-[0.83rem] text-muted last:border-0 last:pb-0">
-                            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-accentdim text-accent flex items-center justify-center text-[0.68rem] font-medium shrink-0">{i+1}</div>
-                            <span className="mt-1">{day}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                        <button onClick={(e) => { e.stopPropagation(); handleSaveDraft(pkg.name); }} className="w-full sm:w-auto px-4 py-2 bg-accent text-white rounded-md text-[0.72rem] font-medium tracking-[0.06em] uppercase hover:opacity-85 text-center">Save Trip Draft</button>
-                        <button className="w-full sm:w-auto px-4 py-2 bg-transparent border border-bordercolor text-textcolor rounded-md text-[0.72rem] font-medium tracking-[0.06em] uppercase hover:border-accent hover:text-accent text-center">Request Booking</button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+            <h4 className="font-serif text-base md:text-lg text-textcolor">{activePackage.name}</h4>
+            <p className="text-muted text-[0.78rem] leading-relaxed">{activePackage.desc}</p>
 
-      {currentMode === "custom" && (
-        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 md:gap-8 items-start">
-          <div className="sticky top-14 md:top-20 bg-bg/95 md:bg-transparent backdrop-blur-sm z-10 py-3 md:py-0 flex md:flex-col gap-2 overflow-x-auto border-b md:border-0 border-bordercolor hide-scrollbar">
-            {WIZARD_LABELS.map((label, i) => {
-              const stepNum = i + 1;
-              const isActive = stepNum === wizardStep;
-              const isDone = stepNum < wizardStep;
-              return (
-                <div key={label} onClick={() => setWizardStep(stepNum)} className={`flex items-center gap-2 md:gap-3 px-3 py-2 md:py-2.5 rounded-lg text-[0.75rem] md:text-[0.8rem] whitespace-nowrap cursor-pointer transition-all ${isActive ? 'bg-surface text-textcolor border border-bordercolor' : isDone ? 'text-muted hover:bg-surface/50' : 'text-muted opacity-50'}`}>
-                  <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[0.6rem] md:text-[0.68rem] font-semibold shrink-0 ${isDone ? 'bg-accent text-white' : isActive ? 'bg-bordercolor text-textcolor' : 'bg-bordercolor text-muted'}`}>{stepNum}</div>
-                  <span className="hidden sm:inline-block md:inline-block">{label}</span>
-                  <span className="sm:hidden">{isActive ? label : ''}</span>
-                </div>
-              );
-            })}
-          </div>
-          
-          <div className="bg-surface border border-bordercolor rounded-xl p-8">
-            {wizardStep === 1 && (
-              <>
-                <h3 className="text-[1.3rem] font-serif mb-1">Choose Your Destinations</h3>
-                <p className="text-[0.8rem] text-muted mb-4">Select one or more places you'd like to visit.</p>
-                <div className="flex flex-wrap gap-2">
-                  {DESTINATIONS.map(d => (
-                    <button key={d} onClick={() => toggleArr(wizDestinations, setWizDestinations, d)} className={`px-3.5 py-1.5 rounded-full text-[0.76rem] border transition-all ${wizDestinations.includes(d) ? 'border-accent text-accent bg-accentdim' : 'border-bordercolor text-muted hover:border-textcolor'}`}>{d}</button>
-                  ))}
-                </div>
-              </>
-            )}
-            {wizardStep === 2 && (
-              <>
-                <h3 className="text-[1.3rem] font-serif mb-1">Budget Range</h3>
-                <p className="text-[0.8rem] text-muted mb-6">Set your estimated travel budget tier.</p>
-                <div className="py-4">
-                  <input type="range" min="0" max="2" step="1" value={wizBudget} onChange={(e) => setWizBudget(Number(e.target.value))} className="w-full" />
-                  <div className="flex justify-between text-[0.72rem] text-muted mt-2"><span>Budget</span><span>Mid-Tier</span><span>Luxury</span></div>
-                </div>
-                <div className="mt-4 text-[1.4rem] font-serif text-accent">{BUDGET_LABELS[wizBudget]}</div>
-              </>
-            )}
-            {wizardStep === 3 && (
-              <>
-                <h3 className="text-[1.3rem] font-serif mb-1">Accommodation Strategy</h3>
-                <p className="text-[0.8rem] text-muted mb-6">How would you like to manage your lodging?</p>
-                <label className="relative inline-flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" checked={wizNet} onChange={(e) => setWizNet(e.target.checked)} />
-                  <div className="w-11 h-6 bg-bordercolor peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
-                  <span className="text-[0.85rem]">{wizNet ? "Use VisitCeylon's Partner Network" : "Independent Booking"}</span>
-                </label>
-                <div className="bg-accentdim border border-accent rounded-lg px-4 py-3 text-[0.8rem] text-accent mt-4">
-                  {wizNet ? "Booking via our partner network reduces total lodge overhead fees by 15%." : "You retain full control of your own accommodation bookings."}
-                </div>
-              </>
-            )}
-            {wizardStep === 4 && (
-              <>
-                <h3 className="text-[1.3rem] font-serif mb-1">Lodging Category</h3>
-                <p className="text-[0.8rem] text-muted mb-4">Select your preferred accommodation style.</p>
-                <div className="grid grid-cols-2 gap-3">
-                  {LODGE_OPTIONS.map(l => (
-                    <div key={l.key} onClick={() => toggleArr(wizLodging, setWizLodging, l.key)} className={`p-4 border rounded-lg cursor-pointer text-center transition-all ${wizLodging.includes(l.key) ? 'border-accent bg-accentdim' : 'border-bordercolor hover:border-textcolor'}`}>
-                      <div className="text-2xl mb-1">{l.emoji}</div>
-                      <div className="text-[0.8rem] font-medium">{l.name}</div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-            {wizardStep === 5 && (
-              <>
-                <h3 className="text-[1.3rem] font-serif mb-1">Trip Duration</h3>
-                <p className="text-[0.8rem] text-muted mb-6">How many days are you planning to travel?</p>
-                <div className="flex items-center gap-4">
-                  <button onClick={() => setWizDays(Math.max(1, wizDays - 1))} className="w-9 h-9 rounded-full border border-bordercolor flex items-center justify-center text-xl hover:border-accent hover:text-accent transition-colors">−</button>
-                  <div className="text-[2rem] font-serif min-w-[3rem] text-center">{wizDays}</div>
-                  <button onClick={() => setWizDays(Math.min(30, wizDays + 1))} className="w-9 h-9 rounded-full border border-bordercolor flex items-center justify-center text-xl hover:border-accent hover:text-accent transition-colors">+</button>
-                  <span className="text-muted text-[0.85rem]">days</span>
-                </div>
-              </>
-            )}
-            {wizardStep === 6 && (
-              <>
-                <h3 className="text-[1.3rem] font-serif mb-1">Travel Style</h3>
-                <p className="text-[0.8rem] text-muted mb-4">What mood defines your ideal journey?</p>
-                <div className="flex flex-wrap gap-2">
-                  {STYLES.map(s => (
-                    <button key={s} onClick={() => toggleArr(wizStyles, setWizStyles, s)} className={`px-4 py-1.5 rounded-full text-[0.76rem] border transition-all ${wizStyles.includes(s) ? 'border-accent text-accent bg-accentdim' : 'border-bordercolor text-muted hover:border-textcolor'}`}>{s}</button>
-                  ))}
-                </div>
-              </>
-            )}
-            {wizardStep === 7 && (
-              <>
-                <h3 className="text-[1.3rem] font-serif mb-1">Activities</h3>
-                <p className="text-[0.8rem] text-muted mb-4">Select all activities you'd like included.</p>
-                <div className="space-y-1">
-                  {ACTIVITIES.map(a => (
-                    <div key={a} onClick={() => toggleArr(wizActivities, setWizActivities, a)} className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-bordercolor transition-colors">
-                      <div className={`w-4.5 h-4.5 rounded border flex items-center justify-center text-[0.65rem] transition-all ${wizActivities.includes(a) ? 'bg-accent border-accent text-white' : 'border-bordercolor'}`}>{wizActivities.includes(a) ? '✓' : ''}</div>
-                      <span className="text-[0.85rem]">{a}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-8 pt-6 border-t border-bordercolor">
-                  <h4 className="text-base font-medium mb-3">Journey Summary</h4>
-                  <div className="text-[0.8rem] text-muted leading-loose space-y-1">
-                    <div>📍 <strong className="text-textcolor font-medium">{wizDestinations.slice(0,4).join(', ')|| 'None selected'}{wizDestinations.length>4?' + more':''}</strong></div>
-                    <div>💰 <strong className="text-textcolor font-medium">{BUDGET_LABELS[wizBudget]}</strong></div>
-                    <div>🛏 <strong className="text-textcolor font-medium">{wizNet?'Partner Network':'Own Booking'}</strong></div>
-                    <div>📅 <strong className="text-textcolor font-medium">{wizDays} days</strong></div>
-                    <div>🎭 <strong className="text-textcolor font-medium">{wizStyles.join(', ')||'Not specified'}</strong></div>
-                  </div>
-                  <button onClick={handleSaveCustomDraft} className="mt-5 w-full py-2.5 bg-accent text-white rounded-md text-[0.8rem] font-medium tracking-[0.06em] uppercase hover:opacity-85">Save Custom Journey Draft</button>
-                  {draftSaved && <div className="mt-2 text-[0.78rem] text-accent text-center">Draft saved to your Profile! Redirecting...</div>}
-                </div>
-              </>
-            )}
+            <div className="border-t border-bordercolor pt-3">
+              <h5 className="text-[0.65rem] tracking-[0.08em] uppercase font-bold text-accent mb-2">Preset Highlights:</h5>
+              <ul className="space-y-1.5">
+                {activePackage.itinerary.map((day, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-[0.72rem] text-muted leading-relaxed">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0 mt-0.5" />
+                    <span>{day}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-            <div className="flex justify-between mt-8 pt-6 border-t border-bordercolor">
-              {wizardStep > 1 ? <button onClick={() => setWizardStep(wizardStep - 1)} className="px-4 py-2 bg-transparent border border-bordercolor text-textcolor rounded-md text-[0.72rem] font-medium tracking-[0.06em] uppercase hover:border-accent hover:text-accent">← Back</button> : <span></span>}
-              {wizardStep < 7 ? <button onClick={() => setWizardStep(wizardStep + 1)} className="px-4 py-2 bg-accent text-white rounded-md text-[0.72rem] font-medium tracking-[0.06em] uppercase hover:opacity-85">Next →</button> : <span></span>}
+            <div className="border-l-2 border-accent/40 pl-3 py-1">
+              <span className="block text-[0.62rem] uppercase tracking-wider text-muted font-bold mb-0.5">Lodging & Transit</span>
+              <p className="text-[0.68rem] text-muted leading-relaxed">
+                Stays in {activePackage.accommodation}. Moving via {activePackage.transport}.
+              </p>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Right Column: Customizer Form */}
+        <div className="bg-surface border border-bordercolor rounded-2xl p-5 md:p-8 shadow-sm">
+          <div className="mb-5 md:mb-6">
+            <h3 className="font-serif text-xl text-textcolor mb-1">Personalize Your Plan</h3>
+            <p className="text-muted text-xs">Tweak destinations, lodging, activities, and duration.</p>
+          </div>
+
+          <form onSubmit={handleFormSubmit} className="space-y-6 md:space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+
+              {/* Col 1: Route & Themes */}
+              <div className="space-y-5">
+                {/* Destinations */}
+                <div>
+                  <label className="block text-[0.65rem] font-bold uppercase tracking-wider text-muted mb-2">Destinations of Interest</label>
+                  <div className="flex flex-wrap gap-1.5 max-h-[130px] overflow-y-auto pr-1 border border-bordercolor rounded-lg p-2 bg-bg/30">
+                    {DESTINATIONS.map((d) => {
+                      const isSelected = selectedDestinations.includes(d);
+                      return (
+                        <button key={d} type="button" onClick={() => toggleArr(selectedDestinations, setSelectedDestinations, d)} className={`px-2 py-1 rounded text-[0.65rem] font-medium border transition-all cursor-pointer ${isSelected ? "border-accent text-accent bg-accentdim/15" : "border-bordercolor/80 text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"}`}>
+                          {d}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Themes */}
+                <div>
+                  <label className="block text-[0.65rem] font-bold uppercase tracking-wider text-muted mb-2">Selected Themes</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {["History", "Culture", "Adventure", "Eco", "MICE", "Family", "Leisure", "Education"].map((theme) => {
+                      const isSelected = selectedThemes.includes(theme);
+                      return (
+                        <button key={theme} type="button" onClick={() => toggleArr(selectedThemes, setSelectedThemes, theme)} className={`px-2.5 py-1.5 rounded-full text-[0.65rem] border transition-all cursor-pointer ${isSelected ? "border-accent text-accent bg-accentdim/15" : "border-bordercolor text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"}`}>
+                          {theme}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Activities */}
+                <div>
+                  <label className="block text-[0.65rem] font-bold uppercase tracking-wider text-muted mb-2">Included Activities</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {ACTIVITIES.map((a) => {
+                      const isSelected = selectedActivities.includes(a);
+                      return (
+                        <div key={a} onClick={() => toggleArr(selectedActivities, setSelectedActivities, a)} className={`p-2.5 rounded-lg border cursor-pointer flex items-center gap-2 transition-colors ${isSelected ? "border-accent/40 bg-accentdim/5" : "border-bordercolor bg-bg/20 hover:border-accent/30"}`}>
+                          <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[0.5rem] transition-all shrink-0 ${isSelected ? "bg-accent border-accent text-white" : "border-bordercolor"}`}>{isSelected ? "✓" : ""}</div>
+                          <span className="text-[0.68rem] font-semibold text-textcolor leading-tight">{a}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Col 2: Preferences */}
+              <div className="space-y-5">
+                {/* Duration Slider */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-[0.65rem] font-bold uppercase tracking-wider text-muted">Trip Duration</label>
+                    <strong className="text-xs font-serif text-accent">{tripDuration} Days</strong>
+                  </div>
+                  <input type="range" min="3" max="28" value={tripDuration} onChange={(e) => setTripDuration(Number(e.target.value))} className="w-full cursor-pointer accent-accent" />
+                </div>
+
+                {/* Travel Cohort */}
+                <div>
+                  <label className="block text-[0.65rem] font-bold uppercase tracking-wider text-muted mb-2">Travel Cohort</label>
+                  <div className="relative">
+                    <select value={companions} onChange={(e) => setCompanions(e.target.value)} className="w-full bg-surface border border-bordercolor rounded-lg px-3.5 py-2.5 text-xs text-textcolor outline-none focus:border-accent cursor-pointer appearance-none" required>
+                      <option value="" disabled>Who is traveling?</option>
+                      <option value="Solo">Solo Traveler</option>
+                      <option value="Couple">Couple</option>
+                      <option value="Family">Family</option>
+                      <option value="Group">Group</option>
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-3.5 w-4 h-4 text-muted pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Lodging Styles */}
+                <div>
+                  <label className="block text-[0.65rem] font-bold uppercase tracking-wider text-muted mb-2">Lodging Style</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {LODGE_OPTIONS.map((l) => {
+                      const isSelected = selectedLodgingStyles.includes(l.key);
+                      return (
+                        <div key={l.key} onClick={() => toggleArr(selectedLodgingStyles, setSelectedLodgingStyles, l.key)} className={`p-2 border rounded-lg cursor-pointer transition-all duration-200 flex gap-2 items-center ${isSelected ? "border-accent bg-accentdim/15" : "border-bordercolor bg-bg/20 hover:border-accent/40"}`}>
+                          <div className={`p-1 rounded border shrink-0 ${isSelected ? "bg-accent text-white border-transparent" : "bg-surface border-bordercolor text-muted"}`}>
+                            <l.Icon className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="text-[0.65rem] font-semibold text-textcolor truncate">{l.name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Partner Network */}
+                <div className="pt-1">
+                  <label className="relative inline-flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" checked={usePartnerLodging} onChange={(e) => setUsePartnerLodging(e.target.checked)} />
+                    <div className="w-9 h-5 bg-bordercolor peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-accent" />
+                    <span className="text-[0.72rem] font-semibold text-textcolor">Use partner network (Save 15%)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Section */}
+            <div className="border-t border-bordercolor pt-5 md:pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[0.62rem] text-muted mb-1" htmlFor="clientName">Your Name</label>
+                <input type="text" id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="e.g. John Doe" className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2.5 text-xs text-textcolor outline-none focus:border-accent" required />
+              </div>
+              <div>
+                <label className="block text-[0.62rem] text-muted mb-1" htmlFor="clientEmail">Email Address</label>
+                <input type="email" id="clientEmail" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="e.g. john@example.com" className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2.5 text-xs text-textcolor outline-none focus:border-accent" required />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-[0.62rem] text-muted mb-1" htmlFor="specialNotes">Special Inquiries / Requests</label>
+                <textarea id="specialNotes" value={specialNotes} onChange={(e) => setSpecialNotes(e.target.value)} placeholder="Tell us about specific sites, dietary needs or extra requests..." className="w-full min-h-[65px] bg-bg/40 border border-bordercolor rounded-lg px-3 py-2.5 text-xs text-textcolor outline-none focus:border-accent resize-y" />
+              </div>
+            </div>
+
+            <button type="submit" className="w-full py-3 bg-accent hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-accent/25 cursor-pointer">
+              <span>Generate Custom Quote</span>
+              <Send className="w-3.5 h-3.5" />
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Confirmation Modal */}
+      <div className={`modal-overlay ${showModal ? "open" : ""}`}>
+        <div className="modal-card glass-panel text-center bg-surface border border-bordercolor p-5 sm:p-8 rounded-2xl max-w-md w-full mx-auto">
+          <div className="mx-auto w-12 h-12 bg-accentdim/20 text-accent rounded-full flex items-center justify-center mb-4">
+            <CheckCircle2 className="w-8 h-8" />
+          </div>
+          <h3 className="font-serif text-xl sm:text-2xl text-textcolor mb-2">{t("modal_success_title")}</h3>
+          <p className="text-muted text-xs sm:text-sm leading-relaxed mb-5">{t("modal_success_desc")}</p>
+
+          <div className="w-full text-left bg-bg/50 border border-bordercolor rounded-lg p-4 mb-6">
+            <h5 className="text-[0.62rem] tracking-[0.15em] uppercase font-bold text-accent mb-3 pb-2 border-b border-bordercolor">{t("modal_summary_title")}</h5>
+            <ul className="space-y-2 text-xs">
+              {[
+                ["Destinations", displayedSummary.destinations],
+                ["Budget Tier", displayedSummary.budget],
+                ["Selected Themes", displayedSummary.themes],
+                ["Duration", displayedSummary.duration],
+                ["Companions", displayedSummary.companions],
+                ["Lodging Style", displayedSummary.lodging],
+                ["Activities", displayedSummary.activities],
+                ["Saved Draft", "Yes (Saved to Profile)"],
+              ].map(([label, value]) => (
+                <li key={label} className="flex justify-between gap-2">
+                  <span className="text-muted shrink-0">{label}:</span>
+                  <strong className={`truncate max-w-[180px] sm:max-w-[200px] ${label === "Saved Draft" ? "text-accent" : "text-textcolor"}`}>{value}</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <button onClick={handleCloseModal} className="w-full py-2.5 bg-accent hover:opacity-85 text-white text-xs font-semibold uppercase tracking-wider rounded-lg cursor-pointer">
+            {t("modal_close")}
+          </button>
+        </div>
+      </div>
     </section>
   );
 }
 
 export default function Planner() {
   return (
-    <Suspense fallback={<div className="p-16 text-center text-muted">Loading Planner...</div>}>
+    <Suspense fallback={<div className="p-24 text-center text-muted">Loading Planner...</div>}>
       <PlannerContent />
     </Suspense>
   );

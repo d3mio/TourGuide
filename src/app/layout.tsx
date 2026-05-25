@@ -15,7 +15,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "VisitCeylon — Sri Lanka",
+  title: "Sri Lankan Serendib Tours",
   description: "An uncharted editorial journey through heritage citadels, emerald highlands, and shores that redefine the horizon.",
 };
 
