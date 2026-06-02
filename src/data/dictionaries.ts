@@ -139,7 +139,8 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     prof_no_reviews_1: "You haven't posted any reviews yet. Share your experience on the ",
     prof_no_reviews_link: 'Experiences Page',
     welcome_to_sl: 'Welcome to Sri Lanka',
-    skip_intro: 'Skip Intro',
+    "skip_intro": "Skip",
+    "splash_loading": "Loading",
     enter_journey: 'Begin Journey',
     watch_intro: 'Watch Film',
 
@@ -329,7 +330,8 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     prof_no_reviews_1: "Vous n'avez pas encore posté d'avis. Partagez votre expérience sur la ",
     prof_no_reviews_link: "page d'expériences",
     welcome_to_sl: 'Bienvenue au Sri Lanka',
-    skip_intro: "Passer l'intro",
+    "skip_intro": "Passer l'intro",
+    "splash_loading": "Chargement",
     watch_intro: 'Voir le film',
     enter_journey: 'Commencer le voyage',
 
@@ -519,7 +521,8 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     prof_no_reviews_1: 'Sie haben noch keine Bewertungen. Teilen Sie Ihre Erfahrung auf der ',
     prof_no_reviews_link: 'Erlebnisse-Seite',
     welcome_to_sl: 'Willkommen in Sri Lanka',
-    skip_intro: 'Intro überspringen',
+    "skip_intro": "Intro überspringen",
+    "splash_loading": "Laden",
     watch_intro: 'Film ansehen',
     enter_journey: 'Reise beginnen',
 
@@ -709,7 +712,8 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     prof_no_reviews_1: 'Non hai ancora pubblicato recensioni. Condividi la tua esperienza sulla ',
     prof_no_reviews_link: 'pagina delle esperienze',
     welcome_to_sl: 'Benvenuto in Sri Lanka',
-    skip_intro: 'Salta intro',
+    "skip_intro": "Salta l'intro",
+    "splash_loading": "Caricamento",
     watch_intro: 'Guarda il film',
     enter_journey: 'Inizia il viaggio',
 

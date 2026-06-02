@@ -10,18 +10,13 @@ export type Review = {
   isMine?: boolean;
 };
 
-export type PackagePricing = {
-  solo: number;
-  duo: number;
-  group: number;
-};
+
 
 export type Package = {
   id: string;
   name: string;
   tags: string[];
   desc: string;
-  pricing: PackagePricing;
   itinerary: string[];
   accommodation: string;
   transport: string;
@@ -94,7 +89,7 @@ export const PACKAGES: Package[] = [
     name: 'The Explorer\'s Trail (Basic)',
     tags: ['Backpackers', 'Couples', 'Budget'],
     desc: 'Perfect for budget travelers, backpackers, and adventurous couples. Experience Sri Lanka like a local by utilizing the gorgeous highland rail tracks and public buses. Stay in cozy guesthouses and sample rich local street food markets.',
-    pricing: { solo: 890, duo: 1540, group: 620 },
+
     itinerary: [
       'Day 1–2 — Colombo arrival, city street-food tour',
       'Day 3–4 — Public train to Kandy, Temple of the Tooth',
@@ -110,7 +105,7 @@ export const PACKAGES: Package[] = [
     name: 'The Heritage & Comfort Tour (Economic)',
     tags: ['Families', 'Honeymoons', 'Comfort'],
     desc: 'Balanced comfort, convenience, and value. Stay in mid-range boutique hotels and eco-resorts. Travel comfortably with a dedicated private air-conditioned vehicle and local driver, offering flexibility for families and honeymooners.',
-    pricing: { solo: 1290, duo: 2180, group: 890 },
+
     itinerary: [
       'Day 1–2 — Colombo transfer, coastal highway to Galle Dutch Fort',
       'Day 3–4 — Mirissa beach relaxing, blue whale watching boat tour',
@@ -128,7 +123,7 @@ export const PACKAGES: Package[] = [
     name: 'The Island Grandeur Tour (Premium)',
     tags: ['Groups', 'Multi-Gen', 'Luxury'],
     desc: 'Travel in premium style and absolute comfort. Stay in curated 4-star boutique resorts and luxury eco-lodges. Move with a dedicated tourist coach and professional national guide. Includes private culinary demonstrations and local expert interactions.',
-    pricing: { solo: 1890, duo: 3200, group: 1380 },
+
     itinerary: [
       'Day 1–2 — Colombo airport welcome, stay in premium Galle Face hotel',
       'Day 3–4 — Drive south to Galle Fort, stay in converted colonial mansion',
@@ -145,7 +140,7 @@ export const PACKAGES: Package[] = [
     name: 'The Ceylon Odyssey Elite (VVIP)',
     tags: ['Bespoke', 'Helicopter', 'Ultra-Lux'],
     desc: 'The absolute height of luxury and exclusivity. Fly across the island with private scenic helicopter transfers. Stay in ultra-luxury 5-star properties, private wellness sanctuaries, and serviced villas. Accompanied by naturalists, private chefs, and dedicated security.',
-    pricing: { solo: 4500, duo: 7800, group: 3500 },
+
     itinerary: [
       'Day 1–2 — VVIP fast-track arrival, private helicopter transfer to Galle coastal villa',
       'Day 3–4 — Private yacht cruise along the southern coast, whale watching & champagne lunch',

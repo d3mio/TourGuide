@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { SkipForward } from "lucide-react";
 import { useTranslation, hasPendingTranslations } from "@/store";
-import { Volume2, VolumeX, SkipForward } from "lucide-react";
 
 interface SplashIntroProps {
   onComplete: () => void;
@@ -11,37 +11,27 @@ interface SplashIntroProps {
 export default function SplashIntro({ onComplete }: SplashIntroProps) {
   const { t } = useTranslation();
   const [progress, setProgress] = useState(0);
-  const [loadingComplete, setLoadingComplete] = useState(false);
-  const [isFadingOut, setIsFadingOut] = useState(false);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [phase, setPhase] = useState<"loading" | "reveal" | "exit">("loading");
+  const [showContent, setShowContent] = useState(false);
 
-  // Handle enter action
-  const handleEnter = () => {
-    setIsFadingOut(true);
-    setTimeout(() => {
-      onComplete();
-    }, 850); // Match CSS fade animation duration
-  };
+  const handleExit = useCallback(() => {
+    if (phase === "exit") return;
+    setPhase("exit");
+    setTimeout(() => onComplete(), 900);
+  }, [phase, onComplete]);
 
-  // Animate loading progress to represent actual resource loading
+  // Loading progress
   useEffect(() => {
     let loaded = false;
     let fallbackTimer: NodeJS.Timeout;
 
-    const markLoaded = () => {
-      loaded = true;
-    };
+    const markLoaded = () => { loaded = true; };
 
-    // Check loading state
     if (typeof window !== "undefined") {
       if (document.readyState === "complete") {
         loaded = true;
       } else {
         window.addEventListener("load", markLoaded);
-        // Fallback safety: mark as loaded after 6 seconds in case load event already fired or is blocked
         fallbackTimer = setTimeout(markLoaded, 6000);
       }
     } else {
@@ -51,203 +41,153 @@ export default function SplashIntro({ onComplete }: SplashIntroProps) {
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (loaded) {
-          // Hold at 95% if there are active background translations loading
-          if (hasPendingTranslations() && prev >= 95) {
-            return 95;
-          }
-
+          if (hasPendingTranslations() && prev >= 95) return 95;
           if (prev >= 100) {
             clearInterval(timer);
-            setLoadingComplete(true);
-            
-            // Auto fade out to reveal site
-            setTimeout(() => {
-              setIsFadingOut(true);
-              setTimeout(() => {
-                onComplete();
-              }, 850);
-            }, 400);
-            
+            setPhase("reveal");
+            setTimeout(() => handleExit(), 1200);
             return 100;
           }
-          return prev + 4; // Complete loading progress quickly
+          return prev + 4;
         } else {
-          if (prev >= 90) {
-            return 90; // Hold at 90% until page loads
-          }
-          return prev + 2; // Incremental loading steps (takes ~1.8 seconds to hit 90%)
+          if (prev >= 90) return 90;
+          return prev + 2;
         }
       });
     }, 40);
 
+    // Stagger content entrance
+    setTimeout(() => setShowContent(true), 150);
+
     return () => {
       clearInterval(timer);
-      if (typeof window !== "undefined") {
-        window.removeEventListener("load", markLoaded);
-      }
+      if (typeof window !== "undefined") window.removeEventListener("load", markLoaded);
       if (fallbackTimer) clearTimeout(fallbackTimer);
     };
-  }, [onComplete]);
+  }, [handleExit]);
 
-  // Toggle mute
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-      setIsMuted(videoRef.current.muted);
-    }
-  };
+  // Derive visual states
+  const isRevealed = phase === "reveal" || phase === "exit";
+  const isExiting = phase === "exit";
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-[#09090b] transition-all duration-[850ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        isFadingOut ? "opacity-0 scale-105 pointer-events-none" : "opacity-100 scale-100"
-      }`}
+      className={`splash-root ${isExiting ? "splash-exit" : ""}`}
+      style={{ "--progress": `${progress}%` } as React.CSSProperties}
     >
-      {/* Cinematic Background Video */}
-      <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted={isMuted}
-          playsInline
-          onCanPlayThrough={() => setVideoLoaded(true)}
-          className={`w-full h-full object-cover transition-opacity duration-1000 ${
-            videoLoaded ? "opacity-35 scale-100" : "opacity-0 scale-105"
-          }`}
-          src="https://assets.mixkit.co/videos/preview/mixkit-waterfall-in-forest-2213-large.mp4"
-        />
-        {/* Dark, premium vignette overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/60 to-[#09090b]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#09090b_85%)]" />
+      {/* Ambient background effects */}
+      <div className="splash-ambient">
+        <div className="splash-orb splash-orb-1" />
+        <div className="splash-orb splash-orb-2" />
+        <div className="splash-orb splash-orb-3" />
       </div>
 
-      {/* Top Bar Controls */}
-      <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
-        {/* Branding Indicator */}
-        <div className="flex items-center gap-2 opacity-50">
-          <span className="text-[0.6rem] tracking-[0.3em] uppercase text-emerald-400 font-bold">EST. 2026</span>
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-        </div>
+      {/* Grain texture overlay */}
+      <div className="splash-grain" />
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-3">
-          {videoLoaded && (
-            <button
-              onClick={toggleMute}
-              className="p-2 rounded-full border border-white/10 hover:border-emerald-500/50 bg-black/40 hover:bg-black/60 text-white/70 hover:text-emerald-400 transition-all cursor-pointer backdrop-blur-md"
-              title={isMuted ? "Unmute Ambient Sound" : "Mute Sound"}
-            >
-              {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-            </button>
-          )}
-          <button
-            onClick={handleEnter}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 hover:border-emerald-500/50 bg-black/40 hover:bg-black/60 text-white/70 hover:text-emerald-400 text-[0.65rem] tracking-wider uppercase font-bold transition-all cursor-pointer backdrop-blur-md"
-          >
-            <span>{t("skip_intro") || "Skip"}</span>
-            <SkipForward className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
+      {/* Horizontal scan line */}
+      <div className="splash-scanline" />
 
-      {/* Center Cinematic Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center max-w-2xl px-6 text-center">
-        {/* Animated Brand Emblem */}
-        <div className="mb-8 relative flex items-center justify-center">
-          {/* Pulsing Backing Glow */}
-          <div className="absolute inset-0 rounded-full bg-emerald-500/10 filter blur-xl scale-125 animate-pulse" />
-          
-          <svg
-            className="w-20 h-20 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
-            viewBox="0 0 100 100"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Dashed outer circular track */}
+      {/* Skip button */}
+      <button onClick={handleExit} className="splash-skip" aria-label="Skip intro">
+        <span>{t("skip_intro") || "Skip"}</span>
+        <SkipForward className="w-3 h-3" />
+      </button>
+
+      {/* Center content */}
+      <div className={`splash-center ${showContent ? "splash-visible" : ""}`}>
+        
+        {/* Geometric emblem */}
+        <div className="splash-emblem">
+          <svg viewBox="0 0 120 120" fill="none" className="splash-emblem-svg">
+            {/* Outer rotating ring */}
             <circle
-              cx="50"
-              cy="50"
-              r="42"
-              stroke="url(#splashLogoGrad)"
-              strokeWidth="2.5"
-              strokeDasharray="6 3"
-              className="origin-center animate-[spin_40s_linear_infinite]"
-              style={{ opacity: 0.3 }}
+              cx="60" cy="60" r="55"
+              stroke="url(#emblemGrad)"
+              strokeWidth="0.5"
+              strokeDasharray="4 8"
+              className="splash-ring-outer"
+              opacity="0.3"
             />
-            {/* Solid animated circle tracing */}
+            {/* Middle progress ring */}
             <circle
-              cx="50"
-              cy="50"
-              r="42"
-              stroke="url(#splashLogoGrad)"
-              strokeWidth="2.5"
-              strokeDasharray="264"
-              strokeDashoffset={264 - (264 * progress) / 100}
-              className="origin-center -rotate-90 transition-all duration-300 ease-out"
-              style={{ opacity: 0.8 }}
-            />
-            {/* The Ceylon teardrop emblem */}
-            <path
-              d="M50 15 C60 31, 74 44, 50 78 C26 44, 40 31, 50 15 Z"
-              fill="url(#splashLogoGrad)"
-              className={`transition-all duration-1000 ease-out ${
-                progress > 30 ? "opacity-95 scale-100" : "opacity-0 scale-75"
-              } origin-center`}
-            />
-            {/* Wave overlay */}
-            <path
-              d="M32 56 C43 52, 57 60, 68 56"
-              stroke="#f59e0b"
-              strokeWidth="3.5"
+              cx="60" cy="60" r="46"
+              stroke="url(#emblemGrad)"
+              strokeWidth="1.5"
+              strokeDasharray="289"
+              strokeDashoffset={289 - (289 * progress) / 100}
               strokeLinecap="round"
-              className={`transition-all duration-1000 delay-300 ease-out ${
-                progress > 60 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-              }`}
+              className="splash-ring-progress"
+            />
+            {/* Inner accent ring */}
+            <circle
+              cx="60" cy="60" r="37"
+              stroke="var(--accent)"
+              strokeWidth="0.3"
+              opacity="0.15"
+            />
+            {/* Ceylon teardrop — the heart of the emblem */}
+            <path
+              d="M60 28 C68 40, 78 50, 60 74 C42 50, 52 40, 60 28 Z"
+              fill="url(#emblemGrad)"
+              className={`splash-teardrop ${progress > 25 ? "splash-teardrop-visible" : ""}`}
+            />
+            {/* Horizontal accent line */}
+            <line
+              x1="42" y1="58" x2="78" y2="58"
+              stroke="var(--amber)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              className={`splash-accent-line ${progress > 55 ? "splash-accent-visible" : ""}`}
             />
             <defs>
-              <linearGradient id="splashLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="emblemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#10b981" />
-                <stop offset="100%" stopColor="#3b82f6" />
+                <stop offset="100%" stopColor="#34d399" />
               </linearGradient>
             </defs>
           </svg>
+
+          {/* Glow behind emblem */}
+          <div className="splash-emblem-glow" />
         </div>
 
-        {/* Staggered text fade in */}
-        <div className="flex flex-col items-center">
-          <span className="text-[0.62rem] tracking-[0.4em] uppercase font-bold text-emerald-400 mb-3 animate-[fadeIn_1s_ease-out_both] delay-200">
-            {t("welcome_to_sl") || "Welcome to Sri Lanka"}
-          </span>
-          
-          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white mb-4 leading-tight animate-[fadeIn_1.2s_ease-out_both] delay-500">
-            Sri Lankan <span className="font-bold">Serendib Tours</span>
-          </h1>
-
-          <p className="text-zinc-400 font-serif italic text-sm md:text-base leading-relaxed max-w-[480px] mb-12 opacity-80 animate-[fadeIn_1.4s_ease-out_both] delay-700">
-            {t("hero_sub") || "An uncharted editorial journey through heritage citadels, emerald highlands, and shores that redefine the horizon."}
-          </p>
-        </div>
-
-        {/* Loading Counter */}
-        <div className="w-[200px] flex flex-col items-center gap-3">
-          {/* Progress Track */}
-          <div className="w-full h-[1px] bg-white/10 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${progress}%` }}
-            />
+        {/* Brand text */}
+        <div className="splash-brand">
+          <div className="splash-brand-line splash-stagger-1">
+            <span className="splash-eyebrow">{t("welcome_to_sl") || "Welcome to Sri Lanka"}</span>
           </div>
-          {/* Loading percentage / Ready state */}
-          <span className="text-[0.65rem] tracking-[0.2em] font-mono text-zinc-500">
-            {progress === 100 ? "READY" : `${progress}%`}
-          </span>
+          <div className="splash-brand-line splash-stagger-2">
+            <h1 className="splash-title">
+              Serendib<span className="splash-title-bold"> Tours</span>
+            </h1>
+          </div>
+        </div>
+
+        {/* Minimal progress indicator */}
+        <div className="splash-progress-wrap splash-stagger-3">
+          <div className="splash-progress-track">
+            <div className="splash-progress-fill" style={{ width: `${progress}%` }} />
+          </div>
+          <div className="splash-progress-meta">
+            <span className="splash-progress-label">
+              {isRevealed ? "✦" : t("splash_loading") || "Loading"}
+            </span>
+            <span className={`splash-progress-pct ${isRevealed ? "splash-pct-done" : ""}`}>
+              {progress}%
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Bottom Footer Info */}
-      <div className="absolute bottom-6 z-10 flex flex-col items-center gap-1 opacity-45 text-[0.58rem] tracking-[0.15em] uppercase text-zinc-500">
-        <span>Ceylon Travel Naturalists</span>
+      {/* Corner coordinates — editorial detail */}
+      <div className="splash-coord splash-coord-bl">
+        <span>6.9271° N</span>
+        <span>79.8612° E</span>
+      </div>
+
+      <div className="splash-coord splash-coord-br">
+        <span>Ceylon</span>
       </div>
     </div>
   );
