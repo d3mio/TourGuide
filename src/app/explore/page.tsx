@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTranslation, useAppStore } from "@/store";
 import { PROVINCES, EXCURSIONS } from "@/data/mockData";
-import { Heart, MapPin, Compass, Star, Clock, ChevronDown } from "lucide-react";
+import { Heart, MapPin, Compass, Star, Clock, ChevronDown, Mail, MessageCircle } from "lucide-react";
 
 // Image mapping for destinations in Sri Lanka
 const DEST_IMAGES: Record<string, string> = {
@@ -76,11 +76,10 @@ export default function Explore() {
             <button
               key={p}
               onClick={() => setCurrentProvince(p)}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide border transition-all cursor-pointer shrink-0 ${
-                p === currentProvince
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide border transition-all cursor-pointer shrink-0 ${p === currentProvince
                   ? "bg-accent text-white border-transparent shadow-sm shadow-accent/20"
                   : "border-bordercolor text-muted hover:border-accent/40 hover:text-textcolor bg-surface/30"
-              }`}
+                }`}
             >
               {p === "All" ? (t("All") || "All") : t(p)}
             </button>
@@ -89,7 +88,7 @@ export default function Explore() {
 
         {/* Local Search input */}
         <div className="relative w-full md:max-w-xs">
-          <input 
+          <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -111,33 +110,33 @@ export default function Explore() {
           {filteredPlaces.map((p) => {
             const isSaved = wishlist.includes(p.name);
             const imageSrc = DEST_IMAGES[p.name] || DEFAULT_IMAGE;
-            
+
             return (
-              <div 
-                key={p.name} 
+              <div
+                key={p.name}
                 className="group bg-surface border border-bordercolor rounded-xl overflow-hidden hover:border-accent/30 hover:-translate-y-1 transition-all duration-300 flex flex-col shadow-sm"
               >
                 {/* Photo container */}
                 <div className="h-[210px] relative overflow-hidden bg-bg">
-                  <img 
-                    src={imageSrc} 
-                    alt={p.name} 
+                  <img
+                    src={imageSrc}
+                    alt={p.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  
+
                   {/* Category Pill */}
                   <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1 rounded bg-surface/90 backdrop-blur-sm text-[0.68rem] tracking-wider font-semibold text-accent uppercase border border-bordercolor">
                     <MapPin className="w-3 h-3" /> {t(p.prov)}
                   </span>
 
                   {/* Wishlist Toggle Heart Button */}
-                  <button 
+                  <button
                     onClick={() => toggleWishlist(p.name)}
                     className="absolute top-4 right-4 w-9 h-9 rounded-full bg-surface/90 backdrop-blur-sm text-muted hover:text-rose-500 hover:scale-110 flex items-center justify-center border border-bordercolor transition-all duration-200 cursor-pointer"
                     aria-label={isSaved ? "Remove from wishlist" : "Save to wishlist"}
                   >
-                    <Heart 
-                      className={`w-4 h-4 transition-all duration-300 ${isSaved ? 'fill-rose-500 text-rose-500 scale-105' : 'text-muted'}`} 
+                    <Heart
+                      className={`w-4 h-4 transition-all duration-300 ${isSaved ? 'fill-rose-500 text-rose-500 scale-105' : 'text-muted'}`}
                     />
                   </button>
                 </div>
@@ -150,12 +149,12 @@ export default function Explore() {
                       <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> {p.rating}
                     </span>
                   </div>
-                  
+
                   <p className="text-xs md:text-[0.82rem] text-muted leading-relaxed mb-6 flex-1">
                     {t(p.desc)}
                   </p>
 
-                  <Link 
+                  <Link
                     href={`/planner?dest=${encodeURIComponent(p.name)}`}
                     className="w-full text-center px-4 py-2.5 rounded text-[0.7rem] font-bold uppercase tracking-wider border border-bordercolor text-textcolor hover:border-accent hover:text-accent bg-bg/20 hover:bg-accentdim/10 transition-all duration-200"
                   >
@@ -184,7 +183,7 @@ export default function Explore() {
           {EXCURSIONS.map((ex) => {
             const isExpanded = expandedExcursion === ex.id;
             return (
-              <div 
+              <div
                 key={ex.id}
                 className="bg-surface border border-bordercolor rounded-xl p-6 md:p-8 flex flex-col items-start relative overflow-hidden transition-all duration-300 hover:border-accent/30 hover:shadow-lg"
               >
@@ -222,13 +221,21 @@ export default function Explore() {
                     {isExpanded ? t("ex_hide_itinerary") : t("ex_view_itinerary")}
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
-                  
-                  <Link 
-                    href={`/planner?notes=${encodeURIComponent(`I am interested in booking the one-day excursion: ${ex.title}.`)}`}
-                    className="text-[0.7rem] font-bold uppercase tracking-wider text-textcolor border border-bordercolor hover:border-accent hover:text-accent px-3 py-1.5 rounded transition-all duration-200"
+
+                  <a
+                    href={`mailto:serandibtours@gmail.com?subject=${encodeURIComponent(`Excursion Booking: ${ex.title}`)}&body=${encodeURIComponent(`Hi, I am interested in booking the one-day excursion: ${ex.title}.`)}`}
+                    target="_blank"
+                    className="inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-textcolor border border-bordercolor hover:border-accent hover:text-accent px-2.5 py-1.5 rounded transition-all duration-200"
                   >
-                    {t("ex_book_now")}
-                  </Link>
+                    <Mail className="w-3 h-3" /> {t("book_via_email")}
+                  </a>
+                  <a
+                    href={`https://wa.me/94779718104?text=${encodeURIComponent(`Hi! I'm interested in the excursion: ${ex.title}`)}`}
+                    target="_blank"
+                    className="inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-white bg-[#25D366] hover:opacity-85 px-2.5 py-1.5 rounded transition-all duration-200"
+                  >
+                    <MessageCircle className="w-3 h-3" /> {t("book_via_whatsapp")}
+                  </a>
                 </div>
 
                 {/* Expanded Timeline details */}

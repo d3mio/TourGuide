@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation, useAppStore } from "@/store";
 import { PACKAGES, DESTINATIONS } from "@/data/mockData";
 import {
-  Hotel, Palmtree, Castle, Leaf, Wallet,
-  Calendar, CheckCircle2, Send, ChevronDown, Users
+  Hotel, Palmtree, Castle, Leaf, Mail, MessageCircle,
+  Calendar, CheckCircle2, Send, ChevronDown, Users,
+  Upload, FileImage, X
 } from "lucide-react";
 
 const TOUR_MAPS: Record<string, {
@@ -86,7 +87,7 @@ function PlannerContent() {
   const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addDraft } = useAppStore();
+  const { addDraft, updateDraftStatus } = useAppStore();
 
   const [budgetTier, setBudgetTier] = useState("Basic");
   const [activeTour, setActiveTour] = useState("basic");
@@ -125,10 +126,7 @@ function PlannerContent() {
     const p = activePackage;
     return {
       audience: `${t(p.tags[0])} / ${t(p.tags[1])}`,
-      cost:
-        p.tags[2] === "Budget" ? t("Budget ($)") :
-        p.tags[2] === "Comfort" ? t("Comfort ($$)") :
-        p.tags[2] === "Luxury" ? t("Luxury ($$$)") : t("Ultra-Lux ($$$$)"),
+      tier: t(p.tags[2]),
       duration: `${p.itinerary.length} ${t("days") || "Days"}`,
     };
   }, [activePackage, t]);
@@ -137,17 +135,89 @@ function PlannerContent() {
     setArr(arr.includes(val) ? arr.filter((a) => a !== val) : [...arr, val]);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Receipt upload state
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const [receiptNotes, setReceiptNotes] = useState("");
+  const [receiptSubmitted, setReceiptSubmitted] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Contact details (update these with real values)
+  const GUIDE_EMAIL = "serandibtours@gmail.com";
+  const GUIDE_WHATSAPP = "+94779718104";
+
+  // Generate booking summary text
+  const getBookingSummary = () => {
+    const lines = [
+      `Package: ${activePackage.name}`,
+      `Destinations: ${selectedDestinations.join(", ") || "—"}`,
+      `Duration: ${tripDuration} days`,
+      `Companions: ${companions || "—"}`,
+      `Themes: ${selectedThemes.join(", ") || "None"}`,
+      `Activities: ${selectedActivities.join(", ") || "None"}`,
+      `Lodging: ${selectedLodgingStyles.map((k) => LODGE_OPTIONS.find((o) => o.key === k)?.name || "").filter(Boolean).join(", ") || "Standard"}`,
+    ];
+    if (clientName) lines.unshift(`Name: ${clientName}`);
+    if (clientEmail) lines.unshift(`Email: ${clientEmail}`);
+    if (specialNotes) lines.push(`Notes: ${specialNotes}`);
+    return lines.join("\n");
+  };
+
+  const handleEmailBooking = () => {
+    const subject = encodeURIComponent(`Tour Booking Request — ${activePackage.name}`);
+    const body = encodeURIComponent(getBookingSummary());
+    window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
     addDraft({
       name: `Custom ${tripDuration}-Day ${budgetTier} Journey`,
       date: new Date().toLocaleDateString(),
+      status: "pending",
     });
     setShowModal(true);
   };
 
+  const handleWhatsAppBooking = () => {
+    const text = encodeURIComponent(`Hi! I'd like to book a tour.\n\n${getBookingSummary()}`);
+    window.open(`https://wa.me/${GUIDE_WHATSAPP.replace(/\+/g, "")}?text=${text}`, "_blank");
+    addDraft({
+      name: `Custom ${tripDuration}-Day ${budgetTier} Journey`,
+      date: new Date().toLocaleDateString(),
+      status: "pending",
+    });
+    setShowModal(true);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Don't auto-submit — user picks Email or WhatsApp
+  };
+
+  const handleReceiptFile = (file: File) => {
+    setReceiptFile(file);
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setReceiptPreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setReceiptPreview(null);
+    }
+  };
+
+  const handleReceiptSubmit = () => {
+    const subject = encodeURIComponent(`Payment Receipt — ${activePackage.name}`);
+    const body = encodeURIComponent(
+      `Please find my payment receipt attached.\n\nFile: ${receiptFile?.name || "N/A"}\n${receiptNotes ? `Notes: ${receiptNotes}` : ""}\n\nBooking Summary:\n${getBookingSummary()}`
+    );
+    window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
+    updateDraftStatus(`Custom ${tripDuration}-Day ${budgetTier} Journey`, "completed");
+    setReceiptSubmitted(true);
+  };
+
   const handleCloseModal = () => {
     setShowModal(false);
+    setReceiptFile(null);
+    setReceiptPreview(null);
+    setReceiptNotes("");
+    setReceiptSubmitted(false);
     router.push("/profile");
     setSelectedDestinations(["Kandy", "Ella", "Mirissa"]);
     setSelectedThemes([]);
@@ -166,8 +236,8 @@ function PlannerContent() {
     const styles = selectedLodgingStyles.length > 0
       ? selectedLodgingStyles.map((k) => t(LODGE_OPTIONS.find((o) => o.key === k)?.name || "")).filter(Boolean).join(", ")
       : t("Standard") || "Standard";
-    const partnerText = usePartnerLodging 
-      ? `(${t("partner_network") || "Partner Network"})` 
+    const partnerText = usePartnerLodging
+      ? `(${t("partner_network") || "Partner Network"})`
       : `(${t("independent") || "Independent"})`;
     return `${styles} ${partnerText}`;
   }, [selectedLodgingStyles, usePartnerLodging, t]);
@@ -215,11 +285,10 @@ function PlannerContent() {
                 key={tier}
                 type="button"
                 onClick={() => handleTierSelect(tier)}
-                className={`flex-1 py-2 rounded-lg text-center text-[0.68rem] sm:text-xs font-semibold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap min-w-[58px] ${
-                  budgetTier === tier
-                    ? "bg-accent text-white shadow-sm"
-                    : "text-muted hover:text-textcolor"
-                }`}
+                className={`flex-1 py-2 rounded-lg text-center text-[0.68rem] sm:text-xs font-semibold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap min-w-[58px] ${budgetTier === tier
+                  ? "bg-accent text-white shadow-sm"
+                  : "text-muted hover:text-textcolor"
+                  }`}
               >
                 {t(tier)}
               </button>
@@ -261,9 +330,6 @@ function PlannerContent() {
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[0.65rem] font-semibold uppercase bg-accentdim/20 text-accent">
                 <Users className="w-3 h-3" /> {packageMeta.audience}
               </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[0.65rem] font-semibold uppercase bg-ambercolor/10 text-ambercolor border border-ambercolor/10">
-                <Wallet className="w-3 h-3" /> {packageMeta.cost}
-              </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[0.65rem] font-semibold uppercase bg-surface text-textdim">
                 <Calendar className="w-3 h-3" /> {packageMeta.duration}
               </span>
@@ -271,7 +337,7 @@ function PlannerContent() {
 
             <h4 className="font-serif text-base md:text-lg text-textcolor">{t(activePackage.name)}</h4>
             <p className="text-muted text-[0.78rem] leading-relaxed">{t(activePackage.desc)}</p>
- 
+
             <div className="border-t border-bordercolor pt-3">
               <h5 className="text-[0.65rem] tracking-[0.08em] uppercase font-bold text-accent mb-2">
                 {t("plan_highlights")}:
@@ -285,7 +351,7 @@ function PlannerContent() {
                 ))}
               </ul>
             </div>
- 
+
             <div className="border-l-2 border-accent/40 pl-3 py-1">
               <span className="block text-[0.62rem] uppercase tracking-wider text-muted font-bold mb-0.5">
                 {t("plan_lodging_transit")}
@@ -321,11 +387,10 @@ function PlannerContent() {
                         <button
                           key={d} type="button"
                           onClick={() => toggleArr(selectedDestinations, setSelectedDestinations, d)}
-                          className={`px-2 py-1 rounded text-[0.65rem] font-medium border transition-all cursor-pointer ${
-                            isSelected
-                              ? "border-accent text-accent bg-accentdim/15"
-                              : "border-bordercolor text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"
-                          }`}
+                          className={`px-2 py-1 rounded text-[0.65rem] font-medium border transition-all cursor-pointer ${isSelected
+                            ? "border-accent text-accent bg-accentdim/15"
+                            : "border-bordercolor text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"
+                            }`}
                         >
                           {t(d)}
                         </button>
@@ -346,11 +411,10 @@ function PlannerContent() {
                         <button
                           key={theme} type="button"
                           onClick={() => toggleArr(selectedThemes, setSelectedThemes, theme)}
-                          className={`px-2.5 py-1.5 rounded-full text-[0.65rem] border transition-all cursor-pointer ${
-                            isSelected
-                              ? "border-accent text-accent bg-accentdim/15"
-                              : "border-bordercolor text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"
-                          }`}
+                          className={`px-2.5 py-1.5 rounded-full text-[0.65rem] border transition-all cursor-pointer ${isSelected
+                            ? "border-accent text-accent bg-accentdim/15"
+                            : "border-bordercolor text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"
+                            }`}
                         >
                           {t(theme)}
                         </button>
@@ -371,13 +435,11 @@ function PlannerContent() {
                         <div
                           key={a}
                           onClick={() => toggleArr(selectedActivities, setSelectedActivities, a)}
-                          className={`p-2.5 rounded-lg border cursor-pointer flex items-center gap-2 transition-colors ${
-                            isSelected ? "border-accent/40 bg-accentdim/5" : "border-bordercolor bg-bg/20 hover:border-accent/30"
-                          }`}
+                          className={`p-2.5 rounded-lg border cursor-pointer flex items-center gap-2 transition-colors ${isSelected ? "border-accent/40 bg-accentdim/5" : "border-bordercolor bg-bg/20 hover:border-accent/30"
+                            }`}
                         >
-                          <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[0.5rem] transition-all shrink-0 ${
-                            isSelected ? "bg-accent border-accent text-white" : "border-bordercolor"
-                          }`}>
+                          <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[0.5rem] transition-all shrink-0 ${isSelected ? "bg-accent border-accent text-white" : "border-bordercolor"
+                            }`}>
                             {isSelected ? "✓" : ""}
                           </div>
                           <span className="text-[0.68rem] font-semibold text-textcolor leading-tight">{t(a)}</span>
@@ -440,13 +502,11 @@ function PlannerContent() {
                         <div
                           key={l.key}
                           onClick={() => toggleArr(selectedLodgingStyles, setSelectedLodgingStyles, l.key)}
-                          className={`p-2 border rounded-lg cursor-pointer transition-all flex gap-2 items-center ${
-                            isSelected ? "border-accent bg-accentdim/15" : "border-bordercolor bg-bg/20 hover:border-accent/40"
-                          }`}
+                          className={`p-2 border rounded-lg cursor-pointer transition-all flex gap-2 items-center ${isSelected ? "border-accent bg-accentdim/15" : "border-bordercolor bg-bg/20 hover:border-accent/40"
+                            }`}
                         >
-                          <div className={`p-1 rounded border shrink-0 ${
-                            isSelected ? "bg-accent text-white border-transparent" : "bg-surface border-bordercolor text-muted"
-                          }`}>
+                          <div className={`p-1 rounded border shrink-0 ${isSelected ? "bg-accent text-white border-transparent" : "bg-surface border-bordercolor text-muted"
+                            }`}>
                             <l.Icon className="w-3.5 h-3.5" />
                           </div>
                           <span className="text-[0.65rem] font-semibold text-textcolor truncate">{t(l.name)}</span>
@@ -510,48 +570,165 @@ function PlannerContent() {
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="w-full py-3 bg-accent hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-accent/25 cursor-pointer"
-            >
-              <span>{t("form_submit_quote")}</span>
-              <Send className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex gap-2 mt-1">
+              <button
+                type="button"
+                onClick={handleEmailBooking}
+                className="flex-1 py-3 bg-accent hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-accent/25 cursor-pointer transition-all"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>{t("book_via_email")}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleWhatsAppBooking}
+                className="flex-1 py-3 bg-[#25D366] hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-[#25D366]/25 cursor-pointer transition-all"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>{t("book_via_whatsapp")}</span>
+              </button>
+            </div>
           </form>
         </div>
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Confirmation & Receipt Upload Modal */}
       <div className={`modal-overlay ${showModal ? "open" : ""}`}>
-        <div className="modal-card text-center">
-          <div className="mx-auto w-12 h-12 bg-accentdim/20 text-accent rounded-full flex items-center justify-center mb-4">
-            <CheckCircle2 className="w-7 h-7" />
-          </div>
-          <h3 className="font-serif text-xl sm:text-2xl text-textcolor mb-2">{t("modal_success_title")}</h3>
-          <p className="text-muted text-xs sm:text-sm leading-relaxed mb-5">{t("modal_success_desc")}</p>
+        <div className="modal-card max-w-[500px]">
+          {!receiptSubmitted ? (
+            <>
+              {/* Success header */}
+              <div className="text-center mb-5">
+                <div className="mx-auto w-12 h-12 bg-accentdim/20 text-accent rounded-full flex items-center justify-center mb-4">
+                  <CheckCircle2 className="w-7 h-7" />
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl text-textcolor mb-2">{t("booking_sent_title")}</h3>
+                <p className="text-muted text-xs sm:text-sm leading-relaxed">{t("booking_sent_desc")}</p>
+              </div>
 
-          <div className="w-full text-left bg-bg/50 border border-bordercolor rounded-lg p-4 mb-5">
-            <h5 className="text-[0.62rem] tracking-[0.15em] uppercase font-bold text-accent mb-3 pb-2 border-b border-bordercolor">
-              {t("modal_summary_title")}
-            </h5>
-            <ul className="space-y-2 text-xs">
-              {modalData.map(([label, value]) => (
-                <li key={label} className="flex justify-between gap-2">
-                  <span className="text-muted shrink-0">{label}:</span>
-                  <strong className={`truncate max-w-[180px] sm:max-w-[220px] ${
-                    label === t("modal_saved") ? "text-accent" : "text-textcolor"
-                  }`}>{value}</strong>
-                </li>
-              ))}
-            </ul>
-          </div>
+              {/* Trip summary */}
+              <div className="w-full text-left bg-bg/50 border border-bordercolor rounded-lg p-4 mb-5">
+                <h5 className="text-[0.62rem] tracking-[0.15em] uppercase font-bold text-accent mb-3 pb-2 border-b border-bordercolor">
+                  {t("modal_summary_title")}
+                </h5>
+                <ul className="space-y-2 text-xs">
+                  {modalData.map(([label, value]) => (
+                    <li key={label} className="flex justify-between gap-2">
+                      <span className="text-muted shrink-0">{label}:</span>
+                      <strong className={`truncate max-w-[180px] sm:max-w-[220px] ${label === t("modal_saved") ? "text-accent" : "text-textcolor"
+                        }`}>{value}</strong>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          <button
-            onClick={handleCloseModal}
-            className="w-full py-2.5 bg-accent hover:opacity-85 text-white text-xs font-semibold uppercase tracking-wider rounded-lg cursor-pointer"
-          >
-            {t("modal_close")}
-          </button>
+              {/* Receipt upload section */}
+              <div className="w-full text-left border border-bordercolor rounded-lg p-4 mb-5 bg-surface/30">
+                <h5 className="text-[0.62rem] tracking-[0.15em] uppercase font-bold text-accent mb-1">
+                  {t("upload_receipt")}
+                </h5>
+                <p className="text-muted text-[0.65rem] mb-3 leading-relaxed">{t("upload_receipt_desc")}</p>
+
+                {/* Drop zone */}
+                <div
+                  className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer ${isDragging ? "border-accent bg-accentdim/10" : "border-bordercolor hover:border-accent/40"
+                    }`}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    const file = e.dataTransfer.files[0];
+                    if (file) handleReceiptFile(file);
+                  }}
+                  onClick={() => document.getElementById("receiptFileInput")?.click()}
+                >
+                  <input
+                    id="receiptFileInput"
+                    type="file"
+                    accept="image/*,.pdf"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleReceiptFile(file);
+                    }}
+                  />
+
+                  {receiptFile ? (
+                    <div className="flex items-center gap-3">
+                      {receiptPreview ? (
+                        <img src={receiptPreview} alt="Receipt" className="w-14 h-14 rounded-lg object-cover border border-bordercolor" />
+                      ) : (
+                        <div className="w-14 h-14 rounded-lg bg-accentdim/20 flex items-center justify-center">
+                          <FileImage className="w-6 h-6 text-accent" />
+                        </div>
+                      )}
+                      <div className="text-left flex-1 min-w-0">
+                        <p className="text-xs text-textcolor font-medium truncate">{receiptFile.name}</p>
+                        <p className="text-[0.6rem] text-muted">{(receiptFile.size / 1024).toFixed(1)} KB</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setReceiptFile(null); setReceiptPreview(null); }}
+                        className="p-1 rounded-full hover:bg-surface text-muted hover:text-textcolor transition-colors cursor-pointer"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="py-2">
+                      <Upload className="w-5 h-5 mx-auto text-muted mb-2" />
+                      <p className="text-[0.65rem] text-muted">{t("receipt_drop_hint")}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Receipt notes */}
+                <textarea
+                  value={receiptNotes}
+                  onChange={(e) => setReceiptNotes(e.target.value)}
+                  placeholder={t("receipt_notes_label")}
+                  className="w-full mt-3 min-h-[50px] bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent resize-y placeholder:text-muted/50"
+                />
+
+                {/* Submit receipt */}
+                <button
+                  type="button"
+                  disabled={!receiptFile}
+                  onClick={handleReceiptSubmit}
+                  className={`w-full mt-3 py-2.5 text-white text-xs font-semibold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all ${receiptFile
+                    ? "bg-accent hover:opacity-85 shadow-md shadow-accent/25"
+                    : "bg-muted/30 text-muted cursor-not-allowed"
+                    }`}
+                >
+                  <Send className="w-3 h-3" />
+                  {t("receipt_submit")}
+                </button>
+              </div>
+
+              <button
+                onClick={handleCloseModal}
+                className="w-full py-2.5 bg-surface hover:bg-surface2 text-textdim text-xs font-semibold uppercase tracking-wider rounded-lg cursor-pointer border border-bordercolor transition-all"
+              >
+                {t("modal_close")}
+              </button>
+            </>
+          ) : (
+            /* Receipt submitted success */
+            <div className="text-center py-4">
+              <div className="mx-auto w-14 h-14 bg-accentdim/20 text-accent rounded-full flex items-center justify-center mb-4">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <h3 className="font-serif text-xl sm:text-2xl text-textcolor mb-2">{t("receipt_success_title")}</h3>
+              <p className="text-muted text-xs sm:text-sm leading-relaxed mb-6">{t("receipt_success_desc")}</p>
+              <button
+                onClick={handleCloseModal}
+                className="w-full py-2.5 bg-accent hover:opacity-85 text-white text-xs font-semibold uppercase tracking-wider rounded-lg cursor-pointer"
+              >
+                {t("modal_close")}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </section>

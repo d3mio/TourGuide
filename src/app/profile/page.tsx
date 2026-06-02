@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslation, useAppStore } from "@/store";
-import { Leaf, Landmark, Camera, Waves, Star, Calendar, Trash2, Heart } from "lucide-react";
+import { Leaf, Landmark, Camera, Waves, Star, Calendar, Trash2, Heart, Upload, FileImage, X, Send, CheckCircle2, Mail } from "lucide-react";
 
 // Image mapping for destinations in Sri Lanka to match Explore page
 const DEST_IMAGES: Record<string, string> = {
@@ -33,7 +34,47 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1544735716-392fe2489ffa
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { drafts, wishlist, reviews, toggleWishlist } = useAppStore();
+  const { drafts, wishlist, reviews, toggleWishlist, updateDraftStatus } = useAppStore();
+
+  // Receipt upload state for profile modal
+  const [receiptDraft, setReceiptDraft] = useState<string | null>(null);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const [receiptNotes, setReceiptNotes] = useState("");
+  const [receiptSubmitted, setReceiptSubmitted] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const GUIDE_EMAIL = "serandibtours@gmail.com";
+
+  const handleReceiptFile = (file: File) => {
+    setReceiptFile(file);
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setReceiptPreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setReceiptPreview(null);
+    }
+  };
+
+  const handleReceiptSubmit = () => {
+    if (!receiptDraft) return;
+    const subject = encodeURIComponent(`Payment Receipt — ${receiptDraft}`);
+    const body = encodeURIComponent(
+      `Please find my payment receipt attached.\n\nFile: ${receiptFile?.name || "N/A"}\n${receiptNotes ? `Notes: ${receiptNotes}` : ""}\n\nBooking: ${receiptDraft}`
+    );
+    window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
+    updateDraftStatus(receiptDraft, "completed");
+    setReceiptSubmitted(true);
+  };
+
+  const closeReceiptModal = () => {
+    setReceiptDraft(null);
+    setReceiptFile(null);
+    setReceiptPreview(null);
+    setReceiptNotes("");
+    setReceiptSubmitted(false);
+  };
 
   // Filter reviews written by the client
   const myReviews = reviews.filter((r) => r.isMine || r.name === 'Aanya Sharma');
@@ -46,6 +87,7 @@ export default function Profile() {
   ];
 
   return (
+    <>
     <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-24">
       {/* Page Header */}
       <div className="mb-12">
@@ -124,11 +166,30 @@ export default function Profile() {
               {drafts.length > 0 ? (
                 <div className="divide-y divide-bordercolor">
                   {drafts.map((d, i) => (
-                    <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 text-xs text-textcolor first:pt-0 last:pb-0 gap-1">
-                      <span className="font-medium">{d.name}</span>
-                      <span className="text-muted flex items-center gap-1.5 text-[0.68rem]">
-                        <Calendar className="w-3.5 h-3.5 text-accent" /> {d.date}
-                      </span>
+                    <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 text-xs text-textcolor first:pt-0 last:pb-0 gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-medium truncate">{d.name}</span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[0.58rem] tracking-wider font-bold uppercase shrink-0 ${
+                          d.status === "completed"
+                            ? "bg-accentdim/20 text-accent border border-accent/20"
+                            : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                        }`}>
+                          {d.status === "completed" ? t("status_completed") : t("status_pending")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted flex items-center gap-1.5 text-[0.68rem]">
+                          <Calendar className="w-3.5 h-3.5 text-accent" /> {d.date}
+                        </span>
+                        {d.status === "pending" && (
+                          <button
+                            onClick={() => setReceiptDraft(d.name)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider bg-accent hover:opacity-85 text-white cursor-pointer transition-all"
+                          >
+                            <Upload className="w-3 h-3" /> {t("complete_booking")}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -241,5 +302,125 @@ export default function Profile() {
         </div>
       </div>
     </section>
+
+    {/* Receipt Upload Modal (from profile) */}
+    <div className={`modal-overlay ${receiptDraft ? "open" : ""}`}>
+      <div className="modal-card max-w-[460px]">
+        {!receiptSubmitted ? (
+          <>
+            <div className="text-center mb-5">
+              <div className="mx-auto w-12 h-12 bg-accentdim/20 text-accent rounded-full flex items-center justify-center mb-4">
+                <Upload className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-xl sm:text-2xl text-textcolor mb-2">{t("complete_booking")}</h3>
+              <p className="text-muted text-xs sm:text-sm leading-relaxed">{t("upload_receipt_desc")}</p>
+            </div>
+
+            <div className="w-full text-left bg-surface/30 border border-bordercolor rounded-lg p-4 mb-4">
+              <p className="text-xs text-muted mb-1">{t("prof_drafts")}:</p>
+              <p className="text-sm font-medium text-textcolor">{receiptDraft}</p>
+            </div>
+
+            {/* Drop zone */}
+            <div
+              className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer mb-3 ${isDragging ? "border-accent bg-accentdim/10" : "border-bordercolor hover:border-accent/40"
+                }`}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                const file = e.dataTransfer.files[0];
+                if (file) handleReceiptFile(file);
+              }}
+              onClick={() => document.getElementById("profileReceiptInput")?.click()}
+            >
+              <input
+                id="profileReceiptInput"
+                type="file"
+                accept="image/*,.pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleReceiptFile(file);
+                }}
+              />
+
+              {receiptFile ? (
+                <div className="flex items-center gap-3">
+                  {receiptPreview ? (
+                    <img src={receiptPreview} alt="Receipt" className="w-14 h-14 rounded-lg object-cover border border-bordercolor" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-lg bg-accentdim/20 flex items-center justify-center">
+                      <FileImage className="w-6 h-6 text-accent" />
+                    </div>
+                  )}
+                  <div className="text-left flex-1 min-w-0">
+                    <p className="text-xs text-textcolor font-medium truncate">{receiptFile.name}</p>
+                    <p className="text-[0.6rem] text-muted">{(receiptFile.size / 1024).toFixed(1)} KB</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setReceiptFile(null); setReceiptPreview(null); }}
+                    className="p-1 rounded-full hover:bg-surface text-muted hover:text-textcolor transition-colors cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="py-2">
+                  <Upload className="w-5 h-5 mx-auto text-muted mb-2" />
+                  <p className="text-[0.65rem] text-muted">{t("receipt_drop_hint")}</p>
+                </div>
+              )}
+            </div>
+
+            <textarea
+              value={receiptNotes}
+              onChange={(e) => setReceiptNotes(e.target.value)}
+              placeholder={t("receipt_notes_label")}
+              className="w-full min-h-[50px] bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent resize-y placeholder:text-muted/50 mb-3"
+            />
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={closeReceiptModal}
+                className="flex-1 py-2.5 bg-surface hover:bg-surface2 text-textdim text-xs font-semibold uppercase tracking-wider rounded-lg cursor-pointer border border-bordercolor transition-all"
+              >
+                {t("modal_close")}
+              </button>
+              <button
+                type="button"
+                disabled={!receiptFile}
+                onClick={handleReceiptSubmit}
+                className={`flex-1 py-2.5 text-white text-xs font-semibold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all ${receiptFile
+                  ? "bg-accent hover:opacity-85 shadow-md shadow-accent/25"
+                  : "bg-muted/30 text-muted cursor-not-allowed"
+                  }`}
+              >
+                <Send className="w-3 h-3" />
+                {t("receipt_submit")}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-4">
+            <div className="mx-auto w-14 h-14 bg-accentdim/20 text-accent rounded-full flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <h3 className="font-serif text-xl sm:text-2xl text-textcolor mb-2">{t("receipt_success_title")}</h3>
+            <p className="text-muted text-xs sm:text-sm leading-relaxed mb-6">{t("receipt_success_desc")}</p>
+            <button
+              onClick={closeReceiptModal}
+              className="w-full py-2.5 bg-accent hover:opacity-85 text-white text-xs font-semibold uppercase tracking-wider rounded-lg cursor-pointer"
+            >
+              {t("modal_close")}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  </>
   );
 }

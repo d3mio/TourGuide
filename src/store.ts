@@ -7,9 +7,10 @@ import { CONTENT_TRANSLATIONS } from './data/contentTranslations';
 import { Review } from './data/mockData';
 import { INITIAL_REVIEWS } from './data/mockData';
 
-type Draft = {
+export type Draft = {
   name: string;
   date: string;
+  status: "pending" | "completed";
 };
 
 type AppState = {
@@ -24,6 +25,7 @@ type AppState = {
   toggleTheme: () => void;
   addReview: (review: Review) => void;
   addDraft: (draft: Draft) => void;
+  updateDraftStatus: (name: string, status: Draft["status"]) => void;
   toggleWishlist: (item: string) => void;
   addDynamicTranslation: (lang: string, key: string, translation: string) => void;
 };
@@ -56,10 +58,13 @@ export const useAppStore = create<AppState>()(
       addReview: (review) => set((state) => ({ reviews: [review, ...state.reviews] })),
       addDraft: (draft) => set((state) => {
         if (!state.drafts.find(d => d.name === draft.name)) {
-          return { drafts: [...state.drafts, draft] };
+          return { drafts: [...state.drafts, { ...draft, status: draft.status || "pending" }] };
         }
         return state;
       }),
+      updateDraftStatus: (name, status) => set((state) => ({
+        drafts: state.drafts.map(d => d.name === name ? { ...d, status } : d)
+      })),
       toggleWishlist: (item) => set((state) => {
         if (state.wishlist.includes(item)) {
           return { wishlist: state.wishlist.filter(w => w !== item) };
