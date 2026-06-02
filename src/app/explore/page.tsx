@@ -189,13 +189,13 @@ export default function Explore() {
                 className="bg-surface border border-bordercolor rounded-xl p-6 md:p-8 flex flex-col items-start relative overflow-hidden transition-all duration-300 hover:border-accent/30 hover:shadow-lg"
               >
                 <div className="absolute top-0 right-0 bg-bordercolor/50 border-l border-b border-bordercolor text-[0.7rem] uppercase font-bold px-4 py-1.5 rounded-bl-lg text-muted">
-                  {ex.badge}
+                  {t(ex.badge)}
                 </div>
 
                 <div className="mb-4 pr-16">
                   <h3 className="font-serif text-xl md:text-2xl text-textcolor mb-1">{t(ex.title)}</h3>
                   <span className="inline-flex items-center gap-1 text-[0.72rem] text-accent font-semibold bg-accentdim/15 px-2 py-0.5 rounded">
-                    <Clock className="w-3.5 h-3.5" /> {ex.duration}
+                    <Clock className="w-3.5 h-3.5" /> {t(ex.duration)}
                   </span>
                 </div>
 
@@ -210,7 +210,7 @@ export default function Explore() {
                   </div>
                   <div className="flex items-center gap-1.5 text-xs text-muted">
                     <Compass className="w-3.5 h-3.5 text-accent" />
-                    <span><strong>{t("drive")}:</strong> {ex.travelInfo.split(' (')[0]}</span>
+                    <span><strong>{t("drive")}:</strong> {t(ex.travelInfo.split(' (')[0])}</span>
                   </div>
                 </div>
 
@@ -240,7 +240,7 @@ export default function Explore() {
                         <div key={idx} className="relative flex flex-col sm:flex-row gap-1 sm:gap-4 items-start text-[0.8rem]">
                           <div className="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-accent border border-bg" />
                           <span className="font-bold text-accent bg-accentdim/10 px-1.5 py-0.5 rounded text-[0.7rem] shrink-0">{item.time}</span>
-                          <span className="text-muted leading-relaxed">{item.event}</span>
+                          <span className="text-muted leading-relaxed">{t(item.event)}</span>
                         </div>
                       ))}
                     </div>

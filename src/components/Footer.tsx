@@ -57,8 +57,8 @@ export default function Footer() {
             <ul className="flex flex-col gap-2.5">
               <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Instagram</a></li>
               <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Twitter (X)</a></li>
-              <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Contact Us</a></li>
-              <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Privacy Policy</a></li>
+              <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">{t("footer_contact")}</a></li>
+              <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">{t("footer_privacy")}</a></li>
             </ul>
           </div>
           

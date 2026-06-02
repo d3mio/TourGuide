@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useTranslation } from "@/store";
+import { useTranslation, hasPendingTranslations } from "@/store";
 import { Volume2, VolumeX, SkipForward } from "lucide-react";
 
 interface SplashIntroProps {
@@ -51,6 +51,11 @@ export default function SplashIntro({ onComplete }: SplashIntroProps) {
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (loaded) {
+          // Hold at 95% if there are active background translations loading
+          if (hasPendingTranslations() && prev >= 95) {
+            return 95;
+          }
+
           if (prev >= 100) {
             clearInterval(timer);
             setLoadingComplete(true);

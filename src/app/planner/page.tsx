@@ -175,11 +175,11 @@ function PlannerContent() {
   const modalData = [
     [t("modal_destinations"), selectedDestinations.map(d => t(d)).join(", ") || "—"],
     [t("modal_budget"), t(budgetTier)],
-    [t("modal_themes"), selectedThemes.map(th => t(th)).join(", ") || "None"],
+    [t("modal_themes"), selectedThemes.map(th => t(th)).join(", ") || t("None")],
     [t("modal_duration"), `${tripDuration} ${t("days")}`],
     [t("modal_companions"), t(`plan_cohort_${companions.toLowerCase()}`) || companions || "—"],
     [t("modal_lodging"), lodgingSummary],
-    [t("modal_activities"), selectedActivities.map(a => t(a)).join(", ") || "None"],
+    [t("modal_activities"), selectedActivities.map(a => t(a)).join(", ") || t("None")],
     [t("modal_saved"), t("modal_saved_val")],
   ];
 
@@ -560,7 +560,7 @@ function PlannerContent() {
 
 export default function Planner() {
   return (
-    <Suspense fallback={<div className="p-24 text-center text-muted">Loading…</div>}>
+    <Suspense fallback={<div className="p-24 text-center text-muted"><div className="inline-block w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" /></div>}>
       <PlannerContent />
     </Suspense>
   );

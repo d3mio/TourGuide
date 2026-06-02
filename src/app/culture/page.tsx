@@ -84,8 +84,8 @@ function CultureContent() {
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-accentdim/20 border border-accent/30 text-accent flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-accent group-hover:text-white group-hover:border-transparent transition-all duration-300">
                     <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <h3 className="font-serif text-base sm:text-lg mb-1 text-white">{data.title.split(' & ')[0]}</h3>
-                  <p className="text-[0.65rem] sm:text-[0.7rem] text-white/60 mb-2 sm:mb-3 line-clamp-2">{data.tagline}</p>
+                  <h3 className="font-serif text-base sm:text-lg mb-1 text-white">{t(data.title.split(' & ')[0])}</h3>
+                  <p className="text-[0.65rem] sm:text-[0.7rem] text-white/60 mb-2 sm:mb-3 line-clamp-2">{t(data.tagline)}</p>
                   <span className="text-[0.65rem] sm:text-[0.7rem] font-bold text-accent flex items-center gap-1.5 opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                     {t("cult_view_interp")} <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </span>
@@ -135,11 +135,11 @@ function CultureContent() {
                 {/* Content */}
                 <div className="absolute inset-0 p-5 sm:p-8 flex flex-col justify-end z-10 pointer-events-none">
                   <span className="text-[0.62rem] sm:text-[0.65rem] tracking-wider uppercase font-bold text-accent mb-2 block">
-                    {c.tag}
+                    {t(c.tag)}
                   </span>
-                  <h3 className="font-serif text-lg sm:text-2xl text-white mb-2 sm:mb-3">{c.title}</h3>
+                  <h3 className="font-serif text-lg sm:text-2xl text-white mb-2 sm:mb-3">{t(c.title)}</h3>
                   <p className="text-[0.75rem] sm:text-[0.82rem] text-white/70 leading-relaxed max-w-lg transition-colors group-hover:text-white/90">
-                    {c.desc}
+                    {t(c.desc)}
                   </p>
                 </div>
               </div>
@@ -177,13 +177,13 @@ function CultureContent() {
                   {t("cult_drawer_eyebrow")}
                 </span>
                 <h2 className="font-serif text-2xl sm:text-3xl mb-1 text-textcolor">
-                  {PILLARS_DATA[activePillar].title}
+                  {t(PILLARS_DATA[activePillar].title)}
                 </h2>
-                <p className="text-xs text-muted font-medium italic">{PILLARS_DATA[activePillar].tagline}</p>
+                <p className="text-xs text-muted font-medium italic">{t(PILLARS_DATA[activePillar].tagline)}</p>
               </div>
 
               <div className="text-xs md:text-sm text-muted leading-relaxed space-y-4 mb-5">
-                <p>{PILLARS_DATA[activePillar].desc}</p>
+                <p>{t(PILLARS_DATA[activePillar].desc)}</p>
               </div>
 
               <div className="bg-bg border border-bordercolor rounded-xl p-4 sm:p-5 mb-5">
@@ -199,7 +199,7 @@ function CultureContent() {
                           {idx + 1}
                         </span>
                         <div>
-                          <strong className="text-textcolor font-medium">{title}</strong>: {desc}
+                          <strong className="text-textcolor font-medium">{t(title)}</strong>: {t(desc)}
                         </div>
                       </li>
                     );
@@ -211,7 +211,7 @@ function CultureContent() {
                 <h4 className="text-[0.72rem] tracking-[0.15em] uppercase font-bold text-ambercolor mb-1.5">
                   {t("cult_drawer_tip")}:
                 </h4>
-                <p className="text-xs text-muted leading-relaxed">{PILLARS_DATA[activePillar].tip}</p>
+                <p className="text-xs text-muted leading-relaxed">{t(PILLARS_DATA[activePillar].tip)}</p>
               </div>
 
               <button
@@ -222,7 +222,7 @@ function CultureContent() {
                 }}
                 className="w-full py-2.5 bg-accent hover:opacity-85 text-white text-xs font-medium uppercase tracking-wider rounded-lg text-center cursor-pointer"
               >
-                {t("cult_plan_btn")} — {activePillar.toUpperCase()}
+                {t("cult_plan_btn")} — {t(activePillar.toUpperCase())}
               </button>
             </div>
           )}
@@ -234,7 +234,7 @@ function CultureContent() {
 
 export default function Culture() {
   return (
-    <Suspense fallback={<div className="p-24 text-center text-muted">Loading Culture…</div>}>
+    <Suspense fallback={<div className="p-24 text-center text-muted"><div className="inline-block w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin" /></div>}>
       <CultureContent />
     </Suspense>
   );

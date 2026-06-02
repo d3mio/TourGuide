@@ -178,14 +178,14 @@ export default function Home() {
                       <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <h3 className="font-serif text-base sm:text-lg text-textcolor mb-1 sm:mb-1.5 group-hover:text-accent transition-colors">
-                      {data.title.split(' & ')[0]}
+                      {t(data.title.split(' & ')[0])}
                     </h3>
                     <p className="text-[0.68rem] sm:text-[0.72rem] text-muted leading-relaxed line-clamp-2 sm:line-clamp-3">
-                      {data.tagline}
+                      {t(data.tagline)}
                     </p>
                   </div>
                   <span className="text-[0.65rem] sm:text-[0.7rem] font-bold text-accent flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity mt-3 sm:mt-4 uppercase tracking-wider">
-                    Explore <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                    {t("nav_explore")} <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                   </span>
                 </Link>
               );
