@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslation } from "@/store";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function LoginPage() {
-  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4 relative overflow-hidden">

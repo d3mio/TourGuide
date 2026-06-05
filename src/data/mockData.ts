@@ -1,4 +1,4 @@
-import { Drum, Coffee, Castle, Tent, FlameKindling, Building, Paintbrush, Ship, Hotel, Palmtree, Leaf, Landmark, Camera, Waves, Compass, Users, BookOpen } from "lucide-react";
+import { Drum, Coffee, Castle, Tent, FlameKindling, Building, Paintbrush, Ship, Leaf, Compass, Users, BookOpen } from "lucide-react";
 
 export type Review = {
   id: number | string;

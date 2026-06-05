@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslation, useAppStore } from "@/store";
-import { Leaf, Landmark, Camera, Waves, Star, Calendar, Trash2, Heart, Upload, FileImage, X, Send, CheckCircle2, Mail } from "lucide-react";
+import { Leaf, Landmark, Camera, Waves, Star, Calendar, Heart, Upload, FileImage, X, Send, CheckCircle2 } from "lucide-react";
 
 // Image mapping for destinations in Sri Lanka to match Explore page
 const DEST_IMAGES: Record<string, string> = {
