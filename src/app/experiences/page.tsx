@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation, useAppStore } from "@/store";
 import { Star, Send, CheckCircle2, MessageSquare } from "lucide-react";
+import { supabase } from "@/utils/supabase";
+import { LayoutGrid, type Card } from "@/components/ui/layout-grid";
 
 export default function Experiences() {
   const { t } = useTranslation();
@@ -14,6 +16,46 @@ export default function Experiences() {
   const [selectedStars, setSelectedStars] = useState(0);
   const [hoveredStars, setHoveredStars] = useState(0);
   const [showMsg, setShowMsg] = useState(false);
+  const [mediaCards, setMediaCards] = useState<Card[]>([]);
+
+  useEffect(() => {
+    const fetchMedia = async () => {
+      const { data, error } = await supabase
+        .from("media")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(24);
+
+      if (error) {
+        console.error("Supabase fetch error:", error);
+      }
+
+      if (data && !error) {
+        console.log("Fetched media data:", data);
+        const formattedCards: Card[] = data.map((item, index) => {
+          const isWide = index % 3 === 0;
+          return {
+            id: item.id,
+            thumbnail: item.url,
+            type: item.type as "image" | "video",
+            className: isWide ? "md:col-span-2 min-h-[300px]" : "col-span-1 min-h-[300px]",
+            content: (
+              <div>
+                <p className="font-bold md:text-3xl text-xl text-white">
+                  {item.category.replace('_', ' ').toUpperCase()}
+                </p>
+                <p className="font-normal text-sm my-2 max-w-lg text-neutral-200">
+                  {item.type === 'video' ? 'A beautiful video captured during our tours.' : 'A beautiful moment captured from our recent tours.'}
+                </p>
+              </div>
+            )
+          };
+        });
+        setMediaCards(formattedCards);
+      }
+    };
+    fetchMedia();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,65 +177,138 @@ export default function Experiences() {
         </div>
 
         {/* Feed Column */}
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-hidden relative">
           <div className="text-[0.68rem] tracking-[0.15em] uppercase text-muted font-bold pb-2 border-b border-bordercolor">
             {t("feed_eyebrow") || "All Experiences"} ({reviews.length})
           </div>
           
-          <div className="space-y-4">
-            {reviews.map((r) => {
-              const avatarLetter = r.name ? r.name.charAt(0).toUpperCase() : "T";
-              return (
-                <div 
-                  key={r.id} 
-                  className="bg-surface border border-bordercolor rounded-2xl p-5 md:p-6 hover:border-accent/30 transition-colors shadow-sm flex flex-col sm:flex-row gap-4 items-start"
-                >
-                  {/* User circular badge avatar */}
-                  <div className="w-10 h-10 rounded-full bg-accentdim/15 border border-accent/20 text-accent font-serif text-sm font-semibold flex items-center justify-center shrink-0">
-                    {avatarLetter}
-                  </div>
-                  
-                  {/* Review Info */}
-                  <div className="flex-grow space-y-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h4 className="font-semibold text-sm text-textcolor">{r.name}</h4>
-                      <div className="flex gap-0.5 text-amber-500">
-                        {Array.from({ length: 5 }).map((_, idx) => (
-                          <Star 
-                            key={idx} 
-                            className={`w-3.5 h-3.5 ${
-                              idx < r.stars ? 'fill-amber-500 text-amber-500' : 'text-bordercolor'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <p className="text-xs md:text-[0.82rem] text-muted leading-relaxed">
-                      {r.text}
-                    </p>
+          <div className="relative flex flex-col gap-4 pause-on-hover pt-4">
+            {/* Left and Right fades for seamless look */}
+            <div className="absolute left-0 top-0 bottom-0 w-12 md:w-24 bg-gradient-to-r from-bg to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-12 md:w-24 bg-gradient-to-l from-bg to-transparent z-10 pointer-events-none" />
 
-                    <div className="flex flex-wrap items-center justify-between pt-2 gap-4">
-                      {/* Generative HashTags */}
-                      <div className="flex flex-wrap gap-1.5">
-                        {r.tags && r.tags.map((tag) => (
-                          <span key={tag} className="text-[0.65rem] text-accent bg-accentdim/10 border border-accent/10 px-2 py-0.5 rounded">
-                            #{tag}
-                          </span>
-                        ))}
+            {/* Row 1: Marquee Left */}
+            <div className="flex w-max animate-marquee-left" style={{ WebkitBackfaceVisibility: 'hidden' }}>
+              {[...reviews, ...reviews, ...reviews, ...reviews, ...reviews, ...reviews].map((r, i) => {
+                const avatarLetter = r.name ? r.name.charAt(0).toUpperCase() : "T";
+                return (
+                  <div 
+                    key={`r1-${r.id}-${i}`} 
+                    className="w-[300px] md:w-[340px] shrink-0 p-5 rounded-xl bg-surface hover:bg-surface2 transition-colors border border-bordercolor flex flex-col justify-between gap-5 mr-4 shadow-xl"
+                  >
+                    <div>
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex gap-0.5 text-ambercolor">
+                          {Array.from({ length: 5 }).map((_, idx) => (
+                            <Star 
+                              key={idx} 
+                              className={`w-3.5 h-3.5 ${
+                                idx < r.stars ? 'fill-ambercolor text-ambercolor' : 'text-bordercolor'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-[0.65rem] text-muted/70 font-semibold uppercase tracking-wider">{r.date}</span>
                       </div>
-                      <span className="text-[0.65rem] text-muted/70 font-semibold uppercase tracking-wider">
-                        {r.date}
-                      </span>
+                      <p className="text-sm text-textdim leading-relaxed font-medium">
+                        "{r.text}"
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-bordercolor/30 flex items-center justify-center text-muted font-bold border border-bordercolor shadow-inner shrink-0">
+                        {avatarLetter}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-textcolor">{r.name}</span>
+                        <div className="flex flex-wrap gap-1 mt-0.5">
+                          {r.tags && r.tags.slice(0, 2).map((tag) => (
+                            <span key={tag} className="text-[0.6rem] text-accent bg-accent/10 px-1.5 py-0.5 rounded">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+
+            {/* Row 2: Marquee Right */}
+            <div className="flex w-max animate-marquee-right" style={{ WebkitBackfaceVisibility: 'hidden' }}>
+              {[...reviews, ...reviews, ...reviews, ...reviews, ...reviews, ...reviews].reverse().map((r, i) => {
+                const avatarLetter = r.name ? r.name.charAt(0).toUpperCase() : "T";
+                return (
+                  <div 
+                    key={`r2-${r.id}-${i}`} 
+                    className="w-[300px] md:w-[340px] shrink-0 p-5 rounded-xl bg-surface hover:bg-surface2 transition-colors border border-bordercolor flex flex-col justify-between gap-5 mr-4 shadow-xl"
+                  >
+                    <div>
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex gap-0.5 text-ambercolor">
+                          {Array.from({ length: 5 }).map((_, idx) => (
+                            <Star 
+                              key={idx} 
+                              className={`w-3.5 h-3.5 ${
+                                idx < r.stars ? 'fill-ambercolor text-ambercolor' : 'text-bordercolor'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-[0.65rem] text-muted/70 font-semibold uppercase tracking-wider">{r.date}</span>
+                      </div>
+                      <p className="text-sm text-textdim leading-relaxed font-medium">
+                        "{r.text}"
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-bordercolor/30 flex items-center justify-center text-muted font-bold border border-bordercolor shadow-inner shrink-0">
+                        {avatarLetter}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-textcolor">{r.name}</span>
+                        <div className="flex flex-wrap gap-1 mt-0.5">
+                          {r.tags && r.tags.slice(0, 2).map((tag) => (
+                            <span key={tag} className="text-[0.6rem] text-accent bg-accent/10 px-1.5 py-0.5 rounded">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
       </div>
+
+      {/* Debug: {mediaCards.length} */}
+      {mediaCards.length === 0 && (
+        <div className="mt-10 text-center text-white">Loading gallery or no media found...</div>
+      )}
+
+      {/* Media Layout Grid */}
+      {mediaCards.length > 0 && (
+        <div className="mt-32 w-full flex flex-col h-[100vh] min-h-[800px]">
+          <div className="mb-12 text-center">
+            <span className="text-[0.68rem] tracking-[0.15em] uppercase text-accent font-bold mb-3 block">
+              Our Gallery
+            </span>
+            <h2 className="font-serif text-[2.5rem] md:text-[3.2rem] leading-tight mb-4 text-textcolor">
+              Memories From Tours
+            </h2>
+            <p className="text-muted text-[0.88rem] md:text-[0.95rem] max-w-2xl mx-auto">
+              Explore the beautiful moments and places our tourists have experienced.
+            </p>
+          </div>
+          <div className="flex-1 w-full h-full pb-20">
+             <LayoutGrid cards={mediaCards} />
+          </div>
+        </div>
+      )}
     </section>
   );
 }

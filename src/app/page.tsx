@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "@/store";
 import { PILLARS_DATA } from "@/data/mockData";
 import { ArrowRight, Landmark, Leaf, Waves, Coffee, Camera } from "lucide-react";
+import Text3DFlip from "@/components/ui/text-3d-flip";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -71,9 +72,15 @@ export default function Home() {
             <span className="font-sans text-[0.68rem] tracking-[0.2em] uppercase font-bold text-accent px-3 py-1 rounded-full border border-accent/25 bg-accentdim/15 mb-5 pulse-glow">
               {t("hero_badge")}
             </span>
-            <h1 className="font-serif text-[clamp(2.4rem,7vw,5.5rem)] leading-[1.05] font-light tracking-tight mb-5 text-textcolor">
+            <Text3DFlip
+              as="h1"
+              className="font-serif text-[clamp(2.4rem,7vw,5.5rem)] leading-[1.05] font-light tracking-tight mb-5"
+              textClassName="text-textcolor"
+              flipTextClassName="text-accent"
+              rotateDirection="top"
+            >
               {t("hero_title")}
-            </h1>
+            </Text3DFlip>
             <p className="text-muted text-[0.92rem] md:text-[1.05rem] leading-relaxed max-w-[520px] mb-8">
               {t("hero_sub")}
             </p>

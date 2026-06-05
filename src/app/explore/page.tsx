@@ -6,32 +6,34 @@ import { useTranslation, useAppStore } from "@/store";
 import { PROVINCES, EXCURSIONS } from "@/data/mockData";
 import { Heart, MapPin, Compass, Star, Clock, ChevronDown, Mail, MessageCircle } from "lucide-react";
 
-// Image mapping for destinations in Sri Lanka
-const DEST_IMAGES: Record<string, string> = {
-  "Sigiriya": "https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?q=80&w=800&auto=format&fit=crop",
-  "Ella": "https://images.unsplash.com/photo-1546708973-b339540b5162?q=80&w=800&auto=format&fit=crop",
-  "Mirissa": "https://images.unsplash.com/photo-1542856391-010fb87dcfed?q=80&w=800&auto=format&fit=crop",
-  "Kandy": "https://images.unsplash.com/photo-1620619730591-e4064506c9a2?q=80&w=800&auto=format&fit=crop",
-  "Galle Fort": "https://images.unsplash.com/photo-1588598126852-d7b4d994141d?q=80&w=800&auto=format&fit=crop",
-  "Yala National Park": "https://images.unsplash.com/photo-1581888227599-779811939961?q=80&w=800&auto=format&fit=crop",
-  "Nuwara Eliya": "https://images.unsplash.com/photo-1545249390-6bdfa286032f?q=80&w=800&auto=format&fit=crop",
-  "Trincomalee": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800&auto=format&fit=crop",
-  "Anuradhapura": "https://images.unsplash.com/photo-1565463690623-e18e390cbf37?q=80&w=800&auto=format&fit=crop",
-  "Polonnaruwa": "https://images.unsplash.com/photo-1578593139888-39622e207264?q=80&w=800&auto=format&fit=crop",
-  "Dambulla": "https://images.unsplash.com/photo-1627589704256-df3029f6de34?q=80&w=800&auto=format&fit=crop",
-  "Arugam Bay": "https://images.unsplash.com/photo-1502680390469-be75c86b636f?q=80&w=800&auto=format&fit=crop",
-  "Horton Plains": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?q=80&w=800&auto=format&fit=crop",
-  "Adams Peak": "https://images.unsplash.com/photo-1563968743333-044cef800494?q=80&w=800&auto=format&fit=crop",
-  "Bentota": "https://images.unsplash.com/photo-1602002418082-a4443e081dd1?q=80&w=800&auto=format&fit=crop",
-  "Hikkaduwa": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop",
-  "Pinnawala": "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?q=80&w=800&auto=format&fit=crop",
-  "Knuckles Range": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800&auto=format&fit=crop",
-  "Jaffna": "https://images.unsplash.com/photo-1568849676085-51415703900f?q=80&w=800&auto=format&fit=crop",
-  "Wilpattu": "https://images.unsplash.com/photo-1456926631375-92c8ce872def?q=80&w=800&auto=format&fit=crop",
-  "Kalpitiya": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop"
+import { getOptimizedImage } from "@/utils/media";
+
+// Image mapping for destinations mapping to Supabase Storage
+const DEST_FILES: Record<string, string> = {
+  "Sigiriya": "provinces/sigiriya.jpg",
+  "Ella": "provinces/ella.jpg",
+  "Mirissa": "provinces/mirissa.jpg",
+  "Kandy": "provinces/kandy.jpg",
+  "Galle Fort": "provinces/galle.jpg",
+  "Yala National Park": "provinces/yala.jpg",
+  "Nuwara Eliya": "provinces/nuwara_eliya.jpg",
+  "Trincomalee": "provinces/trincomalee.jpg",
+  "Anuradhapura": "provinces/anuradhapura.jpg",
+  "Polonnaruwa": "provinces/polonnaruwa.jpg",
+  "Dambulla": "provinces/dambulla.jpg",
+  "Arugam Bay": "provinces/arugam_bay.jpg",
+  "Horton Plains": "provinces/horton_plains.jpg",
+  "Adams Peak": "provinces/adams_peak.jpg",
+  "Bentota": "provinces/bentota.jpg",
+  "Hikkaduwa": "provinces/hikkaduwa.jpg",
+  "Pinnawala": "provinces/pinnawala.jpg",
+  "Knuckles Range": "provinces/knuckles.jpg",
+  "Jaffna": "provinces/jaffna.jpg",
+  "Wilpattu": "provinces/wilpattu.jpg",
+  "Kalpitiya": "provinces/kalpitiya.jpg"
 };
 
-const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800&auto=format&fit=crop";
+const DEFAULT_FILE = "provinces/default.jpg";
 
 export default function Explore() {
   const { t } = useTranslation();
@@ -109,7 +111,8 @@ export default function Explore() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPlaces.map((p) => {
             const isSaved = wishlist.includes(p.name);
-            const imageSrc = DEST_IMAGES[p.name] || DEFAULT_IMAGE;
+            const fileKey = DEST_FILES[p.name] || DEFAULT_FILE;
+            const imageSrc = getOptimizedImage(fileKey, { width: 600, quality: 80, format: 'webp' });
 
             return (
               <div

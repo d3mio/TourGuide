@@ -5,12 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation, useAppStore } from "@/store";
 import { Menu, X, Sun, Moon } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { t, lang } = useTranslation();
   const { setLang, toggleTheme, theme } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
 
   const handleThemeToggle = () => {
     if (typeof document !== "undefined" && "startViewTransition" in document) {
@@ -39,7 +41,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between h-14 px-4 md:px-8 bg-bg/80 backdrop-blur-md border-b border-bordercolor">
+    <nav className="sticky top-0 z-50 flex items-center justify-between h-16 px-4 md:px-8 bg-transparent">
       {/* Logo */}
       <div className="md:mr-10 whitespace-nowrap flex items-center shrink-0">
         <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 group">
@@ -69,31 +71,44 @@ export default function Navbar() {
       </div>
 
       {/* Desktop Nav Links */}
-      <ul className="hidden md:flex flex-1 gap-0 list-none overflow-x-auto hide-scrollbar">
-        {links.map((link) => {
-          const isActive = pathname === link.href;
-          return (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className={`flex items-center justify-center px-3 lg:px-4 h-14 font-sans text-[0.75rem] lg:text-[0.78rem] font-normal tracking-wide uppercase relative transition-colors duration-200 whitespace-nowrap ${
-                  isActive ? "text-textcolor" : "text-muted hover:text-textcolor"
-                }`}
-              >
-                {t(link.label)}
-                <span
-                  className={`absolute bottom-0 left-3 right-3 lg:left-4 lg:right-4 h-[1px] bg-accent transition-transform duration-250 ease-out origin-center ${
-                    isActive ? "scale-x-100" : "scale-x-0"
+      <div className="hidden md:flex flex-1 justify-center absolute left-1/2 -translate-x-1/2">
+        <ul 
+          className="flex items-center gap-1 list-none bg-surface/90 backdrop-blur-xl border border-bordercolor rounded-full p-1.5 shadow-2xl"
+          onMouseLeave={() => setHoveredPath(null)}
+        >
+          {links.map((link) => {
+            const isActive = pathname === link.href;
+            const isHovered = hoveredPath === link.href;
+            return (
+              <li key={link.href} className="relative z-10">
+                <Link
+                  href={link.href}
+                  onMouseEnter={() => setHoveredPath(link.href)}
+                  className={`relative z-20 flex items-center justify-center px-4 py-2 font-sans text-[0.85rem] font-medium transition-colors duration-300 whitespace-nowrap rounded-full ${
+                    isActive ? "text-textcolor" : "text-muted hover:text-textcolor"
                   }`}
-                />
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+                >
+                  {t(link.label)}
+                </Link>
+                
+                {isHovered && (
+                  <motion.div
+                    layoutId="nav-pill"
+                    className="absolute inset-0 bg-textcolor/10 rounded-full -z-10"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
       {/* Desktop Controls */}
-      <div className="hidden md:flex items-center gap-2 ml-auto shrink-0">
+      <div className="hidden md:flex items-center gap-3 ml-auto shrink-0 z-10">
+        <Link href="/login" className="text-sm font-medium text-muted hover:text-textcolor transition-colors px-4 py-2">
+          Login
+        </Link>
         {/* Language Selector — pill buttons */}
         <div className="flex items-center gap-0.5 border border-bordercolor rounded-full p-0.5 bg-surface/50">
           {LANGUAGES.map((lng) => (
