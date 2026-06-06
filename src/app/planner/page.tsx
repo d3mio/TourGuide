@@ -144,7 +144,7 @@ function PlannerContent() {
 
   // Contact details (update these with real values)
   const GUIDE_EMAIL = "serandibtours@gmail.com";
-  const GUIDE_WHATSAPP = "+94779718104";
+  const GUIDE_WHATSAPP = "+94705836005";
 
   // Generate booking summary text
   const getBookingSummary = () => {

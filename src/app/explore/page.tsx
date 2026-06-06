@@ -79,8 +79,8 @@ export default function Explore() {
               key={p}
               onClick={() => setCurrentProvince(p)}
               className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide border transition-all cursor-pointer shrink-0 ${p === currentProvince
-                  ? "bg-accent text-white border-transparent shadow-sm shadow-accent/20"
-                  : "border-bordercolor text-muted hover:border-accent/40 hover:text-textcolor bg-surface/30"
+                ? "bg-accent text-white border-transparent shadow-sm shadow-accent/20"
+                : "border-bordercolor text-muted hover:border-accent/40 hover:text-textcolor bg-surface/30"
                 }`}
             >
               {p === "All" ? (t("All") || "All") : t(p)}
@@ -233,7 +233,7 @@ export default function Explore() {
                     <Mail className="w-3 h-3" /> {t("book_via_email")}
                   </a>
                   <a
-                    href={`https://wa.me/94779718104?text=${encodeURIComponent(`Hi! I'm interested in the excursion: ${ex.title}`)}`}
+                    href={`https://wa.me/94705836005?text=${encodeURIComponent(`Hi! I'm interested in the excursion: ${ex.title}`)}`}
                     target="_blank"
                     className="inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-white bg-[#25D366] hover:opacity-85 px-2.5 py-1.5 rounded transition-all duration-200"
                   >
