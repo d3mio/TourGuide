@@ -84,6 +84,7 @@ async function run() {
 
         try {
           await sharp(srcFile)
+            .rotate() // <--- Fixes the EXIF orientation
             .resize({ width: MAX_WIDTH, withoutEnlargement: true })
             .webp({ quality: WEBP_QUALITY, effort: 4 })
             .toFile(destFile);
