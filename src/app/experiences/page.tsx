@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslation, useAppStore } from "@/store";
 import { Star, Send, CheckCircle2, MessageSquare } from "lucide-react";
 import { supabase } from "@/utils/supabase";
-import { LayoutGrid, type Card } from "@/components/ui/layout-grid";
+import MasonryGallery, { type MediaItem } from "@/components/ui/masonry-gallery";
 
 export default function Experiences() {
   const { t } = useTranslation();
@@ -16,42 +16,50 @@ export default function Experiences() {
   const [selectedStars, setSelectedStars] = useState(0);
   const [hoveredStars, setHoveredStars] = useState(0);
   const [showMsg, setShowMsg] = useState(false);
-  const [mediaCards, setMediaCards] = useState<Card[]>([]);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
 
   useEffect(() => {
     const fetchMedia = async () => {
+      // Fetch all media (no limit — MasonryGallery handles load-more pagination internally)
       const { data, error } = await supabase
         .from("media")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(24);
+        .select("id, url, type, category, width, height")
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Supabase fetch error:", error);
+        return;
       }
 
-      if (data && !error) {
-        console.log("Fetched media data:", data);
-        const formattedCards: Card[] = data.map((item, index) => {
-          const isWide = index % 3 === 0;
-          return {
+      if (data) {
+        const images = data.filter(i => i.type === "image");
+        const videos = data.filter(i => i.type === "video");
+
+        // Shuffle each group independently
+        const shuffleArr = <T,>(arr: T[]) => [...arr].sort(() => Math.random() - 0.5);
+        const shuffledImages = shuffleArr(images);
+        const shuffledVideos = shuffleArr(videos);
+
+        // Interleave: 2 images then 1 video — first 8 will be mostly images so they're visible immediately
+        const interleaved: typeof data = [];
+        let vi = 0, ii = 0;
+        while (ii < shuffledImages.length || vi < shuffledVideos.length) {
+          // 2 images
+          for (let x = 0; x < 2 && ii < shuffledImages.length; x++) interleaved.push(shuffledImages[ii++]);
+          // 1 video
+          if (vi < shuffledVideos.length) interleaved.push(shuffledVideos[vi++]);
+        }
+
+        setMediaItems(
+          interleaved.map((item) => ({
             id: item.id,
-            thumbnail: item.url,
+            url: item.url,
             type: item.type as "image" | "video",
-            className: isWide ? "md:col-span-2 min-h-[300px]" : "col-span-1 min-h-[300px]",
-            content: (
-              <div>
-                <p className="font-bold md:text-3xl text-xl text-white">
-                  {item.category.replace('_', ' ').toUpperCase()}
-                </p>
-                <p className="font-normal text-sm my-2 max-w-lg text-neutral-200">
-                  {item.type === 'video' ? 'A beautiful video captured during our tours.' : 'A beautiful moment captured from our recent tours.'}
-                </p>
-              </div>
-            )
-          };
-        });
-        setMediaCards(formattedCards);
+            category: item.category,
+            width: item.width,
+            height: item.height,
+          }))
+        );
       }
     };
     fetchMedia();
@@ -285,30 +293,23 @@ export default function Experiences() {
 
       </div>
 
-      {/* Debug: {mediaCards.length} */}
-      {mediaCards.length === 0 && (
-        <div className="mt-10 text-center text-white">Loading gallery or no media found...</div>
-      )}
-
-      {/* Media Layout Grid */}
-      {mediaCards.length > 0 && (
-        <div className="mt-32 w-full flex flex-col h-[100vh] min-h-[800px]">
-          <div className="mb-12 text-center">
-            <span className="text-[0.68rem] tracking-[0.15em] uppercase text-accent font-bold mb-3 block">
-              Our Gallery
-            </span>
-            <h2 className="font-serif text-[2.5rem] md:text-[3.2rem] leading-tight mb-4 text-textcolor">
-              Memories From Tours
-            </h2>
-            <p className="text-muted text-[0.88rem] md:text-[0.95rem] max-w-2xl mx-auto">
-              Explore the beautiful moments and places our tourists have experienced.
-            </p>
-          </div>
-          <div className="flex-1 w-full h-full pb-20">
-             <LayoutGrid cards={mediaCards} />
-          </div>
+      {/* ── Gallery Section ── */}
+      <div className="mt-24">
+        <div className="mb-10 text-center">
+          <span className="text-[0.68rem] tracking-[0.15em] uppercase text-accent font-bold mb-3 block">
+            Our Gallery
+          </span>
+          <h2 className="font-serif text-[2.5rem] md:text-[3.2rem] leading-tight mb-4 text-textcolor">
+            Memories From Tours
+          </h2>
+          <p className="text-muted text-[0.88rem] md:text-[0.95rem] max-w-2xl mx-auto">
+            Explore the beautiful moments and places our tourists have experienced.
+          </p>
         </div>
-      )}
+
+        {/* MasonryGallery handles its own loading screen internally */}
+        <MasonryGallery items={mediaItems} />
+      </div>
     </section>
   );
 }
