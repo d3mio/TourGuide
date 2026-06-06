@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useTranslation, useAppStore } from "@/store";
-import { Leaf, Landmark, Camera, Waves, Star, Calendar, Heart, Upload, FileImage, X, Send, CheckCircle2 } from "lucide-react";
+import { useTranslation, useAppStore, Draft } from "@/store";
+import { Leaf, Landmark, Camera, Waves, Star, Calendar, Heart, Upload, FileImage, X, Send, CheckCircle2, MessageCircle, Edit2 } from "lucide-react";
 
 // Image mapping for destinations in Sri Lanka to match Explore page
 const DEST_IMAGES: Record<string, string> = {
@@ -34,7 +34,7 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1544735716-392fe2489ffa
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { drafts, wishlist, reviews, toggleWishlist, updateDraftStatus } = useAppStore();
+  const { drafts, wishlist, reviews, toggleWishlist, updateDraftStatus, updateDraft } = useAppStore();
 
   // Receipt upload state for profile modal
   const [receiptDraft, setReceiptDraft] = useState<string | null>(null);
@@ -44,7 +44,82 @@ export default function Profile() {
   const [receiptSubmitted, setReceiptSubmitted] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Edit Draft States
+  const [editingDraft, setEditingDraft] = useState<Draft | null>(null);
+  const [editDestinations, setEditDestinations] = useState<string>("");
+  const [editDuration, setEditDuration] = useState<number>(10);
+  const [editCompanions, setEditCompanions] = useState<string>("");
+  const [editNotes, setEditNotes] = useState<string>("");
+  const [editClientName, setEditClientName] = useState<string>("");
+  const [editClientEmail, setEditClientEmail] = useState<string>("");
+  const [editSaveStatus, setEditSaveStatus] = useState<boolean>(false);
+
   const GUIDE_EMAIL = "serandibtours@gmail.com";
+  const GUIDE_WHATSAPP = "+94705836005";
+
+  const startEditing = (draft: Draft) => {
+    setEditingDraft(draft);
+    setEditDestinations((draft.destinations || []).join(", "));
+    setEditDuration(draft.duration || 10);
+    setEditCompanions(draft.companions || "");
+    setEditNotes(draft.specialNotes || "");
+    setEditClientName(draft.clientName || "");
+    setEditClientEmail(draft.clientEmail || "");
+    setEditSaveStatus(false);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingDraft) return;
+    const name = `Custom ${editDuration}-Day Journey`;
+    updateDraft(editingDraft.id, {
+      destinations: editDestinations.split(",").map(d => d.trim()).filter(Boolean),
+      duration: editDuration,
+      companions: editCompanions,
+      specialNotes: editNotes,
+      clientName: editClientName,
+      clientEmail: editClientEmail,
+      name,
+    });
+    setEditingDraft({
+      ...editingDraft,
+      destinations: editDestinations.split(",").map(d => d.trim()).filter(Boolean),
+      duration: editDuration,
+      companions: editCompanions,
+      specialNotes: editNotes,
+      clientName: editClientName,
+      clientEmail: editClientEmail,
+      name,
+    });
+    setEditSaveStatus(true);
+    setTimeout(() => setEditSaveStatus(false), 2000);
+  };
+
+  const getDraftBookingSummary = (draft: Draft) => {
+    const lines = [
+      `Package: ${draft.packageName || "Custom"}`,
+      `Destinations: ${(draft.destinations || []).join(", ") || "—"}`,
+      `Duration: ${draft.duration || 10} days`,
+      `Companions: ${draft.companions || "—"}`,
+      `Themes: ${(draft.themes || []).join(", ") || "None"}`,
+      `Activities: ${(draft.activities || []).join(", ") || "None"}`,
+      `Lodging: ${(draft.lodgingStyles || []).join(", ") || "Standard"}`,
+    ];
+    if (draft.clientName) lines.unshift(`Name: ${draft.clientName}`);
+    if (draft.clientEmail) lines.unshift(`Email: ${draft.clientEmail}`);
+    if (draft.specialNotes) lines.push(`Notes: ${draft.specialNotes}`);
+    return lines.join("\n");
+  };
+
+  const handleWhatsAppBooking = (draft: Draft) => {
+    const text = encodeURIComponent(`Hi! I'd like to book a tour from my saved drafts.\n\n${getDraftBookingSummary(draft)}`);
+    window.open(`https://wa.me/${GUIDE_WHATSAPP.replace(/\+/g, "").replace(/\s/g, "")}?text=${text}`, "_blank");
+  };
+
+  const handleEmailBooking = (draft: Draft) => {
+    const subject = encodeURIComponent(`Tour Booking Request — ${draft.name}`);
+    const body = encodeURIComponent(getDraftBookingSummary(draft));
+    window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
+  };
 
   const handleReceiptFile = (file: File) => {
     setReceiptFile(file);
@@ -59,9 +134,11 @@ export default function Profile() {
 
   const handleReceiptSubmit = () => {
     if (!receiptDraft) return;
-    const subject = encodeURIComponent(`Payment Receipt — ${receiptDraft}`);
+    const selectedDraftObj = drafts.find(d => d.id === receiptDraft || d.name === receiptDraft);
+    const draftName = selectedDraftObj ? selectedDraftObj.name : receiptDraft;
+    const subject = encodeURIComponent(`Payment Receipt — ${draftName}`);
     const body = encodeURIComponent(
-      `Please find my payment receipt attached.\n\nFile: ${receiptFile?.name || "N/A"}\n${receiptNotes ? `Notes: ${receiptNotes}` : ""}\n\nBooking: ${receiptDraft}`
+      `Please find my payment receipt attached.\n\nFile: ${receiptFile?.name || "N/A"}\n${receiptNotes ? `Notes: ${receiptNotes}` : ""}\n\nBooking: ${draftName}`
     );
     window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
     updateDraftStatus(receiptDraft, "completed");
@@ -166,7 +243,7 @@ export default function Profile() {
               {drafts.length > 0 ? (
                 <div className="divide-y divide-bordercolor">
                   {drafts.map((d, i) => (
-                    <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 text-xs text-textcolor first:pt-0 last:pb-0 gap-2">
+                    <div key={d.id || i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 text-xs text-textcolor first:pt-0 last:pb-0 gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="font-medium truncate">{d.name}</span>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[0.58rem] tracking-wider font-bold uppercase shrink-0 ${
@@ -177,17 +254,25 @@ export default function Profile() {
                           {d.status === "completed" ? t("status_completed") : t("status_pending")}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-4">
                         <span className="text-muted flex items-center gap-1.5 text-[0.68rem]">
                           <Calendar className="w-3.5 h-3.5 text-accent" /> {d.date}
                         </span>
                         {d.status === "pending" && (
-                          <button
-                            onClick={() => setReceiptDraft(d.name)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider bg-accent hover:opacity-85 text-white cursor-pointer transition-all"
-                          >
-                            <Upload className="w-3 h-3" /> {t("complete_booking")}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => startEditing(d)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider border border-bordercolor hover:border-accent text-textcolor hover:text-accent cursor-pointer transition-all"
+                            >
+                              <Edit2 className="w-2.5 h-2.5" /> {t("Edit & Book") || "Edit & Book"}
+                            </button>
+                            <button
+                              onClick={() => setReceiptDraft(d.id || d.name)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider bg-accent hover:opacity-85 text-white cursor-pointer transition-all"
+                            >
+                              <Upload className="w-3 h-3" /> {t("complete_booking")}
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -318,7 +403,9 @@ export default function Profile() {
 
             <div className="w-full text-left bg-surface/30 border border-bordercolor rounded-lg p-4 mb-4">
               <p className="text-xs text-muted mb-1">{t("prof_drafts")}:</p>
-              <p className="text-sm font-medium text-textcolor">{receiptDraft}</p>
+              <p className="text-sm font-medium text-textcolor">
+                {drafts.find(d => d.id === receiptDraft || d.name === receiptDraft)?.name || receiptDraft}
+              </p>
             </div>
 
             {/* Drop zone */}
@@ -421,6 +508,114 @@ export default function Profile() {
         )}
       </div>
     </div>
+
+    {/* Edit Draft Modal */}
+    {editingDraft && (
+      <div className="modal-overlay open">
+        <div className="modal-card max-w-[500px] max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-5 pb-3 border-b border-bordercolor">
+            <h3 className="font-serif text-xl text-textcolor">{t("edit_draft_title") || "Edit Trip Draft"}</h3>
+            <button onClick={() => setEditingDraft(null)} className="text-muted hover:text-textcolor transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="space-y-4 mb-6 text-left">
+            <div>
+              <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("destinations") || "Destinations (comma-separated)"}</label>
+              <input
+                type="text"
+                value={editDestinations}
+                onChange={(e) => setEditDestinations(e.target.value)}
+                className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("duration_days") || "Duration (Days)"}</label>
+                <input
+                  type="number"
+                  value={editDuration}
+                  onChange={(e) => setEditDuration(parseInt(e.target.value) || 0)}
+                  className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent"
+                />
+              </div>
+              <div>
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("companions") || "Companions"}</label>
+                <input
+                  type="text"
+                  value={editCompanions}
+                  onChange={(e) => setEditCompanions(e.target.value)}
+                  className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent"
+                  placeholder="e.g. 2 Adults, 1 Kid"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("client_name") || "Your Name"}</label>
+                <input
+                  type="text"
+                  value={editClientName}
+                  onChange={(e) => setEditClientName(e.target.value)}
+                  className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent"
+                />
+              </div>
+              <div>
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("client_email") || "Your Email"}</label>
+                <input
+                  type="email"
+                  value={editClientEmail}
+                  onChange={(e) => setEditClientEmail(e.target.value)}
+                  className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("special_notes") || "Special Notes"}</label>
+              <textarea
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+                className="w-full min-h-[80px] bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent resize-y"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={handleSaveEdit}
+              className={`w-full py-2 border text-xs font-semibold uppercase tracking-wider rounded-lg transition-all ${
+                editSaveStatus
+                  ? "bg-green-500/10 border-green-500/30 text-green-500"
+                  : "bg-surface hover:bg-surface2 border-bordercolor text-textcolor"
+              }`}
+            >
+              {editSaveStatus ? (t("saved") || "Saved ✅") : (t("save_changes") || "Save Changes")}
+            </button>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => handleWhatsAppBooking(editingDraft)}
+                className="py-2.5 bg-[#25D366] hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-md shadow-green-500/10 cursor-pointer"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                {t("book_via_whatsapp")}
+              </button>
+              <button
+                onClick={() => handleEmailBooking(editingDraft)}
+                className="py-2.5 bg-accent hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-md shadow-accent/25 cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5" />
+                {t("book_via_email")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
   </>
   );
 }

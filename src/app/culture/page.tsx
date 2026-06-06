@@ -48,6 +48,134 @@ function CultureContent() {
         </p>
       </div>
 
+      {/* ── Down South Party Scene Section ── */}
+      <div className="mb-20 md:mb-28">
+        {/* Section Header */}
+        <div className="mb-10 md:mb-14">
+          <span className="text-[0.68rem] tracking-[0.15em] uppercase text-accent font-bold mb-3 block">
+            After Dark · Sri Lanka
+          </span>
+          <h2 className="font-serif text-2xl md:text-[2.6rem] leading-tight text-textcolor mb-4">
+            The Down South Party Scene
+          </h2>
+          <p className="text-muted text-sm md:text-[0.95rem] max-w-2xl leading-relaxed">
+            Sri Lanka&apos;s southern coastline has quietly become one of Asia&apos;s most electric nightlife destinations.
+            From sunrise raves on Arugam Bay sand to rooftop progressive sessions above Galle Fort — this is the island after dark.
+          </p>
+        </div>
+
+        {/* Hero Banner — Arugam Bay Rave */}
+        <div className="relative w-full h-[340px] md:h-[480px] rounded-2xl overflow-hidden mb-6 border border-bordercolor shadow-2xl">
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
+            style={{
+              backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.10) 100%), url(https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1600&auto=format&fit=crop)`,
+            }}
+          />
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 z-10">
+            <span className="inline-block text-[0.6rem] font-bold uppercase tracking-[0.2em] text-accent bg-accent/10 border border-accent/25 px-3 py-1 rounded-full mb-3">
+              🔥 Arugam Bay · Sunrise Rave
+            </span>
+            <h3 className="font-serif text-2xl md:text-4xl text-white mb-2">
+              Where the Ocean Meets the Bass
+            </h3>
+            <p className="text-white/65 text-sm md:text-[0.9rem] max-w-xl leading-relaxed">
+              Arugam Bay transforms every season into an open-air festival. International DJs, fire dancers, and surf culture collide under a sky full of stars on Sri Lanka&apos;s legendary east coast.
+            </p>
+          </div>
+        </div>
+
+        {/* 3-column Party Venues Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          {[
+            {
+              title: "Mirissa Beach Parties",
+              tag: "🌊 South Coast",
+              desc: "Beachfront bars that evolve into full dance floors after midnight. Liquid Space and Mirissa party culture draw international crowds from November to April.",
+              img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=800&auto=format&fit=crop",
+              vibe: "Beach · House · Reggae",
+            },
+            {
+              title: "Unawatuna Rooftop Sessions",
+              tag: "🏰 Galle District",
+              desc: "Boutique rooftop venues overlooking the Indian Ocean. Progressive deep house sets, craft cocktails, and that unmistakable Galle golden hour glow.",
+              img: "https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?q=80&w=800&auto=format&fit=crop",
+              vibe: "Rooftop · Progressive · Deep House",
+            },
+            {
+              title: "Colombo Underground",
+              tag: "🌆 City Raves",
+              desc: "The capital's underground techno and progressive scene has exploded. Warehouse events, curated DJ nights, and a sophisticated local crowd who know their music.",
+              img: "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?q=80&w=800&auto=format&fit=crop",
+              vibe: "Techno · Warehouse · Electronic",
+            },
+          ].map((venue) => (
+            <div
+              key={venue.title}
+              className="group relative h-[260px] rounded-xl overflow-hidden border border-bordercolor cursor-pointer hover:border-accent/40 hover:-translate-y-1 transition-all duration-300 shadow-md"
+            >
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                style={{
+                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0.08) 100%), url(${venue.img})`,
+                }}
+              />
+              <div className="absolute inset-0 p-5 flex flex-col justify-end z-10">
+                <span className="text-[0.58rem] font-bold uppercase tracking-wider text-accent mb-1.5">
+                  {venue.tag}
+                </span>
+                <h4 className="font-serif text-lg text-white mb-1.5">{venue.title}</h4>
+                <p className="text-[0.72rem] text-white/60 leading-relaxed mb-3 line-clamp-3 group-hover:text-white/80 transition-colors">
+                  {venue.desc}
+                </p>
+                <span className="text-[0.58rem] font-bold uppercase tracking-widest text-accent/70 border border-accent/20 px-2.5 py-1 rounded-full w-fit">
+                  {venue.vibe}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Experience Cards Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="relative h-[200px] rounded-xl overflow-hidden border border-bordercolor">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%), url(https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=800&auto=format&fit=crop)` }}
+            />
+            <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
+              <span className="text-[0.6rem] font-bold uppercase tracking-[0.18em] text-purple-400">
+                Progressive &amp; Psy-Trance
+              </span>
+              <div>
+                <h4 className="font-serif text-xl text-white mb-2">Full Moon Beach Raves</h4>
+                <p className="text-[0.78rem] text-white/60 leading-relaxed">
+                  Polhena, Tangalle and Rekawa beaches host full moon events drawing travelers and locals alike. Psy-trance, progressive, and ambient sounds carry across the water all night.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative h-[200px] rounded-xl overflow-hidden border border-bordercolor">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%), url(https://images.unsplash.com/photo-1501386761578-eaa54b915e8e?q=80&w=800&auto=format&fit=crop)` }}
+            />
+            <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
+              <span className="text-[0.6rem] font-bold uppercase tracking-[0.18em] text-emerald-400">
+                Local DJ Scene
+              </span>
+              <div>
+                <h4 className="font-serif text-xl text-white mb-2">Sri Lanka&apos;s Homegrown Talent</h4>
+                <p className="text-[0.78rem] text-white/60 leading-relaxed">
+                  Artists like Imaad Majeed, Pasan Liyanage and collectives like Kolombia are pushing boundary-breaking electronic music that blends baila roots with modern production.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* The Eight Pillars Section */}
       <div className="mb-20 md:mb-24">
         <div className="mb-10">
@@ -68,27 +196,70 @@ function CultureContent() {
             return (
               <div
                 key={key}
-                onClick={() => setActivePillar(key as keyof typeof PILLARS_DATA)}
-                className="group relative h-[220px] sm:h-[280px] rounded-xl overflow-hidden border border-bordercolor bg-surface cursor-pointer hover:border-accent/40 hover:-translate-y-1 transition-all duration-300 shadow-md"
+                className="group relative h-[260px] sm:h-[320px] rounded-xl overflow-hidden border border-bordercolor bg-surface cursor-default hover:border-accent/50 hover:-translate-y-1 transition-all duration-300 shadow-md"
               >
-                {/* Background image overlay — always dark for readability over photos */}
+                {/* Background photo — zooms on hover */}
                 <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-108"
                   style={{
-                    backgroundImage: `linear-gradient(to top, rgba(9, 9, 11, 0.96) 0%, rgba(9, 9, 11, 0.35) 50%, rgba(9, 9, 11, 0.08) 100%), url(${data.bg})`,
+                    backgroundImage: `url(${data.bg})`,
                   }}
                 />
 
-                {/* Card Content */}
-                <div className="absolute inset-0 p-4 sm:p-6 flex flex-col justify-end z-10">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-accentdim/20 border border-accent/30 text-accent flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-accent group-hover:text-white group-hover:border-transparent transition-all duration-300">
+                {/* Always-visible dark gradient + default content */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/10 transition-opacity duration-300 group-hover:opacity-0" />
+                <div className="absolute inset-0 p-4 sm:p-5 flex flex-col justify-end z-10 transition-opacity duration-300 group-hover:opacity-0">
+                  <div className="w-9 h-9 rounded-lg bg-accentdim/20 border border-accent/30 text-accent flex items-center justify-center mb-3">
                     <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <h3 className="font-serif text-base sm:text-lg mb-1 text-white">{t(data.title.split(' & ')[0])}</h3>
-                  <p className="text-[0.65rem] sm:text-[0.7rem] text-white/60 mb-2 sm:mb-3 line-clamp-2">{t(data.tagline)}</p>
-                  <span className="text-[0.65rem] sm:text-[0.7rem] font-bold text-accent flex items-center gap-1.5 opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                    {t("cult_view_interp")} <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                  </span>
+                  <p className="text-[0.65rem] sm:text-[0.7rem] text-white/60 line-clamp-2">{t(data.tagline)}</p>
+                </div>
+
+                {/* Hover overlay — slides up from bottom with full details */}
+                <div className="absolute inset-0 z-20 flex flex-col justify-end translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-out">
+                  {/* Frosted dark panel */}
+                  <div className="absolute inset-0 bg-black/88 backdrop-blur-sm" />
+                  <div className="relative p-4 sm:p-5 flex flex-col h-full justify-between">
+                    {/* Header */}
+                    <div className="flex items-start gap-2.5 pt-1">
+                      <div className="w-8 h-8 shrink-0 rounded-lg bg-accent/20 border border-accent/40 text-accent flex items-center justify-center mt-0.5">
+                        <IconComponent className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-serif text-sm sm:text-base text-white leading-tight">{t(data.title.split(' & ')[0])}</h3>
+                        <p className="text-[0.6rem] text-accent font-semibold uppercase tracking-wider mt-0.5">{t(data.tagline)}</p>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-[0.68rem] sm:text-[0.72rem] text-white/70 leading-relaxed line-clamp-3">
+                      {data.desc}
+                    </p>
+
+                    {/* Highlights */}
+                    <ul className="space-y-1.5">
+                      {data.highlights.slice(0, 3).map((hl, idx) => {
+                        const title = hl.split(':')[0];
+                        return (
+                          <li key={idx} className="flex items-start gap-2">
+                            <span className="w-4 h-4 rounded-full bg-accent/20 text-accent flex items-center justify-center text-[0.55rem] font-bold shrink-0 mt-0.5">
+                              {idx + 1}
+                            </span>
+                            <span className="text-[0.65rem] text-white/75 leading-snug">{title}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+
+                    {/* CTA */}
+                    <button
+                      onClick={() => setActivePillar(key as keyof typeof PILLARS_DATA)}
+                      className="w-full py-2 bg-accent hover:opacity-85 text-white text-[0.65rem] font-bold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-opacity"
+                    >
+                      {t("cult_view_interp")} <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );

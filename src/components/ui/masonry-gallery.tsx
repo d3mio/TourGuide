@@ -218,14 +218,18 @@ export default function MasonryGallery({ items }: { items: MediaItem[] }) {
   const visibleItems = items.slice(0, visible);
   const hasMore      = visible < items.length;
 
-  // No items yet (Supabase still fetching)
+  // Skeleton grid shown while data is loading (server render provides data instantly, but keep as safety net)
   if (!items.length) {
     return (
-      <div className="w-full flex items-center justify-center py-24">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-full border-2 border-accent border-t-transparent animate-spin" />
-          <p className="text-muted text-sm">Fetching gallery…</p>
-        </div>
+      <div className="columns-2 md:columns-3 lg:columns-4 gap-3">
+        {[133, 75, 56, 133, 75, 133, 56, 75].map((pad, i) => (
+          <div key={i} className="mb-3 break-inside-avoid">
+            <div
+              className="w-full rounded-xl bg-surface animate-pulse"
+              style={{ paddingBottom: `${pad}%` }}
+            />
+          </div>
+        ))}
       </div>
     );
   }

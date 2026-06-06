@@ -98,6 +98,7 @@ function PlannerContent() {
   const [clientEmail, setClientEmail] = useState("");
   const [specialNotes, setSpecialNotes] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [currentDraftId, setCurrentDraftId] = useState("");
   const [selectedDestinations, setSelectedDestinations] = useState<string[]>(["Kandy", "Ella", "Mirissa"]);
   const [usePartnerLodging, setUsePartnerLodging] = useState(true);
   const [selectedLodgingStyles, setSelectedLodgingStyles] = useState<string[]>([]);
@@ -167,10 +168,23 @@ function PlannerContent() {
     const subject = encodeURIComponent(`Tour Booking Request — ${activePackage.name}`);
     const body = encodeURIComponent(getBookingSummary());
     window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
+    const draftId = Date.now().toString();
+    setCurrentDraftId(draftId);
     addDraft({
+      id: draftId,
       name: `Custom ${tripDuration}-Day ${budgetTier} Journey`,
       date: new Date().toLocaleDateString(),
       status: "pending",
+      packageName: activePackage.name,
+      destinations: selectedDestinations,
+      duration: tripDuration,
+      companions: companions,
+      themes: selectedThemes,
+      activities: selectedActivities,
+      lodgingStyles: selectedLodgingStyles,
+      clientName: clientName,
+      clientEmail: clientEmail,
+      specialNotes: specialNotes,
     });
     setShowModal(true);
   };
@@ -178,10 +192,23 @@ function PlannerContent() {
   const handleWhatsAppBooking = () => {
     const text = encodeURIComponent(`Hi! I'd like to book a tour.\n\n${getBookingSummary()}`);
     window.open(`https://wa.me/${GUIDE_WHATSAPP.replace(/\+/g, "")}?text=${text}`, "_blank");
+    const draftId = Date.now().toString();
+    setCurrentDraftId(draftId);
     addDraft({
+      id: draftId,
       name: `Custom ${tripDuration}-Day ${budgetTier} Journey`,
       date: new Date().toLocaleDateString(),
       status: "pending",
+      packageName: activePackage.name,
+      destinations: selectedDestinations,
+      duration: tripDuration,
+      companions: companions,
+      themes: selectedThemes,
+      activities: selectedActivities,
+      lodgingStyles: selectedLodgingStyles,
+      clientName: clientName,
+      clientEmail: clientEmail,
+      specialNotes: specialNotes,
     });
     setShowModal(true);
   };
@@ -208,7 +235,7 @@ function PlannerContent() {
       `Please find my payment receipt attached.\n\nFile: ${receiptFile?.name || "N/A"}\n${receiptNotes ? `Notes: ${receiptNotes}` : ""}\n\nBooking Summary:\n${getBookingSummary()}`
     );
     window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
-    updateDraftStatus(`Custom ${tripDuration}-Day ${budgetTier} Journey`, "completed");
+    updateDraftStatus(currentDraftId || `Custom ${tripDuration}-Day ${budgetTier} Journey`, "completed");
     setReceiptSubmitted(true);
   };
 

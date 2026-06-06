@@ -8,9 +8,20 @@ import { Review } from './data/mockData';
 import { INITIAL_REVIEWS } from './data/mockData';
 
 export type Draft = {
+  id: string;
   name: string;
   date: string;
   status: "pending" | "completed";
+  packageName: string;
+  destinations: string[];
+  duration: number;
+  companions: string;
+  themes: string[];
+  activities: string[];
+  lodgingStyles: string[];
+  clientName?: string;
+  clientEmail?: string;
+  specialNotes?: string;
 };
 
 type AppState = {
@@ -25,7 +36,8 @@ type AppState = {
   toggleTheme: () => void;
   addReview: (review: Review) => void;
   addDraft: (draft: Draft) => void;
-  updateDraftStatus: (name: string, status: Draft["status"]) => void;
+  updateDraft: (id: string, updatedFields: Partial<Omit<Draft, "id">>) => void;
+  updateDraftStatus: (idOrName: string, status: Draft["status"]) => void;
   toggleWishlist: (item: string) => void;
   addDynamicTranslation: (lang: string, key: string, translation: string) => void;
 };
@@ -57,13 +69,16 @@ export const useAppStore = create<AppState>()(
       toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
       addReview: (review) => set((state) => ({ reviews: [review, ...state.reviews] })),
       addDraft: (draft) => set((state) => {
-        if (!state.drafts.find(d => d.name === draft.name)) {
+        if (!state.drafts.find(d => d.id === draft.id)) {
           return { drafts: [...state.drafts, { ...draft, status: draft.status || "pending" }] };
         }
         return state;
       }),
-      updateDraftStatus: (name, status) => set((state) => ({
-        drafts: state.drafts.map(d => d.name === name ? { ...d, status } : d)
+      updateDraft: (id, updatedFields) => set((state) => ({
+        drafts: state.drafts.map(d => d.id === id ? { ...d, ...updatedFields } : d)
+      })),
+      updateDraftStatus: (idOrName, status) => set((state) => ({
+        drafts: state.drafts.map(d => (d.id === idOrName || d.name === idOrName) ? { ...d, status } : d)
       })),
       toggleWishlist: (item) => set((state) => {
         if (state.wishlist.includes(item)) {
