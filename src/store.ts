@@ -46,7 +46,7 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       lang: 'en',
-      theme: 'dark',
+      theme: 'light',
       reviews: INITIAL_REVIEWS,
       drafts: [],
       wishlist: ['Sigiriya','Arugam Bay','Ella','Jaffna','Mirissa'],

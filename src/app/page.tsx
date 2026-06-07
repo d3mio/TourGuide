@@ -29,18 +29,18 @@ export default function Home() {
             <Text3DFlip
               as="h1"
               className="font-serif text-[clamp(2.4rem,7vw,5.5rem)] leading-[1.05] font-light tracking-tight mb-5"
-              textClassName="text-white drop-shadow-lg"
+              textClassName="text-textcolor drop-shadow-sm"
               flipTextClassName="text-accent"
               rotateDirection="top"
             >
               {t("hero_title")}
             </Text3DFlip>
-            <p className="text-white/90 drop-shadow text-[0.92rem] md:text-[1.05rem] leading-relaxed max-w-[520px] mb-8">
+            <p className="text-textcolor/90 text-[0.92rem] md:text-[1.05rem] leading-relaxed max-w-[520px] mb-8">
               {t("hero_sub")}
             </p>
             {/* CTA Pill */}
-            <div className="flex items-center justify-center rounded-full w-fit max-w-full bg-transparent border border-transparent p-0 xs:bg-surface/20 xs:border-white/10 xs:p-1 xs:pl-4 xs:pr-1 xs:shadow-2xl xs:backdrop-blur-md">
-              <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-white/90 uppercase mr-3 sm:mr-6 hidden xs:inline-block">
+            <div className="flex items-center justify-center rounded-full w-fit max-w-full bg-transparent border border-transparent p-0 xs:bg-surface/20 xs:border-bordercolor xs:p-1 xs:pl-4 xs:pr-1 xs:shadow-2xl xs:backdrop-blur-md">
+              <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-textcolor/90 uppercase mr-3 sm:mr-6 hidden xs:inline-block">
                 {t("hero_cta_label")}
               </span>
               <Link

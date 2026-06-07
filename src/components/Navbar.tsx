@@ -10,19 +10,9 @@ import { motion } from "framer-motion";
 export default function Navbar() {
   const pathname = usePathname();
   const { t, lang } = useTranslation();
-  const { setLang, toggleTheme, theme } = useAppStore();
+  const { setLang } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
-
-  const handleThemeToggle = () => {
-    if (typeof document !== "undefined" && "startViewTransition" in document) {
-      document.startViewTransition(() => {
-        toggleTheme();
-      });
-    } else {
-      toggleTheme();
-    }
-  };
 
   const links = [
     { href: "/", label: "nav_home" },
@@ -126,15 +116,6 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Theme Toggle */}
-        <button
-          onClick={handleThemeToggle}
-          className="ml-1 w-8 h-8 flex items-center justify-center rounded-full border border-bordercolor text-muted hover:border-accent hover:text-accent transition-all bg-surface/50"
-          aria-label="Toggle theme"
-          title={theme === "dark" ? "Switch to Light" : "Switch to Dark"}
-        >
-          {theme === "dark" ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-        </button>
       </div>
 
       {/* Mobile Menu Button */}
@@ -189,17 +170,6 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Theme toggle */}
-            <button
-              onClick={handleThemeToggle}
-              className="flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-bordercolor text-textcolor bg-surface/50 text-sm font-semibold hover:border-accent transition-all"
-            >
-              {theme === "dark" ? (
-                <><Sun className="w-4 h-4 text-amber-400" /> {t("theme_light")}</>
-              ) : (
-                <><Moon className="w-4 h-4 text-blue-400" /> {t("theme_dark")}</>
-              )}
-            </button>
           </div>
         </div>
       )}

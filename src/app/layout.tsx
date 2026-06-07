@@ -37,28 +37,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Inline script: sets data-theme BEFORE first paint to avoid flash */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var stored = localStorage.getItem('visitceylon-storage');
-                  var theme = 'dark';
-                  if (stored) {
-                    var parsed = JSON.parse(stored);
-                    if (parsed && parsed.state && parsed.state.theme) {
-                      theme = parsed.state.theme;
-                    }
-                  }
-                  document.documentElement.setAttribute('data-theme', theme);
-                } catch(e) {
-                  document.documentElement.setAttribute('data-theme', 'dark');
-                }
-              })();
-            `,
-          }}
-        />
       </head>
       <body
         className={`${dmSans.variable} ${cormorant.variable} font-sans antialiased bg-bg text-textcolor`}

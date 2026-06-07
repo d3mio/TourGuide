@@ -53,22 +53,22 @@ void main() {
 
     float f = snoise(st + r);
     
-    // Bioluminescent ocean colors (deep blues, teals, and cyan glow)
+    // Indian ocean daylight colors (light teals, sky blue, and white sand)
     vec3 color = mix(
-        vec3(0.01, 0.08, 0.18), // Deep ocean dark blue
-        vec3(0.02, 0.35, 0.45), // Teal
+        vec3(0.85, 0.95, 0.98), // Bright shallow water/white sand
+        vec3(0.40, 0.85, 0.90), // Light crystal teal
         clamp(f * f * 4.0, 0.0, 1.0)
     );
 
     color = mix(
         color,
-        vec3(0.1, 0.8, 0.9), // Bright bioluminescent cyan
+        vec3(0.15, 0.65, 0.85), // Deeper sky blue
         clamp(length(q), 0.0, 1.0)
     );
 
     color = mix(
         color,
-        vec3(0.0, 1.0, 0.8), // Minty bright highlight
+        vec3(0.9, 1.0, 0.95), // Sun glint highlight
         clamp(length(r.x), 0.0, 1.0)
     );
 
@@ -82,16 +82,16 @@ void main() {
 
     // Add mouse ripple distortion
     float ripple = sin(dist * 20.0 - u_time * 5.0) * exp(-dist * 5.0);
-    color += vec3(0.1, 0.5, 0.7) * ripple * 0.5;
+    color += vec3(0.2, 0.6, 0.8) * ripple * 0.3;
 
     // Add mouse glow
-    vec3 mouseGlowColor = vec3(0.2, 0.9, 1.0);
-    color += mouseGlowColor * glow * 0.3;
-    color += vec3(1.0, 1.0, 1.0) * intenseGlow * 0.4;
+    vec3 mouseGlowColor = vec3(1.0, 1.0, 1.0);
+    color += mouseGlowColor * glow * 0.2;
+    color += vec3(1.0, 1.0, 1.0) * intenseGlow * 0.3;
     
     // Vignette for depth
     float vignette = st.y * (1.0 - st.y) * 2.0;
-    color *= mix(0.4, 1.0, vignette);
+    color *= mix(0.85, 1.0, vignette);
 
     gl_FragColor = vec4(color, 1.0);
 }
