@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, ChevronDown, Images } from "lucide-react";
 
@@ -102,13 +103,14 @@ function MediaCard({
             }}
           />
         ) : (
-          <img
+          <Image
             src={item.url}
             alt={item.category}
-            loading={priority ? "eager" : "lazy"}
-            decoding="async"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={priority}
             onLoad={() => setImgLoaded(true)}
-            className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${
+            className={`object-cover transition-all duration-500 group-hover:scale-105 ${
               imgLoaded ? "opacity-100" : "opacity-0"
             }`}
           />
@@ -172,12 +174,16 @@ function Lightbox({ item, onClose }: { item: MediaItem; onClose: () => void }) {
               className="rounded-2xl shadow-2xl max-h-[85vh] w-full object-contain"
             />
           ) : (
-            <img
-              src={item.url}
-              alt={item.category}
-              loading="eager"
-              className="rounded-2xl shadow-2xl max-h-[85vh] w-full object-contain"
-            />
+            <div className="relative w-full max-h-[85vh] h-[85vh] aspect-video md:aspect-auto">
+              <Image
+                src={item.url}
+                alt={item.category}
+                fill
+                sizes="100vw"
+                priority
+                className="rounded-2xl shadow-2xl object-contain"
+              />
+            </div>
           )}
 
           <button

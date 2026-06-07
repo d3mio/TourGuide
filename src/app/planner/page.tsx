@@ -339,7 +339,7 @@ function PlannerContent() {
                     <circle
                       cx={pt.x} cy={pt.y}
                       r={pt.type === "start" || pt.type === "end" ? "3.5" : "2.5"}
-                      fill={pt.type === "start" ? "var(--accent)" : pt.type === "end" ? "var(--amber)" : "var(--text)"}
+                      fill={pt.type === "start" ? "var(--accent)" : pt.type === "end" ? "var(--amber)" : "var(--accent)"}
                       className={pt.type === "start" ? "pulse-glow" : ""}
                     />
                     <text x={pt.x + 4.5} y={pt.y + 1} fill="var(--muted)" fontSize="3.2" fontWeight="600" fontFamily="system-ui">

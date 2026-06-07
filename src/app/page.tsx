@@ -7,12 +7,14 @@ import { PILLARS_DATA } from "@/data/mockData";
 import { ArrowRight, Landmark, Leaf, Waves, Coffee, Camera } from "lucide-react";
 import Text3DFlip from "@/components/ui/text-3d-flip";
 import HeroFluid from "@/components/ui/hero-fluid";
+import { TracingBeam } from "@/components/ui/tracing-beam";
 
 export default function Home() {
   const { t } = useTranslation();
 
   return (
-    <div className="relative flex flex-col">
+    <TracingBeam>
+      <div className="relative flex flex-col">
       {/* Hero Section */}
       <section
         id="hero"
@@ -200,5 +202,6 @@ export default function Home() {
         </div>
       </section>
     </div>
+    </TracingBeam>
   );
 }
