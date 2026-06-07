@@ -200,7 +200,7 @@ function CultureContent() {
               >
                 {/* Background photo — zooms on hover */}
                 <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-108"
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                   style={{
                     backgroundImage: `url(${data.bg})`,
                   }}
@@ -217,7 +217,7 @@ function CultureContent() {
                 </div>
 
                 {/* Hover overlay — slides up from bottom with full details */}
-                <div className="absolute inset-0 z-20 flex flex-col justify-end translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-out">
+                <div className="absolute inset-0 z-20 flex flex-col justify-end translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out">
                   {/* Frosted dark panel */}
                   <div className="absolute inset-0 bg-black/88 backdrop-blur-sm" />
                   <div className="relative p-4 sm:p-5 flex flex-col h-full justify-between">
