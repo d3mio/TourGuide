@@ -6,56 +6,10 @@ import { useTranslation } from "@/store";
 import { PILLARS_DATA } from "@/data/mockData";
 import { ArrowRight, Landmark, Leaf, Waves, Coffee, Camera } from "lucide-react";
 import Text3DFlip from "@/components/ui/text-3d-flip";
+import HeroFluid from "@/components/ui/hero-fluid";
 
 export default function Home() {
   const { t } = useTranslation();
-
-  // States for split slider
-  const [sliderPos, setSliderPos] = useState(50);
-  const isDragging = useRef(false);
-  const sliderRef = useRef<HTMLDivElement>(null);
-
-  const handleSliderMove = (clientX: number) => {
-    if (!sliderRef.current) return;
-    const rect = sliderRef.current.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
-    setSliderPos(percentage);
-  };
-
-  const handleMouseDown = () => {
-    isDragging.current = true;
-  };
-
-  useEffect(() => {
-    const handleMouseUp = () => {
-      isDragging.current = false;
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging.current) return;
-      handleSliderMove(e.clientX);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isDragging.current) return;
-      if (e.touches.length > 0) {
-        handleSliderMove(e.touches[0].clientX);
-      }
-    };
-
-    window.addEventListener("mouseup", handleMouseUp);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("touchend", handleMouseUp);
-    window.addEventListener("touchmove", handleTouchMove, { passive: true });
-
-    return () => {
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("touchend", handleMouseUp);
-      window.removeEventListener("touchmove", handleTouchMove);
-    };
-  }, []);
 
   return (
     <div className="relative flex flex-col">
@@ -64,29 +18,29 @@ export default function Home() {
         id="hero"
         className="relative min-h-[100svh] flex items-center pt-16 pb-12 md:pt-20 md:pb-16 overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-bg to-bg pointer-events-none z-0" />
-        <div className="max-w-7xl mx-auto px-4 md:px-8 w-full grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-12 items-center relative z-10">
+        <HeroFluid />
+        <div className="max-w-7xl mx-auto px-4 md:px-8 w-full items-center relative z-10 flex justify-center text-center">
 
           {/* Text Content */}
-          <div className="flex flex-col items-start text-left">
+          <div className="flex flex-col items-center max-w-3xl">
             <span className="font-sans text-[0.68rem] tracking-[0.2em] uppercase font-bold text-accent px-3 py-1 rounded-full border border-accent/25 bg-accentdim/15 mb-5 pulse-glow">
               {t("hero_badge")}
             </span>
             <Text3DFlip
               as="h1"
               className="font-serif text-[clamp(2.4rem,7vw,5.5rem)] leading-[1.05] font-light tracking-tight mb-5"
-              textClassName="text-textcolor"
+              textClassName="text-white drop-shadow-lg"
               flipTextClassName="text-accent"
               rotateDirection="top"
             >
               {t("hero_title")}
             </Text3DFlip>
-            <p className="text-muted text-[0.92rem] md:text-[1.05rem] leading-relaxed max-w-[520px] mb-8">
+            <p className="text-white/90 drop-shadow text-[0.92rem] md:text-[1.05rem] leading-relaxed max-w-[520px] mb-8">
               {t("hero_sub")}
             </p>
             {/* CTA Pill */}
-            <div className="flex items-center rounded-full w-fit max-w-full bg-transparent border border-transparent p-0 xs:bg-surface/85 xs:border-bordercolor xs:p-1 xs:pl-4 xs:pr-1 xs:shadow-lg xs:backdrop-blur-md">
-              <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-muted uppercase mr-3 sm:mr-6 hidden xs:inline-block">
+            <div className="flex items-center justify-center rounded-full w-fit max-w-full bg-transparent border border-transparent p-0 xs:bg-surface/20 xs:border-white/10 xs:p-1 xs:pl-4 xs:pr-1 xs:shadow-2xl xs:backdrop-blur-md">
+              <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-white/90 uppercase mr-3 sm:mr-6 hidden xs:inline-block">
                 {t("hero_cta_label")}
               </span>
               <Link
@@ -95,60 +49,6 @@ export default function Home() {
               >
                 {t("hero_cta_btn")}
               </Link>
-            </div>
-          </div>
-
-
-          {/* Interactive Split-Screen Image Slider */}
-          <div className="w-full mt-4 lg:mt-0">
-            <div className="split-slider-wrapper">
-              <div
-                ref={sliderRef}
-                className="split-slider"
-                onMouseMove={(e) => !isDragging.current && handleSliderMove(e.clientX)}
-                onTouchMove={(e) => {
-                  if (!isDragging.current && e.touches.length > 0) {
-                    handleSliderMove(e.touches[0].clientX);
-                  }
-                }}
-              >
-                {/* Right Panel (Nature & Adventure) */}
-                <div className="slider-panel panel-right">
-                  <img src="/assets/adventure.png" alt="Adventure Sri Lanka" className="slider-image" />
-                  <div className="panel-overlay-content text-right">
-                    <h3 className="font-serif text-[1.1rem] sm:text-[1.4rem] font-light text-textcolor mb-1">{t("slider_right_title")}</h3>
-                    <p className="text-[0.7rem] sm:text-xs text-muted hidden sm:block">{t("slider_right_desc")}</p>
-                  </div>
-                </div>
-
-                {/* Left Panel (Culture & Heritage) */}
-                <div
-                  className="slider-panel panel-left"
-                  style={{ width: `${sliderPos}%` }}
-                >
-                  <img src="/assets/heritage.png" alt="Culture Sri Lanka" className="slider-image" />
-                  <div className="panel-overlay-content text-left whitespace-nowrap">
-                    <h3 className="font-serif text-[1.1rem] sm:text-[1.4rem] font-light text-textcolor mb-1">{t("slider_left_title")}</h3>
-                    <p className="text-[0.7rem] sm:text-xs text-muted hidden sm:block">{t("slider_left_desc")}</p>
-                  </div>
-                </div>
-
-                {/* Drag Handle */}
-                <div
-                  className="slider-handle"
-                  style={{ left: `${sliderPos}%` }}
-                  onMouseDown={handleMouseDown}
-                  onTouchStart={handleMouseDown}
-                >
-                  <div className="w-[1px] h-full bg-accent/40 flex-grow" />
-                  <div className="handle-circle">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
-                    </svg>
-                  </div>
-                  <div className="w-[1px] h-full bg-accent/40 flex-grow" />
-                </div>
-              </div>
             </div>
           </div>
 
