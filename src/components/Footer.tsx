@@ -14,24 +14,11 @@ export default function Footer() {
           {/* Brand & Description */}
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2.5 group mb-4">
-              <div className="relative flex items-center justify-center">
-                {/* Elegant SVG Logo for Ceylon Luxe */}
-                <svg className="w-8 h-8 filter drop-shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-transform duration-500 group-hover:rotate-12" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="50" cy="50" r="42" stroke="url(#footerLogoGrad)" strokeWidth="3" strokeDasharray="6 3" className="opacity-60" />
-                  <path d="M50 12 C62 30, 78 45, 50 82 C22 45, 38 30, 50 12 Z" fill="url(#footerLogoGrad)" className="opacity-90" />
-                  <path d="M28 58 C42 53, 58 63, 72 58" stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" />
-                  <defs>
-                    <linearGradient id="footerLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#10b981" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
+
               <div className="flex flex-col leading-none text-left">
                 <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">Sri Lankan</span>
                 <span className="font-serif text-[1.12rem] font-bold tracking-wide text-textcolor mt-0.5">
-                  Ceylon<span className="text-emerald-500 font-light">Luxe</span>
+                  Ceylon Luxe <span className="text-emerald-500 font-light">Travels</span>
                 </span>
               </div>
             </Link>
@@ -66,7 +53,7 @@ export default function Footer() {
         
         <div className="mt-12 pt-8 border-t border-bordercolor flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <p className="text-[0.75rem] text-muted tracking-wide">
-            &copy; {new Date().getFullYear()} Ceylon Luxe. {t("footer_rights")}
+            &copy; {new Date().getFullYear()} Ceylon Luxe Travels. {t("footer_rights")}
           </p>
           <div className="flex gap-4">
             <span className="text-[0.75rem] text-muted tracking-wide">

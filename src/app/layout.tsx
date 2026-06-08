@@ -15,7 +15,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Ceylon Luxe",
+  title: "Ceylon Luxe Travels",
   description:
     "An uncharted editorial journey through heritage citadels, emerald highlands, and shores that redefine the horizon.",
 };

@@ -110,6 +110,8 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
       <Navbar />
       <main
         className={`flex-1 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          pathname !== '/' ? 'pt-16' : ''
+        } ${
           isTransitioning
             ? "opacity-0 translate-y-3 filter blur-[5px]"
             : "opacity-100 translate-y-0 filter blur-0"

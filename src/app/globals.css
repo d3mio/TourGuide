@@ -425,9 +425,7 @@ article {
    LIGHT MODE: Component overrides
    ========================================= */
 
-nav {
-  background: rgba(245, 245, 247, 0.88);
-}
+
 
 .bg-surface\/30 {
   background-color: rgba(255, 255, 255, 0.7);

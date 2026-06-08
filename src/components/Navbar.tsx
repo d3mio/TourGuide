@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation, useAppStore } from "@/store";
@@ -14,6 +14,14 @@ export default function Navbar() {
   const { setLang, user } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const links = [
     { href: "/", label: "nav_home" },
@@ -32,30 +40,15 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between h-16 px-4 md:px-8 bg-transparent">
+    <nav className={`fixed top-0 left-0 w-full z-50 flex items-center justify-between h-16 px-4 md:px-8 transition-all duration-300 ${scrolled ? "bg-bg/80 backdrop-blur-md border-b border-bordercolor" : "bg-transparent"}`}>
       {/* Logo */}
       <div className="md:mr-10 whitespace-nowrap flex items-center shrink-0">
         <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 group">
-          <div className="relative flex items-center justify-center">
-            <svg
-              className="w-8 h-8 filter drop-shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-transform duration-500 group-hover:rotate-12"
-              viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="50" cy="50" r="42" stroke="url(#navLogoGrad)" strokeWidth="3" strokeDasharray="6 3" className="opacity-60" />
-              <path d="M50 12 C62 30, 78 45, 50 82 C22 45, 38 30, 50 12 Z" fill="url(#navLogoGrad)" className="opacity-90" />
-              <path d="M28 58 C42 53, 58 63, 72 58" stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" />
-              <defs>
-                <linearGradient id="navLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#10b981" />
-                  <stop offset="100%" stopColor="#3b82f6" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
+
           <div className="flex flex-col leading-none">
             <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">Experience</span>
             <span className="font-serif text-[1.08rem] font-bold tracking-wide text-textcolor mt-0.5">
-              Ceylon<span className="text-emerald-500 font-light">Luxe</span>
+              Ceylon Luxe <span className="text-emerald-500 font-light">Travels</span>
             </span>
           </div>
         </Link>
@@ -64,7 +57,7 @@ export default function Navbar() {
       {/* Desktop Nav Links */}
       <div className="hidden md:flex flex-1 justify-center absolute left-1/2 -translate-x-1/2">
         <ul 
-          className="flex items-center gap-1 list-none bg-surface/90 backdrop-blur-xl border border-bordercolor rounded-full p-1.5 shadow-2xl"
+          className="flex items-center gap-2 md:gap-6 list-none"
           onMouseLeave={() => setHoveredPath(null)}
         >
           {links.map((link) => {
@@ -107,7 +100,7 @@ export default function Navbar() {
           </Link>
         )}
         {/* Language Selector — pill buttons */}
-        <div className="flex items-center gap-0.5 border border-bordercolor rounded-full p-0.5 bg-surface/50">
+        <div className="flex items-center gap-1 p-0.5">
           {LANGUAGES.map((lng) => (
             <button
               key={lng.code}

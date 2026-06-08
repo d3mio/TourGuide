@@ -12,7 +12,7 @@ export default function Home() {
   const { t } = useTranslation();
 
   return (
-    <div className="relative flex flex-col -mt-16">
+    <div className="relative flex flex-col">
       {/* Hero Section */}
       <section
         id="hero"
