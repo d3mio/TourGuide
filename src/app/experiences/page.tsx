@@ -34,14 +34,22 @@ async function getMedia() {
     if (vi < videos.length) interleaved.push(videos[vi++]);
   }
 
-  return interleaved.map((item) => ({
-    id: item.id,
-    url: item.url,
-    type: item.type as "image" | "video",
-    category: item.category,
-    width: item.width,
-    height: item.height,
-  }));
+  return interleaved.map((item) => {
+    // Inject Supabase image transformation for lightning fast thumbnails
+    let fastUrl = item.url;
+    if (item.type === "image" && item.url.includes("/object/public/")) {
+      fastUrl = item.url.replace("/object/public/", "/render/image/public/") + "?width=800&quality=60";
+    }
+
+    return {
+      id: item.id,
+      url: fastUrl,
+      type: item.type as "image" | "video",
+      category: item.category,
+      width: item.width,
+      height: item.height,
+    };
+  });
 }
 
 export default async function ExperiencesPage() {
