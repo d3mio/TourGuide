@@ -13,7 +13,16 @@ export default function Footer() {
           
           {/* Brand & Description */}
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 group mb-4">
+            <Link href="/" className="flex items-center gap-3 group mb-4">
+              
+              {/* Logo Mark */}
+              <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 bg-surface border border-bordercolor shadow-sm transition-colors">
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-textcolor">
+                  <svg width="10" height="9" viewBox="0 0 10 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 0L10 8.5H0L5 0Z" className="fill-surface" />
+                  </svg>
+                </div>
+              </div>
 
               <div className="flex flex-col leading-none text-left">
                 <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">{t("brand_prefix") || "Sri Lankan"}</span>
