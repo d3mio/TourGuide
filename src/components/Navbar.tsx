@@ -131,14 +131,25 @@ export default function Navbar() {
 
       </div>
 
-      {/* Mobile Menu Button */}
-      <button
-        className={`md:hidden p-1.5 rounded-md transition-colors ml-2 ${pathname === '/' && !scrolled ? 'text-white hover:bg-white/10' : 'text-textcolor hover:bg-surface/50'}`}
-        onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label="Toggle menu"
-      >
-        {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-      </button>
+      {/* Mobile Controls */}
+      <div className="md:hidden flex items-center gap-2 ml-auto shrink-0 z-10">
+        {user ? (
+          <button onClick={() => supabase.auth.signOut()} className={`text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1.5 border rounded-full transition-colors ${pathname === '/' && !scrolled ? 'text-white border-white/30 hover:bg-white/10' : 'text-textcolor border-bordercolor hover:bg-surface/50'}`}>
+            Signout
+          </button>
+        ) : (
+          <Link href="/login" className={`text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1.5 border rounded-full transition-colors ${pathname === '/' && !scrolled ? 'text-white border-white/30 hover:bg-white/10' : 'text-textcolor border-bordercolor hover:bg-surface/50'}`}>
+            Login
+          </Link>
+        )}
+        <button
+          className={`p-1.5 rounded-md transition-colors ${pathname === '/' && !scrolled ? 'text-white hover:bg-white/10' : 'text-textcolor hover:bg-surface/50'}`}
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
 
       {/* Mobile Menu Overlay */}
       {mobileOpen && (
@@ -164,14 +175,14 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* Mobile Controls */}
+          {/* Mobile Overlay Controls */}
           <div className="flex flex-col items-center gap-5 mt-6 pt-6 border-t border-bordercolor w-full">
             {/* Language buttons — larger on mobile */}
             <div className="flex gap-2">
               {LANGUAGES.map((lng) => (
                 <button
                   key={lng.code}
-                  onClick={() => setLang(lng.code)}
+                  onClick={() => { setLang(lng.code); setMobileOpen(false); }}
                   className={`px-4 py-2 rounded-full text-sm font-bold tracking-wider border transition-all cursor-pointer ${
                     lang === lng.code
                       ? "bg-accent text-white border-accent"
@@ -182,7 +193,6 @@ export default function Navbar() {
                 </button>
               ))}
             </div>
-
           </div>
         </div>
       )}

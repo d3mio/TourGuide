@@ -216,7 +216,7 @@ export default function Explore() {
                   </div>
                 </div>
 
-                <div className="flex gap-4 w-full justify-between items-center mt-2">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:justify-between items-start sm:items-center mt-2">
                   <button
                     onClick={() => setExpandedExcursion(isExpanded ? null : ex.id)}
                     className="text-xs font-bold text-accent hover:text-textcolor transition-colors flex items-center gap-1 cursor-pointer bg-transparent border-0 outline-none"
@@ -225,20 +225,22 @@ export default function Explore() {
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
 
-                  <a
-                    href={`mailto:serandibtours@gmail.com?subject=${encodeURIComponent(`Excursion Booking: ${ex.title}`)}&body=${encodeURIComponent(`Hi, I am interested in booking the one-day excursion: ${ex.title}.`)}`}
-                    target="_blank"
-                    className="inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-textcolor border border-bordercolor hover:border-accent hover:text-accent px-2.5 py-1.5 rounded transition-all duration-200"
-                  >
-                    <Mail className="w-3 h-3" /> {t("book_via_email")}
-                  </a>
-                  <a
-                    href={`https://wa.me/94705836005?text=${encodeURIComponent(`Hi! I'm interested in the excursion: ${ex.title}`)}`}
-                    target="_blank"
-                    className="inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-white bg-[#25D366] hover:opacity-85 px-2.5 py-1.5 rounded transition-all duration-200"
-                  >
-                    <MessageCircle className="w-3 h-3" /> {t("book_via_whatsapp")}
-                  </a>
+                  <div className="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <a
+                      href={`mailto:serandibtours@gmail.com?subject=${encodeURIComponent(`Excursion Booking: ${ex.title}`)}&body=${encodeURIComponent(`Hi, I am interested in booking the one-day excursion: ${ex.title}.`)}`}
+                      target="_blank"
+                      className="flex-1 sm:flex-none justify-center inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-textcolor border border-bordercolor hover:border-accent hover:text-accent px-2.5 py-1.5 rounded transition-all duration-200"
+                    >
+                      <Mail className="w-3 h-3" /> {t("book_via_email")}
+                    </a>
+                    <a
+                      href={`https://wa.me/94705836005?text=${encodeURIComponent(`Hi! I'm interested in the excursion: ${ex.title}`)}`}
+                      target="_blank"
+                      className="flex-1 sm:flex-none justify-center inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-white bg-[#25D366] hover:opacity-85 px-2.5 py-1.5 rounded transition-all duration-200"
+                    >
+                      <MessageCircle className="w-3 h-3" /> {t("book_via_whatsapp")}
+                    </a>
+                  </div>
                 </div>
 
                 {/* Expanded Timeline details */}
