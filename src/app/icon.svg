@@ -1,0 +1,8 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rounded square background -->
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="#EAEAEA" />
+  <!-- Black circle -->
+  <circle cx="256" cy="256" r="160" fill="#0A0A0A" />
+  <!-- White triangle -->
+  <path d="M256 150 L348 310 H164 Z" fill="#FFFFFF" />
+</svg>
