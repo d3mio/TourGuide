@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Compass } from "lucide-react";
 import { useTranslation } from "@/store";
 
 export default function Footer() {
@@ -17,11 +18,7 @@ export default function Footer() {
               
               {/* Logo Mark */}
               <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 bg-surface border border-bordercolor shadow-sm transition-colors">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-textcolor">
-                  <svg width="10" height="9" viewBox="0 0 10 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 0L10 8.5H0L5 0Z" className="fill-surface" />
-                  </svg>
-                </div>
+                <Compass className="w-5 h-5 text-emerald-500" strokeWidth={2} />
               </div>
 
               <div className="flex flex-col leading-none text-left">
