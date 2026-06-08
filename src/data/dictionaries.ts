@@ -210,6 +210,13 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     "Done": "Done",
     "Cultural Heritage Circuit (10 Days)": "Cultural Heritage Circuit (10 Days)",
     "Southern Coastal Retreat (7 Days)": "Southern Coastal Retreat (7 Days)",
+
+    "brand_name": "Ceylon Luxe Travels",
+    "brand_prefix": "Sri Lankan",
+    "brand_name_part1": "Ceylon Luxe",
+    "brand_name_part2": "Travels",
+    "auth_login": "Login",
+    "auth_signout": "Signout",
   },
 
   fr: {
@@ -413,6 +420,13 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     "Done": "Terminé",
     "Cultural Heritage Circuit (10 Days)": "Circuit Patrimoine Culturel (10 Jours)",
     "Southern Coastal Retreat (7 Days)": "Escapade Côtière du Sud (7 Jours)",
+
+    "brand_name": "Ceylon Luxe Voyages",
+    "brand_prefix": "Sri Lankais",
+    "brand_name_part1": "Ceylon Luxe",
+    "brand_name_part2": "Voyages",
+    "auth_login": "Connexion",
+    "auth_signout": "Déconnexion",
   },
 
   de: {
@@ -616,6 +630,13 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     "Done": "Erledigt",
     "Cultural Heritage Circuit (10 Days)": "Kulturerbe-Rundreise (10 Tage)",
     "Southern Coastal Retreat (7 Days)": "Südküsten-Urlaub (7 Tage)",
+
+    "brand_name": "Ceylon Luxe Reisen",
+    "brand_prefix": "Sri-lankisch",
+    "brand_name_part1": "Ceylon Luxe",
+    "brand_name_part2": "Reisen",
+    "auth_login": "Anmelden",
+    "auth_signout": "Abmelden",
   },
 
   it: {
@@ -816,8 +837,15 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
     "Drafts": "Bozze",
     "Saved": "Salvati",
     "Reviews": "Recensioni",
-    "Done": "Completato",
+    "Done": "Fatto",
     "Cultural Heritage Circuit (10 Days)": "Circuito del Patrimonio Culturale (10 Giorni)",
     "Southern Coastal Retreat (7 Days)": "Soggiorno sulla Costa Meridionale (7 Giorni)",
+
+    "brand_name": "Ceylon Luxe Viaggi",
+    "brand_prefix": "Srilankese",
+    "brand_name_part1": "Ceylon Luxe",
+    "brand_name_part2": "Viaggi",
+    "auth_login": "Accedi",
+    "auth_signout": "Esci",
   },
 };

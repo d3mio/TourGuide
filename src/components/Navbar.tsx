@@ -99,11 +99,11 @@ export default function Navbar() {
       <div className="hidden md:flex items-center gap-3 ml-auto shrink-0 z-10">
         {user ? (
           <button onClick={() => supabase.auth.signOut()} className={`text-sm font-medium transition-colors px-4 py-2 cursor-pointer ${pathname === '/' && !scrolled ? 'text-white/80 hover:text-white' : 'text-muted hover:text-textcolor'}`}>
-            Signout
+            {t("auth_signout")}
           </button>
         ) : (
           <Link href="/login" className={`text-sm font-medium transition-colors px-4 py-2 ${pathname === '/' && !scrolled ? 'text-white/80 hover:text-white' : 'text-muted hover:text-textcolor'}`}>
-            Login
+            {t("auth_login")}
           </Link>
         )}
         {/* Language Selector — pill buttons */}
@@ -135,11 +135,11 @@ export default function Navbar() {
       <div className="md:hidden flex items-center gap-2 ml-auto shrink-0 z-10">
         {user ? (
           <button onClick={() => supabase.auth.signOut()} className={`text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1.5 border rounded-full transition-colors ${pathname === '/' && !scrolled ? 'text-white border-white/30 hover:bg-white/10' : 'text-textcolor border-bordercolor hover:bg-surface/50'}`}>
-            Signout
+            {t("auth_signout")}
           </button>
         ) : (
           <Link href="/login" className={`text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1.5 border rounded-full transition-colors ${pathname === '/' && !scrolled ? 'text-white border-white/30 hover:bg-white/10' : 'text-textcolor border-bordercolor hover:bg-surface/50'}`}>
-            Login
+            {t("auth_login")}
           </Link>
         )}
         <button
@@ -192,6 +192,18 @@ export default function Navbar() {
                   {lng.name}
                 </button>
               ))}
+            </div>
+            {/* Login button on mobile */}
+            <div className="w-full max-w-[200px]">
+              {user ? (
+                <button onClick={() => { setMobileOpen(false); supabase.auth.signOut(); }} className="w-full text-center py-2.5 bg-surface/50 hover:bg-surface border border-bordercolor rounded-xl font-medium tracking-wide transition-colors">
+                  {t("auth_signout")}
+                </button>
+              ) : (
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="block w-full text-center py-2.5 bg-accent hover:opacity-85 text-white rounded-xl font-medium tracking-wide transition-colors">
+                  {t("auth_login")}
+                </Link>
+              )}
             </div>
           </div>
         </div>

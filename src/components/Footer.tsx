@@ -16,9 +16,9 @@ export default function Footer() {
             <Link href="/" className="flex items-center gap-2.5 group mb-4">
 
               <div className="flex flex-col leading-none text-left">
-                <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">Sri Lankan</span>
+                <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">{t("brand_prefix") || "Sri Lankan"}</span>
                 <span className="font-serif text-[1.12rem] font-bold tracking-wide text-textcolor mt-0.5">
-                  Ceylon Luxe <span className="text-emerald-500 font-light">Travels</span>
+                  {t("brand_name_part1")} <span className="text-emerald-500 font-light">{t("brand_name_part2")}</span>
                 </span>
               </div>
             </Link>
