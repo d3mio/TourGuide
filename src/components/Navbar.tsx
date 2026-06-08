@@ -6,11 +6,12 @@ import { usePathname } from "next/navigation";
 import { useTranslation, useAppStore } from "@/store";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { t, lang } = useTranslation();
-  const { setLang } = useAppStore();
+  const { setLang, user } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
 
@@ -52,9 +53,9 @@ export default function Navbar() {
             </svg>
           </div>
           <div className="flex flex-col leading-none">
-            <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">Sri Lankan</span>
+            <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">Experience</span>
             <span className="font-serif text-[1.08rem] font-bold tracking-wide text-textcolor mt-0.5">
-              Serendib<span className="text-emerald-500 font-light">Tours</span>
+              Ceylon<span className="text-emerald-500 font-light">Luxe</span>
             </span>
           </div>
         </Link>
@@ -96,9 +97,15 @@ export default function Navbar() {
 
       {/* Desktop Controls */}
       <div className="hidden md:flex items-center gap-3 ml-auto shrink-0 z-10">
-        <Link href="/login" className="text-sm font-medium text-muted hover:text-textcolor transition-colors px-4 py-2">
-          Login
-        </Link>
+        {user ? (
+          <button onClick={() => supabase.auth.signOut()} className="text-sm font-medium text-muted hover:text-textcolor transition-colors px-4 py-2 cursor-pointer">
+            Signout
+          </button>
+        ) : (
+          <Link href="/login" className="text-sm font-medium text-muted hover:text-textcolor transition-colors px-4 py-2">
+            Login
+          </Link>
+        )}
         {/* Language Selector — pill buttons */}
         <div className="flex items-center gap-0.5 border border-bordercolor rounded-full p-0.5 bg-surface/50">
           {LANGUAGES.map((lng) => (

@@ -30,6 +30,7 @@ type AppState = {
   reviews: Review[];
   drafts: Draft[];
   wishlist: string[];
+  user: any | null;
   dynamicTranslations: Record<string, Record<string, string>>;
   setLang: (lang: string) => void;
   setTheme: (theme: string) => void;
@@ -39,6 +40,7 @@ type AppState = {
   updateDraft: (id: string, updatedFields: Partial<Omit<Draft, "id">>) => void;
   updateDraftStatus: (idOrName: string, status: Draft["status"]) => void;
   toggleWishlist: (item: string) => void;
+  setUser: (user: any | null) => void;
   addDynamicTranslation: (lang: string, key: string, translation: string) => void;
 };
 
@@ -50,6 +52,7 @@ export const useAppStore = create<AppState>()(
       reviews: INITIAL_REVIEWS,
       drafts: [],
       wishlist: ['Sigiriya','Arugam Bay','Ella','Jaffna','Mirissa'],
+      user: null,
       dynamicTranslations: {},
       setLang: (lang) => {
         const mainEl = typeof document !== "undefined" ? document.querySelector("main") : null;
@@ -86,6 +89,7 @@ export const useAppStore = create<AppState>()(
         }
         return { wishlist: [...state.wishlist, item] };
       }),
+      setUser: (user) => set({ user }),
       addDynamicTranslation: (lang, key, translation) => set((state) => ({
         dynamicTranslations: {
           ...state.dynamicTranslations,

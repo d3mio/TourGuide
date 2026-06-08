@@ -1,7 +1,7 @@
 export const CONTENT_TRANSLATIONS: Record<string, Record<string, string>> = {
   en: {
     // Metatags
-    'meta_title': 'Sri Lankan Serendib Tours',
+    'meta_title': 'Ceylon Luxe',
     'meta_description': 'An uncharted editorial journey through heritage citadels, emerald highlands, and shores that redefine the horizon.',
 
     // Extra Excursion Labels
@@ -169,7 +169,7 @@ export const CONTENT_TRANSLATIONS: Record<string, Record<string, string>> = {
   },
   fr: {
     // Metatags
-    'meta_title': 'Sri Lankan Serendib Tours',
+    'meta_title': 'Ceylon Luxe',
     'meta_description': 'Un voyage éditorial inédit à travers les citadelles historiques, les hauts plateaux émeraude et des rivages qui redéfinissent l\'horizon.',
 
     // Extra Excursion Labels
@@ -352,7 +352,7 @@ export const CONTENT_TRANSLATIONS: Record<string, Record<string, string>> = {
   },
   de: {
     // Metatags
-    'meta_title': 'Sri Lankan Serendib Tours',
+    'meta_title': 'Ceylon Luxe',
     'meta_description': 'Eine unvergleichliche redaktionelle Reise durch historische Zitadellen, smaragdgrünes Hochland und Horizonte neu definierende Küsten.',
 
     // Extra Excursion Labels
@@ -535,7 +535,7 @@ export const CONTENT_TRANSLATIONS: Record<string, Record<string, string>> = {
   },
   it: {
     // Metatags
-    'meta_title': 'Sri Lankan Serendib Tours',
+    'meta_title': 'Ceylon Luxe',
     'meta_description': 'Un viaggio editoriale inedito tra cittadelle storiche, altopiani di smeraldo e coste che ridefiniscono l\'orizzonte.',
 
     // Extra Excursion Labels

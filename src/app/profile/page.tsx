@@ -34,7 +34,12 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1544735716-392fe2489ffa
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { drafts, wishlist, reviews, toggleWishlist, updateDraftStatus, updateDraft } = useAppStore();
+  const { drafts, wishlist, reviews, toggleWishlist, updateDraftStatus, updateDraft, user } = useAppStore();
+
+  // User details fallback
+  const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || "Traveller";
+  const userEmail = user?.email || "Colombo, Sri Lanka";
+  const userInitial = userName.charAt(0).toUpperCase();
 
   // Receipt upload state for profile modal
   const [receiptDraft, setReceiptDraft] = useState<string | null>(null);
@@ -186,15 +191,19 @@ export default function Profile() {
         <div className="bg-surface border border-bordercolor rounded-2xl p-5 sm:p-6 shadow-sm">
           {/* Avatar + name row (horizontal on mobile) */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start lg:flex-col lg:items-center gap-4 mb-5">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accentdim/20 border-2 border-accent flex items-center justify-center font-serif text-[1.6rem] sm:text-[2rem] text-accent shrink-0 shadow-md shadow-accent/10">
-              A
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accentdim/20 border-2 border-accent flex items-center justify-center font-serif text-[1.6rem] sm:text-[2rem] text-accent shrink-0 shadow-md shadow-accent/10 overflow-hidden">
+              {user?.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                userInitial
+              )}
             </div>
             <div className="text-center sm:text-left lg:text-center">
-              <h2 className="text-xl font-serif text-textcolor mb-1">Aanya Sharma</h2>
+              <h2 className="text-xl font-serif text-textcolor mb-1">{userName}</h2>
               <span className="inline-flex items-center px-3 py-0.5 rounded-full text-[0.65rem] tracking-wider font-bold border border-accent/20 text-accent bg-accentdim/15 uppercase">
                 {t("Explorer Elite")}
               </span>
-              <p className="text-xs text-muted mt-2">{t("Colombo, Sri Lanka")}</p>
+              <p className="text-xs text-muted mt-2">{userEmail}</p>
             </div>
           </div>
 

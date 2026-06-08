@@ -159,7 +159,7 @@ export default function SplashIntro({ onComplete }: SplashIntroProps) {
           </div>
           <div className="splash-brand-line splash-stagger-2">
             <h1 className="splash-title">
-              Serendib<span className="splash-title-bold"> Tours</span>
+              Ceylon<span className="splash-title-bold"> Luxe</span>
             </h1>
           </div>
         </div>

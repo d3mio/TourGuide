@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAppStore, useTranslation } from "@/store";
+import { supabase } from "@/lib/supabase";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
@@ -15,6 +16,23 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [displayChildren, setDisplayChildren] = useState(children);
+
+  // Sync Supabase Auth State
+  useEffect(() => {
+    const setUser = useAppStore.getState().setUser;
+    
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Mark mounted
   useEffect(() => {
