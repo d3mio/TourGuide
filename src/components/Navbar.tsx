@@ -40,15 +40,15 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 flex items-center justify-between h-16 px-4 md:px-8 transition-all duration-300 ${scrolled ? "bg-bg/80 backdrop-blur-md border-b border-bordercolor" : "!bg-transparent !border-transparent"}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 flex items-center justify-between h-16 px-4 md:px-8 transition-all duration-300 ${scrolled ? "bg-bg/80 backdrop-blur-md border-b border-bordercolor shadow-sm" : "!bg-transparent !border-transparent"}`}>
       {/* Logo */}
       <div className="md:mr-10 whitespace-nowrap flex items-center shrink-0">
         <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 group">
 
           <div className="flex flex-col leading-none">
-            <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">Experience</span>
-            <span className="font-serif text-[1.08rem] font-bold tracking-wide text-textcolor mt-0.5">
-              Ceylon Luxe <span className="text-emerald-500 font-light">Travels</span>
+            <span className={`text-[0.52rem] tracking-[0.28em] uppercase font-bold transition-colors group-hover:text-accent ${pathname === '/' && !scrolled ? 'text-white/70' : 'text-muted'}`}>Experience</span>
+            <span className={`font-serif text-[1.08rem] font-bold tracking-wide mt-0.5 ${pathname === '/' && !scrolled ? 'text-white' : 'text-textcolor'}`}>
+              Ceylon Luxe <span className={pathname === '/' && !scrolled ? 'text-emerald-400 font-normal' : 'text-emerald-500 font-light'}>Travels</span>
             </span>
           </div>
         </Link>
@@ -63,14 +63,21 @@ export default function Navbar() {
           {links.map((link) => {
             const isActive = pathname === link.href;
             const isHovered = hoveredPath === link.href;
+            
+            // Dynamic text colors based on background
+            let linkColor = "text-muted hover:text-textcolor";
+            if (pathname === '/' && !scrolled) {
+              linkColor = isActive ? "text-white font-semibold" : "text-white/80 hover:text-white";
+            } else if (isActive) {
+              linkColor = "text-textcolor font-semibold";
+            }
+
             return (
               <li key={link.href} className="relative z-10">
                 <Link
                   href={link.href}
                   onMouseEnter={() => setHoveredPath(link.href)}
-                  className={`relative z-20 flex items-center justify-center px-4 py-2 font-sans text-[0.85rem] font-medium transition-colors duration-300 whitespace-nowrap rounded-full ${
-                    isActive ? "text-textcolor" : "text-muted hover:text-textcolor"
-                  }`}
+                  className={`relative z-20 flex items-center justify-center px-4 py-2 font-sans text-[0.85rem] transition-colors duration-300 whitespace-nowrap rounded-full ${linkColor}`}
                 >
                   {t(link.label)}
                 </Link>
@@ -78,7 +85,7 @@ export default function Navbar() {
                 {isHovered && (
                   <motion.div
                     layoutId="nav-pill"
-                    className="absolute inset-0 bg-textcolor/10 rounded-full -z-10"
+                    className={`absolute inset-0 rounded-full -z-10 ${pathname === '/' && !scrolled ? 'bg-white/10' : 'bg-textcolor/10'}`}
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -91,36 +98,42 @@ export default function Navbar() {
       {/* Desktop Controls */}
       <div className="hidden md:flex items-center gap-3 ml-auto shrink-0 z-10">
         {user ? (
-          <button onClick={() => supabase.auth.signOut()} className="text-sm font-medium text-muted hover:text-textcolor transition-colors px-4 py-2 cursor-pointer">
+          <button onClick={() => supabase.auth.signOut()} className={`text-sm font-medium transition-colors px-4 py-2 cursor-pointer ${pathname === '/' && !scrolled ? 'text-white/80 hover:text-white' : 'text-muted hover:text-textcolor'}`}>
             Signout
           </button>
         ) : (
-          <Link href="/login" className="text-sm font-medium text-muted hover:text-textcolor transition-colors px-4 py-2">
+          <Link href="/login" className={`text-sm font-medium transition-colors px-4 py-2 ${pathname === '/' && !scrolled ? 'text-white/80 hover:text-white' : 'text-muted hover:text-textcolor'}`}>
             Login
           </Link>
         )}
         {/* Language Selector — pill buttons */}
         <div className="flex items-center gap-1 p-0.5">
-          {LANGUAGES.map((lng) => (
-            <button
-              key={lng.code}
-              onClick={() => setLang(lng.code)}
-              className={`px-2.5 py-1 rounded-full text-[0.65rem] font-bold tracking-wider transition-all cursor-pointer ${
-                lang === lng.code
-                  ? "bg-accent text-white"
-                  : "text-muted hover:text-textcolor"
-              }`}
-            >
-              {lng.name}
-            </button>
-          ))}
+          {LANGUAGES.map((lng) => {
+            const isSelected = lang === lng.code;
+            let langColor = "text-muted hover:text-textcolor";
+            if (isSelected) {
+              langColor = "bg-accent text-white";
+            } else if (pathname === '/' && !scrolled) {
+              langColor = "text-white/80 hover:text-white";
+            }
+            
+            return (
+              <button
+                key={lng.code}
+                onClick={() => setLang(lng.code)}
+                className={`px-2.5 py-1 rounded-full text-[0.65rem] font-bold tracking-wider transition-all cursor-pointer ${langColor}`}
+              >
+                {lng.name}
+              </button>
+            );
+          })}
         </div>
 
       </div>
 
       {/* Mobile Menu Button */}
       <button
-        className="md:hidden text-textcolor p-1.5 rounded-md hover:bg-surface/50 transition-colors ml-2"
+        className={`md:hidden p-1.5 rounded-md transition-colors ml-2 ${pathname === '/' && !scrolled ? 'text-white hover:bg-white/10' : 'text-textcolor hover:bg-surface/50'}`}
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle menu"
       >
