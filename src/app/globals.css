@@ -61,22 +61,6 @@ body {
   --font-serif: var(--font-serif), Georgia, serif;
 }
 
-/* =========================================
-   SCROLLBAR
-   ========================================= */
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 2px;
-}
-
 /* Hide scrollbar utility */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;

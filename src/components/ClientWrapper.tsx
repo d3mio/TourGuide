@@ -5,11 +5,9 @@ import { usePathname } from "next/navigation";
 import { useAppStore, useTranslation } from "@/store";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import SplashIntro from "./SplashIntro";
 
 export default function ClientWrapper({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  const [showSplash, setShowSplash] = useState(false);
   const theme = useAppStore((state) => state.theme);
   const lang = useAppStore((state) => state.lang);
   const { t } = useTranslation();
@@ -18,34 +16,10 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [displayChildren, setDisplayChildren] = useState(children);
 
-  // Mark mounted and check splash screen
+  // Mark mounted
   useEffect(() => {
     setMounted(true);
-    setShowSplash(true);
   }, []);
-
-  // Listen for replay requests
-  useEffect(() => {
-    const handleReplay = () => {
-      setShowSplash(true);
-    };
-    window.addEventListener("replay-splash", handleReplay);
-    return () => {
-      window.removeEventListener("replay-splash", handleReplay);
-    };
-  }, []);
-
-  // Lock scroll when splash is active
-  useEffect(() => {
-    if (showSplash) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [showSplash]);
 
   // Smooth route page transitions
   useEffect(() => {
@@ -115,13 +89,6 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-bg text-textcolor transition-colors duration-300">
-      {showSplash && (
-        <SplashIntro
-          onComplete={() => {
-            setShowSplash(false);
-          }}
-        />
-      )}
       <Navbar />
       <main
         className={`flex-1 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${

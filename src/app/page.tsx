@@ -12,35 +12,36 @@ export default function Home() {
   const { t } = useTranslation();
 
   return (
-    <div className="relative flex flex-col">
+    <div className="relative flex flex-col -mt-16">
       {/* Hero Section */}
       <section
         id="hero"
-        className="relative min-h-[100svh] flex items-center pt-16 pb-12 md:pt-20 md:pb-16 overflow-hidden"
+        className="relative min-h-[100svh] flex items-center pt-[5rem] pb-12 md:pt-[6rem] md:pb-16 overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/srilanka.jpg')" }}
       >
-        <HeroFluid />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/40 z-0" />
+        
         <div className="max-w-7xl mx-auto px-4 md:px-8 w-full items-center relative z-10 flex justify-center text-center">
 
           {/* Text Content */}
           <div className="flex flex-col items-center max-w-3xl">
-            <span className="font-sans text-[0.68rem] tracking-[0.2em] uppercase font-bold text-accent px-3 py-1 rounded-full border border-accent/25 bg-accentdim/15 mb-5 pulse-glow">
-              {t("hero_badge")}
-            </span>
+
             <Text3DFlip
               as="h1"
               className="font-serif text-[clamp(2.4rem,7vw,5.5rem)] leading-[1.05] font-light tracking-tight mb-5"
-              textClassName="text-textcolor drop-shadow-sm"
+              textClassName="text-white drop-shadow-md"
               flipTextClassName="text-accent"
               rotateDirection="top"
             >
               {t("hero_title")}
             </Text3DFlip>
-            <p className="text-textcolor/90 text-[0.92rem] md:text-[1.05rem] leading-relaxed max-w-[520px] mb-8">
+            <p className="text-white/90 drop-shadow text-[0.92rem] md:text-[1.05rem] leading-relaxed max-w-[520px] mb-8">
               {t("hero_sub")}
             </p>
             {/* CTA Pill */}
-            <div className="flex items-center justify-center rounded-full w-fit max-w-full bg-transparent border border-transparent p-0 xs:bg-surface/20 xs:border-bordercolor xs:p-1 xs:pl-4 xs:pr-1 xs:shadow-2xl xs:backdrop-blur-md">
-              <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-textcolor/90 uppercase mr-3 sm:mr-6 hidden xs:inline-block">
+            <div className="flex items-center justify-center rounded-full w-fit max-w-full bg-transparent border border-transparent p-0 xs:bg-black/40 xs:border-white/20 xs:p-1 xs:pl-4 xs:pr-1 xs:shadow-2xl xs:backdrop-blur-md">
+              <span className="text-[0.65rem] tracking-[0.12em] font-semibold text-white/90 uppercase mr-3 sm:mr-6 hidden xs:inline-block">
                 {t("hero_cta_label")}
               </span>
               <Link
