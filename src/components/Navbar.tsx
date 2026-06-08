@@ -40,7 +40,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 flex items-center justify-between h-16 px-4 md:px-8 transition-all duration-300 ${scrolled ? "bg-bg/80 backdrop-blur-md border-b border-bordercolor" : "bg-transparent"}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 flex items-center justify-between h-16 px-4 md:px-8 transition-all duration-300 ${scrolled ? "bg-bg/80 backdrop-blur-md border-b border-bordercolor" : "!bg-transparent !border-transparent"}`}>
       {/* Logo */}
       <div className="md:mr-10 whitespace-nowrap flex items-center shrink-0">
         <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 group">
