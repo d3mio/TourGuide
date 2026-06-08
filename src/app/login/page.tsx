@@ -5,14 +5,20 @@ import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
+      // Initialize Supabase client inside the handler so it doesn't break Vercel static builds
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        console.error("Supabase credentials are not set!");
+        return;
+      }
+      
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
