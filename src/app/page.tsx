@@ -2,42 +2,14 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { useTranslation, useAppStore } from "@/store";
-import { PILLARS_DATA, EXCURSIONS } from "@/data/mockData";
-import { ArrowRight, Landmark, Leaf, Waves, Coffee, Camera, Clock, MapPin, Compass, ChevronDown, Mail } from "lucide-react";
+import { useTranslation } from "@/store";
+import { PILLARS_DATA } from "@/data/mockData";
+import { ArrowRight, Landmark, Leaf, Waves, Coffee, Camera } from "lucide-react";
 import Text3DFlip from "@/components/ui/text-3d-flip";
 import HeroFluid from "@/components/ui/hero-fluid";
 
 export default function Home() {
   const { t } = useTranslation();
-  const [expandedExcursion, setExpandedExcursion] = useState<string | null>(null);
-  const [bookingLoading, setBookingLoading] = useState<string | null>(null);
-  const { user } = useAppStore();
-
-  const handleBookExcursion = async (ex: any) => {
-    const userEmail = user?.email || window.prompt("Please enter your email address for the booking confirmation:");
-    if (!userEmail) return;
-
-    setBookingLoading(ex.id);
-    try {
-      const res = await fetch("/api/book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientName: user?.user_metadata?.full_name || "Traveler",
-          clientEmail: userEmail,
-          title: `Excursion: ${ex.title}`,
-          details: `Requested Excursion: ${ex.title}\nDuration: ${ex.duration}\nStops: ${ex.stops}`
-        })
-      });
-      if (!res.ok) throw new Error("Failed");
-      alert("Booking request sent successfully! Check your email.");
-    } catch (e) {
-      alert("Failed to send booking request. Please try again.");
-    } finally {
-      setBookingLoading(null);
-    }
-  };
 
   return (
     <div className="relative flex flex-col">
@@ -198,96 +170,6 @@ export default function Home() {
                 <p className="text-xs md:text-sm text-muted leading-relaxed max-w-xl">{t("bento_photo_desc")}</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Colombo Day Excursions */}
-      <section className="bg-bg border-t border-bordercolor py-14 md:py-20 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-[0.68rem] tracking-[0.15em] uppercase text-accent font-bold mb-3 block">
-              {t("excursions_eyebrow")}
-            </span>
-            <h2 className="font-serif text-3xl md:text-4xl mb-4">{t("excursions_title")}</h2>
-            <p className="text-muted text-[0.88rem] md:text-[0.95rem]">
-              {t("excursions_desc")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {EXCURSIONS.map((ex) => {
-              const isExpanded = expandedExcursion === ex.id;
-              return (
-                <div
-                  key={ex.id}
-                  className="bg-surface border border-bordercolor rounded-xl p-6 md:p-8 flex flex-col items-start relative overflow-hidden transition-all duration-300 hover:border-accent/30 hover:shadow-lg"
-                >
-                  <div className="absolute top-0 right-0 bg-bordercolor/50 border-l border-b border-bordercolor text-[0.7rem] uppercase font-bold px-4 py-1.5 rounded-bl-lg text-muted">
-                    {t(ex.badge)}
-                  </div>
-
-                  <div className="mb-4 pr-16">
-                    <h3 className="font-serif text-xl md:text-2xl text-textcolor mb-1">{t(ex.title)}</h3>
-                    <span className="inline-flex items-center gap-1 text-[0.72rem] text-accent font-semibold bg-accentdim/15 px-2 py-0.5 rounded">
-                      <Clock className="w-3.5 h-3.5" /> {t(ex.duration)}
-                    </span>
-                  </div>
-
-                  <p className="text-muted text-xs md:text-[0.82rem] leading-relaxed mb-6 flex-grow">
-                    {t(ex.desc)}
-                  </p>
-
-                  <div className="w-full flex flex-wrap gap-4 border-t border-bordercolor pt-4 mb-4">
-                    <div className="flex items-center gap-1.5 text-xs text-muted">
-                      <MapPin className="w-3.5 h-3.5 text-accent" />
-                      <span><strong>{t("stops")}:</strong> {ex.stops.split(', ').slice(0, 2).map(s => t(s)).join(', ')}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted">
-                      <Compass className="w-3.5 h-3.5 text-accent" />
-                      <span><strong>{t("drive")}:</strong> {t(ex.travelInfo.split(' (')[0])}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:justify-between items-start sm:items-center mt-2">
-                    <button
-                      onClick={() => setExpandedExcursion(isExpanded ? null : ex.id)}
-                      className="text-xs font-bold text-accent hover:text-textcolor transition-colors flex items-center gap-1 cursor-pointer bg-transparent border-0 outline-none"
-                    >
-                      {isExpanded ? t("ex_hide_itinerary") : t("ex_view_itinerary")}
-                      <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    <div className="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                      <button
-                        onClick={() => handleBookExcursion(ex)}
-                        disabled={bookingLoading === ex.id}
-                        className="flex-1 sm:flex-none justify-center inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-white bg-accent hover:opacity-85 px-4 py-1.5 rounded transition-all duration-200 cursor-pointer disabled:opacity-50"
-                      >
-                        <Mail className="w-3 h-3" /> {bookingLoading === ex.id ? "Sending..." : "Book Excursion"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Expanded Timeline details */}
-                  {isExpanded && (
-                    <div className="w-full border-t border-dashed border-bordercolor mt-5 pt-5 animate-[fadeIn_0.3s_ease]">
-                      <h5 className="text-[0.75rem] font-bold uppercase tracking-wider text-amber-500 mb-3.5">{t("ex_route_plan")}</h5>
-                      <div className="relative pl-4 border-l border-bordercolor flex flex-col gap-4">
-                        {ex.itinerary.map((item, idx) => (
-                          <div key={idx} className="relative flex flex-col sm:flex-row gap-1 sm:gap-4 items-start text-[0.8rem]">
-                            <div className="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-accent border border-bg" />
-                            <span className="font-bold text-accent bg-accentdim/10 px-1.5 py-0.5 rounded text-[0.7rem] shrink-0">{item.time}</span>
-                            <span className="text-muted leading-relaxed">{t(item.event)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>
