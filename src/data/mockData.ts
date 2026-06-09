@@ -244,7 +244,7 @@ export const PILLARS_DATA = {
   history: {
     title: "History & Ancient Ruins",
     tagline: "Step back 2500+ years into sacred cities",
-    bg: "/assets/heritage.png",
+    bg: "/assets/places/history.jpg",
     icon: Castle,
     desc: "Sri Lanka's history spans over two and a half millennia, chronicled in the ancient Pali epics. Explore the Cultural Triangle, home to towering stupas, rock temples, and ruins of ancient capitals that once stood as centers of trade and Buddhist learning.",
     highlights: [
@@ -258,7 +258,7 @@ export const PILLARS_DATA = {
   culture: {
     title: "Culture & Living Traditions",
     tagline: "A vibrant tapestry of multi-faith heritage",
-    bg: "https://images.unsplash.com/photo-1578593139888-39622e207264?q=80&w=800&auto=format&fit=crop",
+    bg: "/assets/places/culture.jpg",
     icon: Drum,
     desc: "Influenced by Buddhism, Hinduism, Islam, and Christianity, Sri Lanka boasts a rich, complex cultural heritage. Experience traditional drumming, Kandyan dancing, intricate arts and crafts, and spice-infused culinary rituals passed down through generations.",
     highlights: [
@@ -272,7 +272,7 @@ export const PILLARS_DATA = {
   adventure: {
     title: "Adventure & Outdoor Sports",
     tagline: "Thrills across wild mountains and turquoise waves",
-    bg: "/assets/adventure.png",
+    bg: "/assets/places/adventure.jpg",
     icon: Compass,
     desc: "From the world-class surf breaks of Arugam Bay and Mirissa to the mist-shrouded peaks of the central highlands, Sri Lanka is an action-packed paradise. Trek through tea estates, raft down raging rivers, or kitesurf in shallow lagoons.",
     highlights: [
@@ -286,7 +286,7 @@ export const PILLARS_DATA = {
   eco: {
     title: "Eco-Tourism & Wildlife Safaris",
     tagline: "Unrivaled biodiversity in pristine forests",
-    bg: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800&auto=format&fit=crop",
+    bg: "/assets/places/eco tourism.jpg",
     icon: Leaf,
     desc: "Despite its small size, Sri Lanka has one of the highest rates of biological endemism in the world. Embark on safaris to see leopards and wild elephant herds, or explore prehistoric rainforests home to rare birds and orchids.",
     highlights: [
@@ -300,7 +300,7 @@ export const PILLARS_DATA = {
   mice: {
     title: "MICE & Business Travels",
     tagline: "Meetings, Incentives, Conferences & Exhibitions",
-    bg: "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800&auto=format&fit=crop",
+    bg: "/assets/places/MICE.jpg",
     icon: Building,
     desc: "Sri Lanka is rapidly growing as a hub for corporate travel. Offering state-of-the-art convention centers in Colombo, luxurious beachside conference resorts, and unique team-building excursions in the highlands.",
     highlights: [
@@ -314,7 +314,7 @@ export const PILLARS_DATA = {
   family: {
     title: "Family & Child-Friendly Holidays",
     tagline: "Warm memories for travelers of all ages",
-    bg: "https://images.unsplash.com/photo-1602002418082-a4443e081dd1?q=80&w=800&auto=format&fit=crop",
+    bg: "/assets/places/Family.jpg",
     icon: Users,
     desc: "Create unforgettable family bonds. Sri Lanka offers safe sandy beaches, kid-friendly safaris, interactive elephant feeding programs, turtle conservation centers, and resort complexes with extensive recreation options.",
     highlights: [
@@ -328,7 +328,7 @@ export const PILLARS_DATA = {
   leisure: {
     title: "Leisure, Wellness & Ayurveda",
     tagline: "Unwind on golden beaches and healing sanctuaries",
-    bg: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop",
+    bg: "/assets/places/lesuire and wellnes.jpg",
     icon: Coffee,
     desc: "Immerse yourself in serenity. Sri Lanka offers traditional Ayurveda retreats using herbal oils and holistic medicines, luxury beachfront resorts, and colonial-era tea bungalows where you can escape the rush of modern life.",
     highlights: [
@@ -342,7 +342,7 @@ export const PILLARS_DATA = {
   education: {
     title: "Education & Field Research",
     tagline: "Knowledge sharing and environmental studies",
-    bg: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=800&auto=format&fit=crop",
+    bg: "/assets/places/education.jpg",
     icon: BookOpen,
     desc: "For students, researchers, and curious minds, Sri Lanka offers a rich canvas. Study unique island ecosystems, volunteer in wildlife rehabilitation, or examine centuries of colonial history archives and archeological excavations.",
     highlights: [

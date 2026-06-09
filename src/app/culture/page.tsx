@@ -8,13 +8,13 @@ import { ArrowRight, X } from "lucide-react";
 
 // Image mapping for culture items
 const CULTURE_IMAGES: Record<string, string> = {
-  "Kandyan Dance": "https://images.unsplash.com/photo-1608958416719-74d32a9fe643?q=80&w=800&auto=format&fit=crop",
-  "The Art of Ceylon Tea": "https://images.unsplash.com/photo-1545249390-6bdfa286032f?q=80&w=800&auto=format&fit=crop",
-  "Rock Fortresses & Dagobas": "https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?q=80&w=800&auto=format&fit=crop",
-  "Kandy Esala Perahera": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=800&auto=format&fit=crop",
+  "Kandyan Dance": "/assets/places/kandiyan dance.jpg",
+  "The Art of Ceylon Tea": "/assets/places/ceylon tea.jpg",
+  "Rock Fortresses & Dagobas": "/assets/places/dagobas.webp",
+  "Kandy Esala Perahera": "/assets/places/kandy esala perehera.webp",
   "Spice & Curry Traditions": "https://images.unsplash.com/photo-1596797038530-2c107229654b?q=80&w=800&auto=format&fit=crop",
-  "Sacred Multi-Faith Coexistence": "https://images.unsplash.com/photo-1563968743333-044cef800494?q=80&w=800&auto=format&fit=crop",
-  "Dumbara Mat Weaving": "https://images.unsplash.com/photo-1531835551805-16d864c8d311?q=80&w=800&auto=format&fit=crop",
+  "Sacred Multi-Faith Coexistence": "/assets/places/sacred multi faith coexistense.jpg",
+  "Dumbara Mat Weaving": "/assets/places/dumbara mat waving.webp",
   "Ancient Maritime Culture": "https://images.unsplash.com/photo-1552083375-1447ce886485?q=80&w=800&auto=format&fit=crop",
 };
 
