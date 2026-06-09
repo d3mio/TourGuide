@@ -12,13 +12,13 @@ const CULTURE_IMAGES: Record<string, string> = {
   "The Art of Ceylon Tea": "/assets/places/ceylon tea.jpg",
   "Rock Fortresses & Dagobas": "/assets/places/dagobas.webp",
   "Kandy Esala Perahera": "/assets/places/kandy esala perehera.webp",
-  "Spice & Curry Traditions": "https://images.unsplash.com/photo-1596797038530-2c107229654b?q=80&w=800&auto=format&fit=crop",
+  "Spice & Curry Traditions": "/assets/places/spice_and_curry.png",
   "Sacred Multi-Faith Coexistence": "/assets/places/sacred multi faith coexistense.jpg",
   "Dumbara Mat Weaving": "/assets/places/dumbara mat waving.webp",
-  "Ancient Maritime Culture": "https://images.unsplash.com/photo-1552083375-1447ce886485?q=80&w=800&auto=format&fit=crop",
+  "Ancient Maritime Culture": "/assets/places/ancient_maritime.png",
 };
 
-const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?q=80&w=800&auto=format&fit=crop";
+const DEFAULT_IMAGE = "/assets/places/culture.jpg";
 
 function CultureContent() {
   const { t } = useTranslation();
@@ -69,7 +69,7 @@ function CultureContent() {
           <div
             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
             style={{
-              backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.10) 100%), url(https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?q=80&w=1600&auto=format&fit=crop)`,
+              backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.10) 100%), url(/assets/places/arugam_bay_rave.png)`,
             }}
           />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 z-10">
@@ -92,21 +92,21 @@ function CultureContent() {
               title: "Mirissa Beach Parties",
               tag: "🌊 South Coast",
               desc: "Beachfront bars that evolve into full dance floors after midnight. Liquid Space and Mirissa party culture draw international crowds from November to April.",
-              img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=800&auto=format&fit=crop",
+              img: "/assets/places/mirissa_beach_parties.png",
               vibe: "Beach · House · Reggae",
             },
             {
               title: "Unawatuna Rooftop Sessions",
               tag: "🏰 Galle District",
               desc: "Boutique rooftop venues overlooking the Indian Ocean. Progressive deep house sets, craft cocktails, and that unmistakable Galle golden hour glow.",
-              img: "https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?q=80&w=800&auto=format&fit=crop",
+              img: "/assets/places/unawatuna_rooftop_sessions.png",
               vibe: "Rooftop · Progressive · Deep House",
             },
             {
               title: "Colombo Underground",
               tag: "🌆 City Raves",
               desc: "The capital's underground techno and progressive scene has exploded. Warehouse events, curated DJ nights, and a sophisticated local crowd who know their music.",
-              img: "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?q=80&w=800&auto=format&fit=crop",
+              img: "/assets/places/colombo_underground.png",
               vibe: "Techno · Warehouse · Electronic",
             },
           ].map((venue) => (
@@ -141,7 +141,7 @@ function CultureContent() {
           <div className="relative h-[200px] rounded-xl overflow-hidden border border-bordercolor">
             <div
               className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%), url(https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=800&auto=format&fit=crop)` }}
+              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%), url(/assets/places/full_moon_beach_raves.png)` }}
             />
             <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
               <span className="text-[0.6rem] font-bold uppercase tracking-[0.18em] text-purple-400">
@@ -159,7 +159,7 @@ function CultureContent() {
           <div className="relative h-[200px] rounded-xl overflow-hidden border border-bordercolor">
             <div
               className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%), url(https://images.unsplash.com/photo-1501386761578-eaa54b915e8e?q=80&w=800&auto=format&fit=crop)` }}
+              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%), url(/assets/places/local_dj_scene.png)` }}
             />
             <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
               <span className="text-[0.6rem] font-bold uppercase tracking-[0.18em] text-emerald-400">
