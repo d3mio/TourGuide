@@ -185,7 +185,7 @@ function PlannerContent() {
         })
       }).catch((e) => console.error("API Booking Error:", e));
       
-      const draftId = Date.now().toString();
+      const draftId = crypto.randomUUID();
       setCurrentDraftId(draftId);
       addDraft({
         id: draftId,
