@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "@/store";
 import { CULTURE_ITEMS, PILLARS_DATA } from "@/data/mockData";
@@ -65,11 +66,12 @@ function CultureContent() {
         </div>
 
         {/* Hero Banner — Arugam Bay Rave */}
-        <div className="relative w-full h-[340px] md:h-[480px] rounded-2xl overflow-hidden mb-6 border border-bordercolor shadow-2xl">
+        <div className="relative w-full h-[340px] md:h-[480px] rounded-2xl overflow-hidden mb-6 border border-bordercolor shadow-2xl group">
+          <Image src="/assets/places/arugam_bay_rave.png" alt="Arugam Bay Rave" fill className="object-cover transition-transform duration-700 group-hover:scale-105" priority sizes="100vw" />
           <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
+            className="absolute inset-0 transition-transform duration-700 pointer-events-none"
             style={{
-              backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.10) 100%), url(/assets/places/arugam_bay_rave.png)`,
+              backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.10) 100%)`,
             }}
           />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 z-10">
@@ -114,10 +116,11 @@ function CultureContent() {
               key={venue.title}
               className="group relative h-[260px] rounded-xl overflow-hidden border border-bordercolor cursor-pointer hover:border-accent/40 hover:-translate-y-1 transition-all duration-300 shadow-md"
             >
+              <Image src={venue.img} alt={venue.title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 100vw, 33vw" />
               <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                className="absolute inset-0 transition-transform duration-700 pointer-events-none"
                 style={{
-                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0.08) 100%), url(${venue.img})`,
+                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0.08) 100%)`,
                 }}
               />
               <div className="absolute inset-0 p-5 flex flex-col justify-end z-10">
@@ -139,9 +142,10 @@ function CultureContent() {
         {/* Experience Cards Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative h-[200px] rounded-xl overflow-hidden border border-bordercolor">
+            <Image src="/assets/places/full_moon_beach_raves.png" alt="Full Moon Beach Raves" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
             <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%), url(/assets/places/full_moon_beach_raves.png)` }}
+              className="absolute inset-0 pointer-events-none"
+              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%)` }}
             />
             <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
               <span className="text-[0.6rem] font-bold uppercase tracking-[0.18em] text-purple-400">
@@ -157,9 +161,10 @@ function CultureContent() {
           </div>
 
           <div className="relative h-[200px] rounded-xl overflow-hidden border border-bordercolor">
+            <Image src="/assets/places/local_dj_scene.png" alt="Local DJ Scene" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
             <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%), url(/assets/places/local_dj_scene.png)` }}
+              className="absolute inset-0 pointer-events-none"
+              style={{ backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.55) 100%)` }}
             />
             <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
               <span className="text-[0.6rem] font-bold uppercase tracking-[0.18em] text-emerald-400">
@@ -199,12 +204,7 @@ function CultureContent() {
                 className="group relative h-[260px] sm:h-[320px] rounded-xl overflow-hidden border border-bordercolor bg-surface cursor-default hover:border-accent/50 hover:-translate-y-1 transition-all duration-300 shadow-md"
               >
                 {/* Background photo — zooms on hover */}
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                  style={{
-                    backgroundImage: `url(${data.bg})`,
-                  }}
-                />
+                <Image src={data.bg} alt={t(data.title.split(' & ')[0])} fill className="object-cover transition-transform duration-700 group-hover:scale-110" sizes="(max-width: 768px) 50vw, 25vw" />
 
                 {/* Always-visible dark gradient + default content */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/10 transition-opacity duration-300 group-hover:opacity-0" />
@@ -291,10 +291,11 @@ function CultureContent() {
                 className="group relative h-[280px] sm:h-[360px] rounded-2xl overflow-hidden border border-bordercolor bg-surface hover:border-accent/40 transition-all duration-300 shadow-sm"
               >
                 {/* Photo background — dark gradient for text legibility always */}
+                <Image src={imageSrc} alt={t(c.title)} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 50vw" />
                 <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                  className="absolute inset-0 transition-transform duration-700 pointer-events-none"
                   style={{
-                    backgroundImage: `linear-gradient(to top, rgba(9, 9, 11, 0.98) 0%, rgba(9, 9, 11, 0.55) 50%, rgba(9, 9, 11, 0.15) 100%), url(${imageSrc})`,
+                    backgroundImage: `linear-gradient(to top, rgba(9, 9, 11, 0.98) 0%, rgba(9, 9, 11, 0.55) 50%, rgba(9, 9, 11, 0.15) 100%)`,
                   }}
                 />
 
@@ -336,12 +337,15 @@ function CultureContent() {
           {activePillar && (
             <div className="flex flex-col">
               {/* Banner image — always dark gradient over photo */}
-              <div
-                className="w-[calc(100%+2.5rem)] sm:w-[calc(100%+4rem)] -ml-5 sm:-ml-8 -mt-8 sm:-mt-12 h-[180px] sm:h-[220px] bg-cover bg-center mb-6 relative"
-                style={{
-                  backgroundImage: `linear-gradient(to top, var(--surface) 0%, rgba(9,9,11,0.25) 100%), url(${PILLARS_DATA[activePillar].bg})`,
-                }}
-              />
+              <div className="w-[calc(100%+2.5rem)] sm:w-[calc(100%+4rem)] -ml-5 sm:-ml-8 -mt-8 sm:-mt-12 h-[180px] sm:h-[220px] mb-6 relative overflow-hidden">
+                <Image src={PILLARS_DATA[activePillar].bg} alt={t(PILLARS_DATA[activePillar].title)} fill className="object-cover" />
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    backgroundImage: `linear-gradient(to top, var(--surface) 0%, rgba(9,9,11,0.25) 100%)`,
+                  }}
+                />
+              </div>
 
               <div className="mb-5">
                 <span className="text-[0.65rem] tracking-[0.15em] uppercase text-accent font-bold mb-1 block">

@@ -36,5 +36,7 @@ In your Vercel Project Settings > **Environment Variables**, update or add:
 2. Navigate to **APIs & Services** > **Credentials**.
 3. Edit your **OAuth 2.0 Client ID**.
 4. Under **Authorized JavaScript origins**, add `https://ceylonluxetravels.com`.
-5. Under **Authorized redirect URIs**, add `https://ceylonluxetravels.com/auth/callback` (or your specific Supabase callback URL).
+5. Under **Authorized redirect URIs**, you MUST add your **Supabase Project's OAuth Callback URL**, NOT your website domain.
+   - You can find this in your Supabase Dashboard by going to **Authentication > Providers > Google**.
+   - It will look like this: `https://<your-project-ref>.supabase.co/auth/v1/callback`
 6. Save the changes.

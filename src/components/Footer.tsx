@@ -16,11 +16,6 @@ export default function Footer() {
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-3 group mb-4">
               
-              {/* Logo Mark */}
-              <div className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 bg-surface border border-bordercolor shadow-sm transition-colors">
-                <Compass className="w-5 h-5 text-emerald-500" strokeWidth={2} />
-              </div>
-
               <div className="flex flex-col leading-none text-left">
                 <span className="text-[0.52rem] tracking-[0.28em] uppercase text-muted font-bold transition-colors group-hover:text-accent">{t("brand_prefix") || "Sri Lankan"}</span>
                 <span className="font-serif text-[1.12rem] font-bold tracking-wide text-textcolor mt-0.5">
