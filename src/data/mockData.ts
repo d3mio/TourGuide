@@ -286,7 +286,7 @@ export const PILLARS_DATA = {
   eco: {
     title: "Eco-Tourism & Wildlife Safaris",
     tagline: "Unrivaled biodiversity in pristine forests",
-    bg: "/assets/places/eco tourism.jpg",
+    bg: "/assets/places/eco_tourism.jpg",
     icon: Leaf,
     desc: "Despite its small size, Sri Lanka has one of the highest rates of biological endemism in the world. Embark on safaris to see leopards and wild elephant herds, or explore prehistoric rainforests home to rare birds and orchids.",
     highlights: [
@@ -328,7 +328,7 @@ export const PILLARS_DATA = {
   leisure: {
     title: "Leisure, Wellness & Ayurveda",
     tagline: "Unwind on golden beaches and healing sanctuaries",
-    bg: "/assets/places/lesuire and wellnes.jpg",
+    bg: "/assets/places/lesuire_and_wellnes.jpg",
     icon: Coffee,
     desc: "Immerse yourself in serenity. Sri Lanka offers traditional Ayurveda retreats using herbal oils and holistic medicines, luxury beachfront resorts, and colonial-era tea bungalows where you can escape the rush of modern life.",
     highlights: [

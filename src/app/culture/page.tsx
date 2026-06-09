@@ -8,13 +8,13 @@ import { ArrowRight, X } from "lucide-react";
 
 // Image mapping for culture items
 const CULTURE_IMAGES: Record<string, string> = {
-  "Kandyan Dance": "/assets/places/kandiyan dance.jpg",
-  "The Art of Ceylon Tea": "/assets/places/ceylon tea.jpg",
+  "Kandyan Dance": "/assets/places/kandiyan_dance.jpg",
+  "The Art of Ceylon Tea": "/assets/places/ceylon_tea.jpg",
   "Rock Fortresses & Dagobas": "/assets/places/dagobas.webp",
-  "Kandy Esala Perahera": "/assets/places/kandy esala perehera.webp",
+  "Kandy Esala Perahera": "/assets/places/kandy_esala_perehera.webp",
   "Spice & Curry Traditions": "/assets/places/spice_and_curry.png",
-  "Sacred Multi-Faith Coexistence": "/assets/places/sacred multi faith coexistense.jpg",
-  "Dumbara Mat Weaving": "/assets/places/dumbara mat waving.webp",
+  "Sacred Multi-Faith Coexistence": "/assets/places/sacred_multi_faith_coexistense.jpg",
+  "Dumbara Mat Weaving": "/assets/places/dumbara_mat_waving.webp",
   "Ancient Maritime Culture": "/assets/places/ancient_maritime.png",
 };
 
