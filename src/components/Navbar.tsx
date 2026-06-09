@@ -45,11 +45,6 @@ export default function Navbar() {
       <div className="md:mr-10 whitespace-nowrap flex items-center shrink-0">
         <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 group">
 
-          {/* Logo Mark */}
-          <div className="flex items-center justify-center w-10 h-10 mr-1 shrink-0 transition-all">
-            <img src="/assets/logo.svg" alt="Logo" className={`w-full h-full object-contain transition-all ${pathname === '/' && !scrolled ? 'brightness-0 invert' : ''}`} />
-          </div>
-
 
           <div className="flex flex-col leading-none">
             <span className={`text-[0.52rem] tracking-[0.28em] uppercase font-bold transition-colors group-hover:text-accent ${pathname === '/' && !scrolled ? 'text-white/70' : 'text-muted'}`}>Experience</span>
