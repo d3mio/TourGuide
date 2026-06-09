@@ -6,7 +6,6 @@ import { useTranslation, useAppStore } from "@/store";
 import { PROVINCES } from "@/data/mockData";
 import { Heart, MapPin, Compass, Star } from "lucide-react";
 
-import { getOptimizedImage } from "@/utils/media";
 import { getPlaceImage } from "@/data/images";
 import Image from "next/image";
 

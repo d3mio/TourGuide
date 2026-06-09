@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+
 import { useTranslation } from "@/store";
 import { PILLARS_DATA } from "@/data/mockData";
 import { ArrowRight, Landmark, Leaf, Waves, Coffee, Camera } from "lucide-react";
 import Text3DFlip from "@/components/ui/text-3d-flip";
-import HeroFluid from "@/components/ui/hero-fluid";
+
 
 export default function Home() {
   const { t } = useTranslation();

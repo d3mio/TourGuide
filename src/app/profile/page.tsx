@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslation, useAppStore, Draft } from "@/store";
-import { Leaf, Landmark, Camera, Waves, Star, Calendar, Heart, Upload, FileImage, X, Send, CheckCircle2, MessageCircle, Edit2, Hotel, Palmtree, Castle, ChevronDown, Mail, Trash2 } from "lucide-react";
+import { Leaf, Landmark, Camera, Waves, Star, Calendar, Heart, Upload, X, CheckCircle2, MessageCircle, Edit2, Hotel, Palmtree, Castle, ChevronDown, Mail, Trash2 } from "lucide-react";
 import { DESTINATIONS } from "@/data/mockData";
 
 import { getPlaceImage } from "@/data/images";
