@@ -21,16 +21,12 @@ export const LOCAL_DEST_IMAGES: Record<string, string> = {
   "Trincomalee": "/assets/places/Trincomalee.jpg",
   "Wilpattu": "/assets/places/Wilpattu.jpg",
   "Kandy": "/assets/places/kandy.jpg",
-  
-  // Fallbacks for missing places
-  "Yala National Park": "https://images.unsplash.com/photo-1581888227599-779811939961?q=80&w=800&auto=format&fit=crop",
-  "Dambulla": "https://images.unsplash.com/photo-1627589704256-df3029f6de34?q=80&w=800&auto=format&fit=crop",
-  "Horton Plains": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?q=80&w=800&auto=format&fit=crop",
-  "Hikkaduwa": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop"
+  "Yala National Park": "/assets/places/Yala National Park.jpg",
+  "Dambulla": "/assets/places/Dambulla.webp",
+  "Horton Plains": "/assets/places/Horton Plains.webp",
+  "Hikkaduwa": "/assets/places/Hikkaduwa.jpg"
 };
 
-export const DEFAULT_PLACE_IMAGE = "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800&auto=format&fit=crop";
-
 export const getPlaceImage = (name: string): string => {
-  return LOCAL_DEST_IMAGES[name] || DEFAULT_PLACE_IMAGE;
+  return LOCAL_DEST_IMAGES[name] || "/assets/places/Colombo.jpg"; // Using Colombo as a safe fallback if somehow an image is missing
 };
