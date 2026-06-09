@@ -54,12 +54,8 @@ export default function Profile() {
 
   // Receipt upload state for profile modal
   const [receiptDraft, setReceiptDraft] = useState<string | null>(null);
-  const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [receiptNotes, setReceiptNotes] = useState("");
   const [receiptSubmitted, setReceiptSubmitted] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [receiptUploading, setReceiptUploading] = useState(false);
 
   // Edit Draft States
   const [editingDraft, setEditingDraft] = useState<Draft | null>(null);
@@ -168,48 +164,25 @@ export default function Profile() {
     }
   };
 
-  const handleReceiptFile = (file: File) => {
-    setReceiptFile(file);
-    if (file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (ev) => setReceiptPreview(ev.target?.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      setReceiptPreview(null);
-    }
-  };
-
   const handleReceiptSubmit = () => {
     if (!receiptDraft) return;
-    setReceiptUploading(true);
     
     const draftName = drafts.find(d => d.id === receiptDraft || d.name === receiptDraft)?.name || receiptDraft;
     const subject = encodeURIComponent(`Payment Receipt: ${draftName}`);
-    const body = encodeURIComponent(`Hello, I have submitted the payment receipt for my booking (${draftName}). Please find it attached.\n\nNotes: ${receiptNotes}`);
+    const body = encodeURIComponent(`Hello Dineth,\n\nI have attached the payment receipt for my booking: ${draftName}.\n\nNotes: ${receiptNotes}\n\nThank you.`);
 
-    // Simulate upload delay and open email + whatsapp
+    // Mark draft as completed
+    updateDraftStatus(receiptDraft as string, "completed");
+    
+    // Open default email client
     setTimeout(() => {
-      // Mark draft as completed
-      updateDraftStatus(receiptDraft as string, "completed");
-      
-      // Open WhatsApp
-      const waText = encodeURIComponent(`Hello, I have submitted the payment receipt for my booking (${draftName}). Please find it attached.\n\nNotes: ${receiptNotes}`);
-      window.open(`https://wa.me/${GUIDE_WHATSAPP.replace(/\+/g, "")}?text=${waText}`, "_blank");
-
-      // Open default email client
-      setTimeout(() => {
-        window.location.href = `mailto:dineth.theekshana2002@gmail.com?subject=${subject}&body=${body}`;
-      }, 500);
-      
-      setReceiptUploading(false);
+      window.location.href = `mailto:dineth.theekshana2002@gmail.com?subject=${subject}&body=${body}`;
       setReceiptSubmitted(true);
-    }, 1000);
+    }, 300);
   };
 
   const closeReceiptModal = () => {
     setReceiptDraft(null);
-    setReceiptFile(null);
-    setReceiptPreview(null);
     setReceiptNotes("");
     setReceiptSubmitted(false);
   };
@@ -474,58 +447,11 @@ export default function Profile() {
               </p>
             </div>
 
-            {/* Drop zone */}
-            <div
-              className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer mb-3 ${isDragging ? "border-accent bg-accentdim/10" : "border-bordercolor hover:border-accent/40"
-                }`}
-              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setIsDragging(false);
-                const file = e.dataTransfer.files[0];
-                if (file) handleReceiptFile(file);
-              }}
-              onClick={() => document.getElementById("profileReceiptInput")?.click()}
-            >
-              <input
-                id="profileReceiptInput"
-                type="file"
-                accept="image/*,.pdf"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleReceiptFile(file);
-                }}
-              />
-
-              {receiptFile ? (
-                <div className="flex items-center gap-3">
-                  {receiptPreview ? (
-                    <img src={receiptPreview} alt="Receipt" className="w-14 h-14 rounded-lg object-cover border border-bordercolor" />
-                  ) : (
-                    <div className="w-14 h-14 rounded-lg bg-accentdim/20 flex items-center justify-center">
-                      <FileImage className="w-6 h-6 text-accent" />
-                    </div>
-                  )}
-                  <div className="text-left flex-1 min-w-0">
-                    <p className="text-xs text-textcolor font-medium truncate">{receiptFile.name}</p>
-                    <p className="text-[0.6rem] text-muted">{(receiptFile.size / 1024).toFixed(1)} KB</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); setReceiptFile(null); setReceiptPreview(null); }}
-                    className="p-1 rounded-full hover:bg-surface text-muted hover:text-textcolor transition-colors cursor-pointer"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="py-2">
-                  <Upload className="w-5 h-5 mx-auto text-muted mb-2" />
-                  <p className="text-[0.65rem] text-muted">{t("receipt_drop_hint")}</p>
-                </div>
-              )}
+            <div className="w-full text-center bg-surface/30 border border-bordercolor rounded-lg p-4 mb-4">
+              <p className="text-xs text-muted mb-2">Please send an email to Dineth with your payment receipt attached to complete the booking process.</p>
+              <p className="text-sm font-medium text-textcolor font-mono bg-bg/50 py-1.5 rounded inline-block px-3 border border-bordercolor/50">
+                dineth.theekshana2002@gmail.com
+              </p>
             </div>
 
             <textarea
@@ -545,15 +471,11 @@ export default function Profile() {
               </button>
               <button
                 type="button"
-                disabled={!receiptFile}
                 onClick={handleReceiptSubmit}
-                className={`flex-1 py-2.5 text-white text-xs font-semibold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all ${receiptFile
-                  ? "bg-accent hover:opacity-85 shadow-md shadow-accent/25"
-                  : "bg-muted/30 text-muted cursor-not-allowed"
-                  }`}
+                className="flex-1 py-2.5 bg-accent hover:opacity-85 text-white shadow-md shadow-accent/25 text-xs font-semibold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all"
               >
-                <Send className="w-3 h-3" />
-                {t("receipt_submit")}
+                <Mail className="w-3.5 h-3.5" />
+                Send Email & Complete
               </button>
             </div>
           </>
