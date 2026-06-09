@@ -37,9 +37,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/icon.svg?v=3" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/icon.svg?v=3" />
-        <link rel="apple-touch-icon" href="/icon.svg?v=3" />
+        <link rel="icon" href="/assets/compass-logo.svg?v=4" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/assets/compass-logo.svg?v=4" />
+        <link rel="apple-touch-icon" href="/assets/compass-logo.svg?v=4" />
       </head>
       <body
         className={`${dmSans.variable} ${cormorant.variable} font-sans antialiased bg-bg text-textcolor`}

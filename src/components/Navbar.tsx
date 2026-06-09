@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation, useAppStore } from "@/store";
-import { Menu, X, Sun, Moon, Compass } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 
@@ -47,7 +47,7 @@ export default function Navbar() {
 
           {/* Logo Mark */}
           <div className={`flex items-center justify-center w-9 h-9 rounded-xl shrink-0 transition-colors ${pathname === '/' && !scrolled ? 'bg-white/20 backdrop-blur-sm' : 'bg-surface border border-bordercolor shadow-sm'}`}>
-            <Compass className={`w-5 h-5 ${pathname === '/' && !scrolled ? 'text-white' : 'text-emerald-500'}`} strokeWidth={2} />
+            <img src="/assets/compass-logo.svg" alt="Compass" className={`w-5 h-5 transition-all ${pathname === '/' && !scrolled ? 'brightness-0 invert' : ''}`} />
           </div>
 
           <div className="flex flex-col leading-none">
