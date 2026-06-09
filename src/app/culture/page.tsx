@@ -195,7 +195,7 @@ function CultureContent() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 min-[400px]:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
           {Object.entries(PILLARS_DATA).map(([key, data]) => {
             const IconComponent = data.icon;
             return (

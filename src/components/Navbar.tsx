@@ -47,8 +47,8 @@ export default function Navbar() {
 
 
           <div className="flex flex-col leading-none">
-            <span className={`text-[0.52rem] tracking-[0.28em] uppercase font-bold transition-colors group-hover:text-accent ${pathname === '/' && !scrolled ? 'text-white/70' : 'text-muted'}`}>Experience</span>
-            <span className={`font-serif text-[1.08rem] font-bold tracking-wide mt-0.5 ${pathname === '/' && !scrolled ? 'text-white' : 'text-textcolor'}`}>
+            <span className={`text-[0.45rem] sm:text-[0.52rem] tracking-[0.28em] uppercase font-bold transition-colors group-hover:text-accent ${pathname === '/' && !scrolled ? 'text-white/70' : 'text-muted'}`}>Experience</span>
+            <span className={`font-serif text-[0.95rem] sm:text-[1.08rem] font-bold tracking-wide mt-0.5 ${pathname === '/' && !scrolled ? 'text-white' : 'text-textcolor'}`}>
               Ceylon Luxe <span className={pathname === '/' && !scrolled ? 'text-emerald-400 font-normal' : 'text-emerald-500 font-light'}>Travels</span>
             </span>
           </div>
