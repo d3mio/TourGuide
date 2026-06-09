@@ -42,6 +42,33 @@ export default function Explore() {
   const [currentProvince, setCurrentProvince] = useState(provinces[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedExcursion, setExpandedExcursion] = useState<string | null>(null);
+  const [bookingLoading, setBookingLoading] = useState<string | null>(null);
+  const { user } = useAppStore();
+
+  const handleBookExcursion = async (ex: any) => {
+    const userEmail = user?.email || window.prompt("Please enter your email address for the booking confirmation:");
+    if (!userEmail) return;
+
+    setBookingLoading(ex.id);
+    try {
+      const res = await fetch("/api/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientName: user?.user_metadata?.full_name || "Traveler",
+          clientEmail: userEmail,
+          title: `Excursion: ${ex.title}`,
+          details: `Requested Excursion: ${ex.title}\nDuration: ${ex.duration}\nStops: ${ex.stops}`
+        })
+      });
+      if (!res.ok) throw new Error("Failed");
+      alert("Booking request sent successfully! Check your email.");
+    } catch (e) {
+      alert("Failed to send booking request. Please try again.");
+    } finally {
+      setBookingLoading(null);
+    }
+  };
 
   const places = currentProvince === "All"
     ? Object.entries(PROVINCES).flatMap(([prov, list]) => list.map(p => ({ ...p, prov })))
@@ -226,20 +253,13 @@ export default function Explore() {
                   </button>
 
                   <div className="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                    <a
-                      href={`mailto:serandibtours@gmail.com?subject=${encodeURIComponent(`Excursion Booking: ${ex.title}`)}&body=${encodeURIComponent(`Hi, I am interested in booking the one-day excursion: ${ex.title}.`)}`}
-                      target="_blank"
-                      className="flex-1 sm:flex-none justify-center inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-textcolor border border-bordercolor hover:border-accent hover:text-accent px-2.5 py-1.5 rounded transition-all duration-200"
+                    <button
+                      onClick={() => handleBookExcursion(ex)}
+                      disabled={bookingLoading === ex.id}
+                      className="flex-1 sm:flex-none justify-center inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-white bg-accent hover:opacity-85 px-4 py-1.5 rounded transition-all duration-200 cursor-pointer disabled:opacity-50"
                     >
-                      <Mail className="w-3 h-3" /> {t("book_via_email")}
-                    </a>
-                    <a
-                      href={`https://wa.me/94705836005?text=${encodeURIComponent(`Hi! I'm interested in the excursion: ${ex.title}`)}`}
-                      target="_blank"
-                      className="flex-1 sm:flex-none justify-center inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-white bg-[#25D366] hover:opacity-85 px-2.5 py-1.5 rounded transition-all duration-200"
-                    >
-                      <MessageCircle className="w-3 h-3" /> {t("book_via_whatsapp")}
-                    </a>
+                      <Mail className="w-3 h-3" /> {bookingLoading === ex.id ? "Sending..." : "Book Excursion"}
+                    </button>
                   </div>
                 </div>
 

@@ -6,6 +6,7 @@ import { DICTIONARIES } from './data/dictionaries';
 import { CONTENT_TRANSLATIONS } from './data/contentTranslations';
 import { Review } from './data/mockData';
 import { INITIAL_REVIEWS } from './data/mockData';
+import { supabase } from './lib/supabase';
 
 export type Draft = {
   id: string;
@@ -46,7 +47,7 @@ type AppState = {
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       lang: 'en',
       theme: 'light',
       reviews: INITIAL_REVIEWS,
@@ -71,24 +72,74 @@ export const useAppStore = create<AppState>()(
       setTheme: (theme) => set({ theme }),
       toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
       addReview: (review) => set((state) => ({ reviews: [review, ...state.reviews] })),
-      addDraft: (draft) => set((state) => {
-        if (!state.drafts.find(d => d.id === draft.id)) {
-          return { drafts: [...state.drafts, { ...draft, status: draft.status || "pending" }] };
+      addDraft: async (draft) => {
+        const { drafts, user } = get();
+        if (!drafts.find(d => d.id === draft.id)) {
+          const newDraft = { ...draft, status: draft.status || "pending" };
+          set({ drafts: [...drafts, newDraft] });
+          if (user?.id) {
+            await supabase.from('trip_drafts').insert({
+              id: newDraft.id,
+              user_id: user.id,
+              itinerary_data: newDraft,
+              status: newDraft.status
+            }).catch(e => console.error("Failed to sync draft to Supabase", e));
+          }
         }
-        return state;
-      }),
-      updateDraft: (id, updatedFields) => set((state) => ({
-        drafts: state.drafts.map(d => d.id === id ? { ...d, ...updatedFields } : d)
-      })),
-      updateDraftStatus: (idOrName, status) => set((state) => ({
-        drafts: state.drafts.map(d => (d.id === idOrName || d.name === idOrName) ? { ...d, status } : d)
-      })),
-      toggleWishlist: (item) => set((state) => {
-        if (state.wishlist.includes(item)) {
-          return { wishlist: state.wishlist.filter(w => w !== item) };
+      },
+      updateDraft: async (id, updatedFields) => {
+        const { drafts, user } = get();
+        const updatedDrafts = drafts.map(d => d.id === id ? { ...d, ...updatedFields } : d);
+        set({ drafts: updatedDrafts });
+        
+        if (user?.id) {
+          const draft = updatedDrafts.find(d => d.id === id);
+          if (draft) {
+            await supabase.from('trip_drafts').update({
+              itinerary_data: draft,
+              status: draft.status
+            }).eq('id', id).eq('user_id', user.id).catch(e => console.error("Failed to sync draft update", e));
+          }
         }
-        return { wishlist: [...state.wishlist, item] };
-      }),
+      },
+      updateDraftStatus: async (idOrName, status) => {
+        const { drafts, user } = get();
+        const updatedDrafts = drafts.map(d => (d.id === idOrName || d.name === idOrName) ? { ...d, status } : d);
+        set({ drafts: updatedDrafts });
+
+        if (user?.id) {
+          const draft = updatedDrafts.find(d => d.id === idOrName || d.name === idOrName);
+          if (draft) {
+            await supabase.from('trip_drafts').update({
+              itinerary_data: draft,
+              status: draft.status
+            }).eq('id', draft.id).eq('user_id', user.id).catch(e => console.error("Failed to sync draft status", e));
+          }
+        }
+      },
+      toggleWishlist: async (item) => {
+        const { wishlist, user } = get();
+        const isAdding = !wishlist.includes(item);
+        set({
+          wishlist: isAdding 
+            ? [...wishlist, item] 
+            : wishlist.filter(w => w !== item)
+        });
+
+        if (user?.id) {
+          if (isAdding) {
+            await supabase.from('wishlists').insert({
+              user_id: user.id,
+              destination_id: item
+            }).catch(e => console.error("Failed to add wishlist item", e));
+          } else {
+            await supabase.from('wishlists').delete()
+              .eq('user_id', user.id)
+              .eq('destination_id', item)
+              .catch(e => console.error("Failed to remove wishlist item", e));
+          }
+        }
+      },
       setUser: (user) => set({ user }),
       addDynamicTranslation: (lang, key, translation) => set((state) => ({
         dynamicTranslations: {

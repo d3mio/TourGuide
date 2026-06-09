@@ -103,6 +103,7 @@ function PlannerContent() {
   const [usePartnerLodging, setUsePartnerLodging] = useState(true);
   const [selectedLodgingStyles, setSelectedLodgingStyles] = useState<string[]>([]);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   const handleTierSelect = (tier: string) => {
     setBudgetTier(tier);
@@ -164,53 +165,50 @@ function PlannerContent() {
     return lines.join("\n");
   };
 
-  const handleEmailBooking = () => {
-    const subject = encodeURIComponent(`Tour Booking Request — ${activePackage.name}`);
-    const body = encodeURIComponent(getBookingSummary());
-    window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
-    const draftId = Date.now().toString();
-    setCurrentDraftId(draftId);
-    addDraft({
-      id: draftId,
-      name: `Custom ${tripDuration}-Day ${budgetTier} Journey`,
-      date: new Date().toLocaleDateString(),
-      status: "pending",
-      packageName: activePackage.name,
-      destinations: selectedDestinations,
-      duration: tripDuration,
-      companions: companions,
-      themes: selectedThemes,
-      activities: selectedActivities,
-      lodgingStyles: selectedLodgingStyles,
-      clientName: clientName,
-      clientEmail: clientEmail,
-      specialNotes: specialNotes,
-    });
-    setShowModal(true);
-  };
-
-  const handleWhatsAppBooking = () => {
-    const text = encodeURIComponent(`Hi! I'd like to book a tour.\n\n${getBookingSummary()}`);
-    window.open(`https://wa.me/${GUIDE_WHATSAPP.replace(/\+/g, "")}?text=${text}`, "_blank");
-    const draftId = Date.now().toString();
-    setCurrentDraftId(draftId);
-    addDraft({
-      id: draftId,
-      name: `Custom ${tripDuration}-Day ${budgetTier} Journey`,
-      date: new Date().toLocaleDateString(),
-      status: "pending",
-      packageName: activePackage.name,
-      destinations: selectedDestinations,
-      duration: tripDuration,
-      companions: companions,
-      themes: selectedThemes,
-      activities: selectedActivities,
-      lodgingStyles: selectedLodgingStyles,
-      clientName: clientName,
-      clientEmail: clientEmail,
-      specialNotes: specialNotes,
-    });
-    setShowModal(true);
+  const handleApiBooking = async () => {
+    if (!clientEmail) {
+      alert("Please enter an email address.");
+      return;
+    }
+    
+    setBookingLoading(true);
+    try {
+      const res = await fetch("/api/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientName: clientName || "Traveler",
+          clientEmail,
+          title: activePackage.name,
+          details: getBookingSummary()
+        })
+      });
+      if (!res.ok) throw new Error("Booking failed");
+      
+      const draftId = Date.now().toString();
+      setCurrentDraftId(draftId);
+      addDraft({
+        id: draftId,
+        name: `Custom ${tripDuration}-Day ${budgetTier} Journey`,
+        date: new Date().toLocaleDateString(),
+        status: "pending",
+        packageName: activePackage.name,
+        destinations: selectedDestinations,
+        duration: tripDuration,
+        companions: companions,
+        themes: selectedThemes,
+        activities: selectedActivities,
+        lodgingStyles: selectedLodgingStyles,
+        clientName: clientName,
+        clientEmail: clientEmail,
+        specialNotes: specialNotes,
+      });
+      setShowModal(true);
+    } catch (e) {
+      alert("Failed to send booking request. Please try again.");
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -600,19 +598,12 @@ function PlannerContent() {
             <div className="flex gap-2 mt-1">
               <button
                 type="button"
-                onClick={handleEmailBooking}
-                className="flex-1 py-3 bg-accent hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-accent/25 cursor-pointer transition-all"
+                onClick={handleApiBooking}
+                disabled={bookingLoading}
+                className="w-full py-3 bg-accent hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-accent/25 cursor-pointer transition-all disabled:opacity-50"
               >
-                <Mail className="w-3.5 h-3.5" />
-                <span>{t("book_via_email")}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleWhatsAppBooking}
-                className="flex-1 py-3 bg-[#25D366] hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-[#25D366]/25 cursor-pointer transition-all"
-              >
-                <MessageCircle className="w-3.5 h-3.5" />
-                <span>{t("book_via_whatsapp")}</span>
+                <Send className="w-3.5 h-3.5" />
+                <span>{bookingLoading ? "Sending..." : "Confirm & Book Tour"}</span>
               </button>
             </div>
           </form>
