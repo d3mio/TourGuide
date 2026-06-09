@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "@/store";
 import { CULTURE_ITEMS, PILLARS_DATA } from "@/data/mockData";
 import { ArrowRight, X } from "lucide-react";
+import { createPortal } from "react-dom";
 
 // Image mapping for culture items
 const CULTURE_IMAGES: Record<string, string> = {
@@ -26,6 +27,11 @@ function CultureContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activePillar, setActivePillar] = useState<keyof typeof PILLARS_DATA | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const pillarParam = searchParams.get("pillar");
@@ -321,88 +327,91 @@ function CultureContent() {
       </div>
 
       {/* Pillar Slide Drawer */}
-      <div
-        className={`drawer-overlay ${activePillar ? "open" : ""}`}
-        onClick={() => setActivePillar(null)}
-      >
-        <div className="drawer" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => setActivePillar(null)}
-            className="drawer-close-btn"
-            aria-label="Close details"
-          >
-            <X className="w-4 h-4" />
-          </button>
+      {mounted && createPortal(
+        <div
+          className={`drawer-overlay ${activePillar ? "open" : ""}`}
+          onClick={() => setActivePillar(null)}
+        >
+          <div className="drawer" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setActivePillar(null)}
+              className="drawer-close-btn"
+              aria-label="Close details"
+            >
+              <X className="w-4 h-4" />
+            </button>
 
-          {activePillar && (
-            <div className="flex flex-col">
-              {/* Banner image — always dark gradient over photo */}
-              <div className="w-[calc(100%+2.5rem)] sm:w-[calc(100%+4rem)] -ml-5 sm:-ml-8 -mt-8 sm:-mt-12 h-[180px] sm:h-[220px] mb-6 relative overflow-hidden">
-                <Image src={PILLARS_DATA[activePillar].bg} alt={t(PILLARS_DATA[activePillar].title)} fill className="object-cover" />
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    backgroundImage: `linear-gradient(to top, var(--surface) 0%, rgba(9,9,11,0.25) 100%)`,
+            {activePillar && (
+              <div className="flex flex-col">
+                {/* Banner image — always dark gradient over photo */}
+                <div className="w-[calc(100%+2.5rem)] sm:w-[calc(100%+4rem)] -ml-5 sm:-ml-8 -mt-8 sm:-mt-12 h-[180px] sm:h-[220px] mb-6 relative overflow-hidden">
+                  <Image src={PILLARS_DATA[activePillar].bg} alt={t(PILLARS_DATA[activePillar].title)} fill className="object-cover" />
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      backgroundImage: `linear-gradient(to top, var(--surface) 0%, rgba(9,9,11,0.25) 100%)`,
+                    }}
+                  />
+                </div>
+
+                <div className="mb-5">
+                  <span className="text-[0.65rem] tracking-[0.15em] uppercase text-accent font-bold mb-1 block">
+                    {t("cult_drawer_eyebrow")}
+                  </span>
+                  <h2 className="font-serif text-2xl sm:text-3xl mb-1 text-textcolor">
+                    {t(PILLARS_DATA[activePillar].title)}
+                  </h2>
+                  <p className="text-xs text-muted font-medium italic">{t(PILLARS_DATA[activePillar].tagline)}</p>
+                </div>
+
+                <div className="text-xs md:text-sm text-muted leading-relaxed space-y-4 mb-5">
+                  <p>{t(PILLARS_DATA[activePillar].desc)}</p>
+                </div>
+
+                <div className="bg-bg border border-bordercolor rounded-xl p-4 sm:p-5 mb-5">
+                  <h4 className="text-[0.7rem] sm:text-[0.72rem] tracking-[0.1em] uppercase font-bold text-textcolor mb-3">
+                    {t("cult_drawer_highlights")}:
+                  </h4>
+                  <ul className="space-y-3">
+                    {PILLARS_DATA[activePillar].highlights.map((hl, idx) => {
+                      const [title, desc] = hl.split(': ');
+                      return (
+                        <li key={idx} className="text-xs text-muted leading-relaxed flex items-start gap-2.5">
+                          <span className="w-5 h-5 rounded-full bg-accentdim/20 text-accent flex items-center justify-center text-[0.62rem] font-bold shrink-0 mt-0.5">
+                            {idx + 1}
+                          </span>
+                          <div>
+                            <strong className="text-textcolor font-medium">{t(title)}</strong>: {t(desc)}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+
+                <div className="bg-ambercolor/5 border border-ambercolor/10 rounded-xl p-4 sm:p-5 mb-6">
+                  <h4 className="text-[0.72rem] tracking-[0.15em] uppercase font-bold text-ambercolor mb-1.5">
+                    {t("cult_drawer_tip")}:
+                  </h4>
+                  <p className="text-xs text-muted leading-relaxed">{t(PILLARS_DATA[activePillar].tip)}</p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    const pillarName = PILLARS_DATA[activePillar!].title;
+                    setActivePillar(null);
+                    router.push(`/planner?notes=${encodeURIComponent(`I want to plan a custom trip highlighting ${pillarName}.`)}`);
                   }}
-                />
+                  className="w-full py-2.5 bg-accent hover:opacity-85 text-white text-xs font-medium uppercase tracking-wider rounded-lg text-center cursor-pointer"
+                >
+                  {t("cult_plan_btn")} — {t(activePillar.toUpperCase())}
+                </button>
               </div>
-
-              <div className="mb-5">
-                <span className="text-[0.65rem] tracking-[0.15em] uppercase text-accent font-bold mb-1 block">
-                  {t("cult_drawer_eyebrow")}
-                </span>
-                <h2 className="font-serif text-2xl sm:text-3xl mb-1 text-textcolor">
-                  {t(PILLARS_DATA[activePillar].title)}
-                </h2>
-                <p className="text-xs text-muted font-medium italic">{t(PILLARS_DATA[activePillar].tagline)}</p>
-              </div>
-
-              <div className="text-xs md:text-sm text-muted leading-relaxed space-y-4 mb-5">
-                <p>{t(PILLARS_DATA[activePillar].desc)}</p>
-              </div>
-
-              <div className="bg-bg border border-bordercolor rounded-xl p-4 sm:p-5 mb-5">
-                <h4 className="text-[0.7rem] sm:text-[0.72rem] tracking-[0.1em] uppercase font-bold text-textcolor mb-3">
-                  {t("cult_drawer_highlights")}:
-                </h4>
-                <ul className="space-y-3">
-                  {PILLARS_DATA[activePillar].highlights.map((hl, idx) => {
-                    const [title, desc] = hl.split(': ');
-                    return (
-                      <li key={idx} className="text-xs text-muted leading-relaxed flex items-start gap-2.5">
-                        <span className="w-5 h-5 rounded-full bg-accentdim/20 text-accent flex items-center justify-center text-[0.62rem] font-bold shrink-0 mt-0.5">
-                          {idx + 1}
-                        </span>
-                        <div>
-                          <strong className="text-textcolor font-medium">{t(title)}</strong>: {t(desc)}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-
-              <div className="bg-ambercolor/5 border border-ambercolor/10 rounded-xl p-4 sm:p-5 mb-6">
-                <h4 className="text-[0.72rem] tracking-[0.15em] uppercase font-bold text-ambercolor mb-1.5">
-                  {t("cult_drawer_tip")}:
-                </h4>
-                <p className="text-xs text-muted leading-relaxed">{t(PILLARS_DATA[activePillar].tip)}</p>
-              </div>
-
-              <button
-                onClick={() => {
-                  const pillarName = PILLARS_DATA[activePillar!].title;
-                  setActivePillar(null);
-                  router.push(`/planner?notes=${encodeURIComponent(`I want to plan a custom trip highlighting ${pillarName}.`)}`);
-                }}
-                className="w-full py-2.5 bg-accent hover:opacity-85 text-white text-xs font-medium uppercase tracking-wider rounded-lg text-center cursor-pointer"
-              >
-                {t("cult_plan_btn")} — {t(activePillar.toUpperCase())}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
     </section>
   );
 }
