@@ -134,15 +134,6 @@ export default function Navbar() {
 
       {/* Mobile Controls */}
       <div className="md:hidden flex items-center gap-2 ml-auto shrink-0 z-10">
-        {user ? (
-          <button onClick={() => supabase.auth.signOut()} className={`text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1.5 border rounded-full transition-colors ${pathname === '/' && !scrolled ? 'text-white border-white/30 hover:bg-white/10' : 'text-textcolor border-bordercolor hover:bg-surface/50'}`}>
-            {t("auth_signout")}
-          </button>
-        ) : (
-          <Link href="/login" className={`text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1.5 border rounded-full transition-colors ${pathname === '/' && !scrolled ? 'text-white border-white/30 hover:bg-white/10' : 'text-textcolor border-bordercolor hover:bg-surface/50'}`}>
-            {t("auth_login")}
-          </Link>
-        )}
         <button
           className={`p-1.5 rounded-md transition-colors ${pathname === '/' && !scrolled ? 'text-white hover:bg-white/10' : 'text-textcolor hover:bg-surface/50'}`}
           onClick={() => setMobileOpen(!mobileOpen)}

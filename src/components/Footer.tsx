@@ -43,10 +43,10 @@ export default function Footer() {
           <div>
             <h4 className="text-[0.75rem] tracking-[0.1em] uppercase text-textcolor font-medium mb-4">{t("footer_connect")}</h4>
             <ul className="flex flex-col gap-2.5">
-              <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Instagram</a></li>
-              <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Twitter (X)</a></li>
+              <li><a href="https://www.facebook.com/share/18cREe5iHa/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Facebook</a></li>
+              <li><a href="https://www.tiktok.com/@shaggy_tattoosandtours" target="_blank" rel="noopener noreferrer" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">TikTok</a></li>
+              <li><a href="https://www.instagram.com/dineth.tks?igsh=MWQ5NjEzbWprMDM0YQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">Instagram</a></li>
               <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">{t("footer_contact")}</a></li>
-              <li><a href="#" className="text-[0.85rem] text-muted hover:text-emerald-500 transition-colors">{t("footer_privacy")}</a></li>
             </ul>
           </div>
           
