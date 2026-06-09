@@ -751,7 +751,9 @@ export default function Profile() {
                   : "bg-surface hover:bg-surface2 border-bordercolor text-textcolor"
               }`}
             >
-              {editSaveStatus ? (t("saved") === "saved" ? "Saved ✅" : t("saved")) : (t("save_changes") === "save_changes" ? "Save Changes" : t("save_changes"))}
+              {editSaveStatus ? (
+                <span className="flex items-center justify-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> {t("saved") === "saved" ? "Saved" : t("saved")}</span>
+              ) : (t("save_changes") === "save_changes" ? "Save Changes" : t("save_changes"))}
             </button>
 
             <div className="flex gap-2">
