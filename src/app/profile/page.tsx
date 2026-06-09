@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslation, useAppStore, Draft } from "@/store";
-import { Leaf, Landmark, Camera, Waves, Star, Calendar, Heart, Upload, FileImage, X, Send, CheckCircle2, MessageCircle, Edit2, Hotel, Palmtree, Castle, ChevronDown, Mail } from "lucide-react";
+import { Leaf, Landmark, Camera, Waves, Star, Calendar, Heart, Upload, FileImage, X, Send, CheckCircle2, MessageCircle, Edit2, Hotel, Palmtree, Castle, ChevronDown, Mail, Trash2 } from "lucide-react";
 import { DESTINATIONS } from "@/data/mockData";
 
 // Image mapping for destinations in Sri Lanka to match Explore page
@@ -45,7 +45,7 @@ const THEMES = ["History", "Culture", "Adventure", "Eco", "MICE", "Family", "Lei
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { drafts, wishlist, reviews, toggleWishlist, updateDraftStatus, updateDraft, user } = useAppStore();
+  const { drafts, wishlist, reviews, toggleWishlist, updateDraftStatus, updateDraft, deleteDraft, deleteReview, user } = useAppStore();
 
   // User details fallback
   const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || "Traveller";
@@ -188,7 +188,7 @@ export default function Profile() {
   };
 
   // Filter reviews written by the client
-  const myReviews = reviews.filter((r) => r.isMine || r.name === 'Aanya Sharma');
+  const myReviews = reviews.filter((r) => r.isMine);
 
   const PROFILE_TAGS = [
     { icon: Leaf, label: 'Wildlife' },
@@ -301,9 +301,20 @@ export default function Profile() {
                           </button>
                           <button
                             onClick={() => setReceiptDraft(d.id || d.name)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider bg-accent hover:opacity-85 text-white cursor-pointer transition-all"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider bg-surface hover:bg-accent hover:text-white text-muted cursor-pointer transition-all border border-bordercolor hover:border-accent"
                           >
-                            <Upload className="w-3 h-3" /> {t("complete_booking")}
+                            <CheckCircle2 className="w-3 h-3" /> {t("prof_btn_receipt")}
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm("Are you sure you want to delete this draft?")) {
+                                deleteDraft(d.id);
+                              }
+                            }}
+                            className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider hover:bg-rose-500/10 hover:text-rose-500 text-muted cursor-pointer transition-all"
+                            title="Delete Draft"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
@@ -398,17 +409,30 @@ export default function Profile() {
                 {myReviews.map((r, i) => (
                   <div key={i} className="py-4 border-b border-bordercolor last:border-0 last:pb-0 first:pt-0">
                     <div className="flex justify-between items-center gap-2 mb-2">
-                      <span className="text-xs font-semibold text-textcolor">{r.date}</span>
-                      <span className="flex gap-0.5 text-amber-500">
-                        {Array.from({ length: 5 }).map((_, idx) => (
-                          <Star 
-                            key={idx} 
-                            className={`w-3.5 h-3.5 ${
-                              idx < r.stars ? 'fill-amber-500 text-amber-500' : 'text-bordercolor'
-                            }`}
-                          />
-                        ))}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-semibold text-textcolor">{r.date}</span>
+                        <span className="flex gap-0.5 text-amber-500">
+                          {Array.from({ length: 5 }).map((_, idx) => (
+                            <Star 
+                              key={idx} 
+                              className={`w-3.5 h-3.5 ${
+                                idx < r.stars ? 'fill-amber-500 text-amber-500' : 'text-bordercolor'
+                              }`}
+                            />
+                          ))}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (window.confirm("Are you sure you want to delete this review?")) {
+                            deleteReview(r.id);
+                          }
+                        }}
+                        className="p-1 rounded-full hover:bg-rose-500/10 text-muted hover:text-rose-500 transition-colors cursor-pointer"
+                        title="Delete Review"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                     <p className="text-[0.82rem] text-muted leading-relaxed">
                       "{r.text}"

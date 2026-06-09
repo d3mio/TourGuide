@@ -36,11 +36,13 @@ type AppState = {
   setLang: (lang: string) => void;
   setTheme: (theme: string) => void;
   toggleTheme: () => void;
-  addReview: (review: Review) => void;
-  addDraft: (draft: Draft) => void;
-  updateDraft: (id: string, updatedFields: Partial<Omit<Draft, "id">>) => void;
-  updateDraftStatus: (idOrName: string, status: Draft["status"]) => void;
-  toggleWishlist: (item: string) => void;
+  addReview: (review: Review) => Promise<void>;
+  deleteReview: (id: string | number) => Promise<void>;
+  addDraft: (draft: Draft) => Promise<void>;
+  deleteDraft: (id: string) => Promise<void>;
+  updateDraft: (id: string, updatedFields: Partial<Omit<Draft, "id">>) => Promise<void>;
+  updateDraftStatus: (idOrName: string, status: Draft["status"]) => Promise<void>;
+  toggleWishlist: (item: string) => Promise<void>;
   setUser: (user: any | null) => void;
   syncUserData: () => Promise<void>;
   addDynamicTranslation: (lang: string, key: string, translation: string) => void;
@@ -72,7 +74,32 @@ export const useAppStore = create<AppState>()(
       },
       setTheme: (theme) => set({ theme }),
       toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
-      addReview: (review) => set((state) => ({ reviews: [review, ...state.reviews] })),
+      addReview: async (review) => {
+        const { reviews, user } = get();
+        set({ reviews: [review, ...reviews] });
+        
+        if (user?.id) {
+          await supabase.from('reviews').insert({
+            id: review.id,
+            user_id: user.id,
+            name: review.name,
+            stars: review.stars,
+            text: review.text,
+            date: review.date,
+            tags: review.tags || [],
+          }).then(({ error }) => {
+            if (error) console.error("Failed to sync review to Supabase", error);
+          });
+        }
+      },
+      deleteReview: async (id) => {
+        const { reviews, user } = get();
+        set({ reviews: reviews.filter((r) => r.id !== id) });
+        if (user?.id) {
+          await supabase.from('reviews').delete().eq('id', id).eq('user_id', user.id)
+            .then(({ error }) => { if (error) console.error("Failed to delete review", error); });
+        }
+      },
       addDraft: async (draft) => {
         const { drafts, user } = get();
         if (!drafts.find(d => d.id === draft.id)) {
@@ -86,6 +113,14 @@ export const useAppStore = create<AppState>()(
               status: newDraft.status
             }).then(({ error }) => { if (error) console.error("Failed to sync draft to Supabase", error) });
           }
+        }
+      },
+      deleteDraft: async (id) => {
+        const { drafts, user } = get();
+        set({ drafts: drafts.filter(d => d.id !== id) });
+        if (user?.id) {
+          await supabase.from('trip_drafts').delete().eq('id', id).eq('user_id', user.id)
+            .then(({ error }) => { if (error) console.error("Failed to delete draft", error); });
         }
       },
       updateDraft: async (id, updatedFields) => {
@@ -144,10 +179,37 @@ export const useAppStore = create<AppState>()(
       setUser: (user) => set({ user }),
       syncUserData: async () => {
         const { user } = get();
+        
+        // Always fetch public reviews
+        try {
+          const { data: dbReviews } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
+          if (dbReviews && dbReviews.length > 0) {
+            const formattedReviews: Review[] = dbReviews.map(r => ({
+              id: r.id,
+              name: r.name,
+              stars: r.stars,
+              text: r.text,
+              date: r.date,
+              tags: r.tags || [],
+              isMine: user ? r.user_id === user.id : false
+            }));
+            
+            // Merge with mock reviews to keep some initial content if DB is sparse
+            const merged = [...formattedReviews];
+            INITIAL_REVIEWS.forEach(ir => {
+              if (!merged.find(mr => mr.id === ir.id)) merged.push(ir);
+            });
+            set({ reviews: merged });
+          }
+        } catch (err) {
+          console.error("Failed to sync reviews", err);
+        }
+
         if (!user) {
           set({ drafts: [], wishlist: [] });
           return;
         }
+        
         try {
           const { data: wlData } = await supabase.from('wishlists').select('destination_id').eq('user_id', user.id);
           if (wlData) set({ wishlist: wlData.map(w => w.destination_id) });

@@ -25,7 +25,7 @@ export default function ExperiencesClient({
     e.preventDefault();
     if (!name.trim() || !text.trim() || !selectedStars) return;
     addReview({
-      id: Date.now(),
+      id: crypto.randomUUID(),
       name: name.trim(),
       stars: selectedStars,
       text: text.trim(),
@@ -213,8 +213,9 @@ export default function ExperiencesClient({
               <div className="flex w-max animate-marquee-left" style={{ WebkitBackfaceVisibility: "hidden" }}>
                 {[...reviews, ...reviews, ...reviews, ...reviews, ...reviews, ...reviews].map((r, i) => {
                   const avatarLetter = r.name ? r.name.charAt(0).toUpperCase() : "T";
+                  const blockIndex = Math.floor(i / reviews.length);
                   return (
-                    <div key={`r1-${r.id}-${i}`} className="w-[300px] md:w-[340px] shrink-0 p-5 rounded-xl bg-surface hover:bg-surface2 transition-colors border border-bordercolor flex flex-col justify-between gap-5 mr-4 shadow-xl">
+                    <div key={`r1-${r.id}-${blockIndex}`} className="w-[300px] md:w-[340px] shrink-0 p-5 rounded-xl bg-surface hover:bg-surface2 transition-colors border border-bordercolor flex flex-col justify-between gap-5 mr-4 shadow-xl">
                       <div>
                         <div className="flex justify-between items-center mb-4">
                           <div className="flex gap-0.5">
@@ -246,8 +247,9 @@ export default function ExperiencesClient({
               <div className="flex w-max animate-marquee-right" style={{ WebkitBackfaceVisibility: "hidden" }}>
                 {[...reviews, ...reviews, ...reviews, ...reviews, ...reviews, ...reviews].reverse().map((r, i) => {
                   const avatarLetter = r.name ? r.name.charAt(0).toUpperCase() : "T";
+                  const blockIndex = Math.floor(i / reviews.length);
                   return (
-                    <div key={`r2-${r.id}-${i}`} className="w-[300px] md:w-[340px] shrink-0 p-5 rounded-xl bg-surface hover:bg-surface2 transition-colors border border-bordercolor flex flex-col justify-between gap-5 mr-4 shadow-xl">
+                    <div key={`r2-${r.id}-${blockIndex}`} className="w-[300px] md:w-[340px] shrink-0 p-5 rounded-xl bg-surface hover:bg-surface2 transition-colors border border-bordercolor flex flex-col justify-between gap-5 mr-4 shadow-xl">
                       <div>
                         <div className="flex justify-between items-center mb-4">
                           <div className="flex gap-0.5">
