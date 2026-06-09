@@ -45,10 +45,6 @@ export default function Navbar() {
       <div className="md:mr-10 whitespace-nowrap flex items-center shrink-0">
         <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 group">
 
-          {/* Logo Mark */}
-          <div className={`flex items-center justify-center w-9 h-9 rounded-xl shrink-0 transition-colors ${pathname === '/' && !scrolled ? 'bg-white/20 backdrop-blur-sm' : 'bg-surface border border-bordercolor shadow-sm'}`}>
-            <img src="/assets/compass-logo.svg" alt="Compass" className={`w-5 h-5 transition-all ${pathname === '/' && !scrolled ? 'brightness-0 invert' : ''}`} />
-          </div>
 
           <div className="flex flex-col leading-none">
             <span className={`text-[0.52rem] tracking-[0.28em] uppercase font-bold transition-colors group-hover:text-accent ${pathname === '/' && !scrolled ? 'text-white/70' : 'text-muted'}`}>Experience</span>
