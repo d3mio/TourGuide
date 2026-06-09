@@ -7,33 +7,8 @@ import { PROVINCES, EXCURSIONS } from "@/data/mockData";
 import { Heart, MapPin, Compass, Star, Clock, ChevronDown, Mail, MessageCircle } from "lucide-react";
 
 import { getOptimizedImage } from "@/utils/media";
-
-// Image mapping for destinations mapping to Supabase Storage
-const DEST_FILES: Record<string, string> = {
-  "Sigiriya": "provinces/sigiriya.jpg",
-  "Ella": "provinces/ella.jpg",
-  "Mirissa": "provinces/mirissa.jpg",
-  "Kandy": "provinces/kandy.jpg",
-  "Galle Fort": "provinces/galle.jpg",
-  "Yala National Park": "provinces/yala.jpg",
-  "Nuwara Eliya": "provinces/nuwara_eliya.jpg",
-  "Trincomalee": "provinces/trincomalee.jpg",
-  "Anuradhapura": "provinces/anuradhapura.jpg",
-  "Polonnaruwa": "provinces/polonnaruwa.jpg",
-  "Dambulla": "provinces/dambulla.jpg",
-  "Arugam Bay": "provinces/arugam_bay.jpg",
-  "Horton Plains": "provinces/horton_plains.jpg",
-  "Adams Peak": "provinces/adams_peak.jpg",
-  "Bentota": "provinces/bentota.jpg",
-  "Hikkaduwa": "provinces/hikkaduwa.jpg",
-  "Pinnawala": "provinces/pinnawala.jpg",
-  "Knuckles Range": "provinces/knuckles.jpg",
-  "Jaffna": "provinces/jaffna.jpg",
-  "Wilpattu": "provinces/wilpattu.jpg",
-  "Kalpitiya": "provinces/kalpitiya.jpg"
-};
-
-const DEFAULT_FILE = "provinces/default.jpg";
+import { getPlaceImage } from "@/data/images";
+import Image from "next/image";
 
 export default function Explore() {
   const { t } = useTranslation();
@@ -138,8 +113,7 @@ export default function Explore() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPlaces.map((p) => {
             const isSaved = wishlist.includes(p.name);
-            const fileKey = DEST_FILES[p.name] || DEFAULT_FILE;
-            const imageSrc = getOptimizedImage(fileKey, { width: 600, quality: 80, format: 'webp' });
+            const imageSrc = getPlaceImage(p.name);
 
             return (
               <div
@@ -148,10 +122,12 @@ export default function Explore() {
               >
                 {/* Photo container */}
                 <div className="h-[210px] relative overflow-hidden bg-bg">
-                  <img
+                  <Image
                     src={imageSrc}
                     alt={p.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
 
                   {/* Category Pill */}
