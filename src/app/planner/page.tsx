@@ -145,7 +145,7 @@ function PlannerContent() {
   const [isDragging, setIsDragging] = useState(false);
 
   // Contact details (update these with real values)
-  const GUIDE_EMAIL = "serandibtours@gmail.com";
+  const GUIDE_EMAIL = "dineth.theekshana2002@gmail.com";
   const GUIDE_WHATSAPP = "+94705836005";
 
   // Generate booking summary text
@@ -165,7 +165,7 @@ function PlannerContent() {
     return lines.join("\n");
   };
 
-  const handleApiBooking = async () => {
+  const handleApiBooking = async (method: "email" | "whatsapp") => {
     if (!clientEmail) {
       alert("Please enter an email address.");
       return;
@@ -173,7 +173,8 @@ function PlannerContent() {
     
     setBookingLoading(true);
     try {
-      const res = await fetch("/api/book", {
+      // Send the automated receipt in the background
+      fetch("/api/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -182,8 +183,7 @@ function PlannerContent() {
           title: activePackage.name,
           details: getBookingSummary()
         })
-      });
-      if (!res.ok) throw new Error("Booking failed");
+      }).catch((e) => console.error("API Booking Error:", e));
       
       const draftId = Date.now().toString();
       setCurrentDraftId(draftId);
@@ -203,9 +203,17 @@ function PlannerContent() {
         clientEmail: clientEmail,
         specialNotes: specialNotes,
       });
+
+      if (method === "email") {
+        const subject = encodeURIComponent(`Tour Booking Request — ${activePackage.name}`);
+        const body = encodeURIComponent(getBookingSummary());
+        window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
+      } else {
+        const text = encodeURIComponent(`Hi! I'd like to book a tour.\n\n${getBookingSummary()}`);
+        window.open(`https://wa.me/${GUIDE_WHATSAPP.replace(/\+/g, "")}?text=${text}`, "_blank");
+      }
+
       setShowModal(true);
-    } catch (e) {
-      alert("Failed to send booking request. Please try again.");
     } finally {
       setBookingLoading(false);
     }
@@ -598,12 +606,21 @@ function PlannerContent() {
             <div className="flex gap-2 mt-1">
               <button
                 type="button"
-                onClick={handleApiBooking}
+                onClick={() => handleApiBooking("email")}
                 disabled={bookingLoading}
-                className="w-full py-3 bg-accent hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-accent/25 cursor-pointer transition-all disabled:opacity-50"
+                className="flex-1 py-3 bg-accent hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-accent/25 cursor-pointer transition-all disabled:opacity-50"
               >
-                <Send className="w-3.5 h-3.5" />
-                <span>{bookingLoading ? "Sending..." : "Confirm & Book Tour"}</span>
+                <Mail className="w-3.5 h-3.5" />
+                <span>{t("book_via_email") || "Email"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleApiBooking("whatsapp")}
+                disabled={bookingLoading}
+                className="flex-1 py-3 bg-[#25D366] hover:opacity-85 text-white font-semibold uppercase tracking-wider text-xs rounded-lg flex items-center justify-center gap-1.5 shadow-md shadow-[#25D366]/25 cursor-pointer transition-all disabled:opacity-50"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>{t("book_via_whatsapp") || "WhatsApp"}</span>
               </button>
             </div>
           </form>

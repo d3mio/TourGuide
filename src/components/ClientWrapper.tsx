@@ -19,16 +19,18 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
 
   // Sync Supabase Auth State
   useEffect(() => {
-    const setUser = useAppStore.getState().setUser;
+    const { setUser, syncUserData } = useAppStore.getState();
     
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user || null);
+      syncUserData();
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
+      syncUserData();
     });
 
     return () => subscription.unsubscribe();

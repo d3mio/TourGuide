@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslation, useAppStore, Draft } from "@/store";
-import { Leaf, Landmark, Camera, Waves, Star, Calendar, Heart, Upload, FileImage, X, Send, CheckCircle2, MessageCircle, Edit2 } from "lucide-react";
+import { Leaf, Landmark, Camera, Waves, Star, Calendar, Heart, Upload, FileImage, X, Send, CheckCircle2, MessageCircle, Edit2, Hotel, Palmtree, Castle, ChevronDown, Mail } from "lucide-react";
+import { DESTINATIONS } from "@/data/mockData";
 
 // Image mapping for destinations in Sri Lanka to match Explore page
 const DEST_IMAGES: Record<string, string> = {
@@ -32,6 +33,16 @@ const DEST_IMAGES: Record<string, string> = {
 
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=800&auto=format&fit=crop";
 
+const LODGE_OPTIONS = [
+  { key: "boutique", Icon: Hotel, name: "Boutique Hotels" },
+  { key: "beach", Icon: Palmtree, name: "Beach Resorts" },
+  { key: "heritage", Icon: Castle, name: "Heritage Hotels" },
+  { key: "eco", Icon: Leaf, name: "Eco Lodges" },
+];
+
+const ACTIVITIES = ["Wild Safari", "Cultural Sites", "Beach Time", "Mountain Hikes", "Water Sports"];
+const THEMES = ["History", "Culture", "Adventure", "Eco", "MICE", "Family", "Leisure", "Education"];
+
 export default function Profile() {
   const { t } = useTranslation();
   const { drafts, wishlist, reviews, toggleWishlist, updateDraftStatus, updateDraft, user } = useAppStore();
@@ -48,53 +59,62 @@ export default function Profile() {
   const [receiptNotes, setReceiptNotes] = useState("");
   const [receiptSubmitted, setReceiptSubmitted] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [receiptUploading, setReceiptUploading] = useState(false);
 
   // Edit Draft States
   const [editingDraft, setEditingDraft] = useState<Draft | null>(null);
-  const [editDestinations, setEditDestinations] = useState<string>("");
+  const [editDestinations, setEditDestinations] = useState<string[]>([]);
   const [editDuration, setEditDuration] = useState<number>(10);
   const [editCompanions, setEditCompanions] = useState<string>("");
   const [editNotes, setEditNotes] = useState<string>("");
   const [editClientName, setEditClientName] = useState<string>("");
   const [editClientEmail, setEditClientEmail] = useState<string>("");
+  const [editThemes, setEditThemes] = useState<string[]>([]);
+  const [editActivities, setEditActivities] = useState<string[]>([]);
+  const [editLodgingStyles, setEditLodgingStyles] = useState<string[]>([]);
   const [editSaveStatus, setEditSaveStatus] = useState<boolean>(false);
   const [bookingLoading, setBookingLoading] = useState(false);
 
-  const GUIDE_EMAIL = "serandibtours@gmail.com";
+  const GUIDE_EMAIL = "dineth.theekshana2002@gmail.com";
   const GUIDE_WHATSAPP = "+94705836005";
 
   const startEditing = (draft: Draft) => {
     setEditingDraft(draft);
-    setEditDestinations((draft.destinations || []).join(", "));
+    setEditDestinations(draft.destinations || []);
     setEditDuration(draft.duration || 10);
     setEditCompanions(draft.companions || "");
     setEditNotes(draft.specialNotes || "");
     setEditClientName(draft.clientName || "");
     setEditClientEmail(draft.clientEmail || "");
+    setEditThemes(draft.themes || []);
+    setEditActivities(draft.activities || []);
+    setEditLodgingStyles(draft.lodgingStyles || []);
     setEditSaveStatus(false);
+  };
+
+  const toggleArr = (arr: string[], setArr: (v: string[]) => void, val: string) => {
+    setArr(arr.includes(val) ? arr.filter((a) => a !== val) : [...arr, val]);
   };
 
   const handleSaveEdit = () => {
     if (!editingDraft) return;
     const name = `Custom ${editDuration}-Day Journey`;
-    updateDraft(editingDraft.id, {
-      destinations: editDestinations.split(",").map(d => d.trim()).filter(Boolean),
+    const updatedDraft = {
+      destinations: editDestinations,
       duration: editDuration,
       companions: editCompanions,
       specialNotes: editNotes,
       clientName: editClientName,
       clientEmail: editClientEmail,
+      themes: editThemes,
+      activities: editActivities,
+      lodgingStyles: editLodgingStyles,
       name,
-    });
+    };
+    updateDraft(editingDraft.id, updatedDraft);
     setEditingDraft({
       ...editingDraft,
-      destinations: editDestinations.split(",").map(d => d.trim()).filter(Boolean),
-      duration: editDuration,
-      companions: editCompanions,
-      specialNotes: editNotes,
-      clientName: editClientName,
-      clientEmail: editClientEmail,
-      name,
+      ...updatedDraft,
     });
     setEditSaveStatus(true);
     setTimeout(() => setEditSaveStatus(false), 2000);
@@ -116,13 +136,13 @@ export default function Profile() {
     return lines.join("\n");
   };
 
-  const handleApiBooking = async (draft: Draft) => {
+  const handleApiBooking = async (draft: Draft, method: "email" | "whatsapp" = "email") => {
     const clientEmail = draft.clientEmail || user?.email || window.prompt("Please enter your email address:");
     if (!clientEmail) return;
 
     setBookingLoading(true);
     try {
-      const res = await fetch("/api/book", {
+      fetch("/api/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -131,12 +151,18 @@ export default function Profile() {
           title: draft.name,
           details: getDraftBookingSummary(draft)
         })
-      });
-      if (!res.ok) throw new Error("Booking failed");
-      alert("Booking request sent successfully! Check your email.");
+      }).catch(e => console.error(e));
+
+      if (method === "email") {
+        const subject = encodeURIComponent(`Tour Booking Request — ${draft.name}`);
+        const body = encodeURIComponent(getDraftBookingSummary(draft));
+        window.open(`mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`, "_blank");
+      } else {
+        const text = encodeURIComponent(`Hi! I'd like to book a tour.\n\n${getDraftBookingSummary(draft)}`);
+        window.open(`https://wa.me/${GUIDE_WHATSAPP.replace(/\+/g, "")}?text=${text}`, "_blank");
+      }
+      
       updateDraftStatus(draft.id, "completed");
-    } catch (err) {
-      alert("Failed to send booking request. Please try again.");
     } finally {
       setBookingLoading(false);
     }
@@ -155,16 +181,29 @@ export default function Profile() {
 
   const handleReceiptSubmit = () => {
     if (!receiptDraft) return;
-    const selectedDraftObj = drafts.find(d => d.id === receiptDraft || d.name === receiptDraft);
-    const draftName = selectedDraftObj ? selectedDraftObj.name : receiptDraft;
-    const subject = encodeURIComponent(`Payment Receipt — ${draftName}`);
-    const body = encodeURIComponent(
-      `Please find my payment receipt attached.\n\nFile: ${receiptFile?.name || "N/A"}\n${receiptNotes ? `Notes: ${receiptNotes}` : ""}\n\nBooking: ${draftName}`
-    );
-    // Ideally use an API with file upload here, but fallback to mailto for receipts for now, or just mark as complete
-    // We will just mark it complete and show success
-    updateDraftStatus(receiptDraft, "completed");
-    setReceiptSubmitted(true);
+    setReceiptUploading(true);
+    
+    const draftName = drafts.find(d => d.id === receiptDraft || d.name === receiptDraft)?.name || receiptDraft;
+    const subject = encodeURIComponent(`Payment Receipt: ${draftName}`);
+    const body = encodeURIComponent(`Hello, I have submitted the payment receipt for my booking (${draftName}). Please find it attached.\n\nNotes: ${receiptNotes}`);
+
+    // Simulate upload delay and open email + whatsapp
+    setTimeout(() => {
+      // Mark draft as completed
+      updateDraftStatus(receiptDraft as string, "completed");
+      
+      // Open WhatsApp
+      const waText = encodeURIComponent(`Hello, I have submitted the payment receipt for my booking (${draftName}). Please find it attached.\n\nNotes: ${receiptNotes}`);
+      window.open(`https://wa.me/${GUIDE_WHATSAPP.replace(/\+/g, "")}?text=${waText}`, "_blank");
+
+      // Open default email client
+      setTimeout(() => {
+        window.location.href = `mailto:dineth.theekshana2002@gmail.com?subject=${subject}&body=${body}`;
+      }, 500);
+      
+      setReceiptUploading(false);
+      setReceiptSubmitted(true);
+    }, 1000);
   };
 
   const closeReceiptModal = () => {
@@ -263,43 +302,37 @@ export default function Profile() {
             <div>
               <div className="text-[0.68rem] tracking-[0.1em] uppercase text-textcolor font-bold mb-4 pb-2 border-b border-bordercolor flex items-center justify-between">
                 <span>{t("prof_drafts") || "Saved Trip Drafts"}</span>
-                <span className="text-[0.62rem] bg-accentdim/20 text-accent px-2 py-0.5 rounded font-bold uppercase">{drafts.length} {t("Drafts")}</span>
+                <span className="text-[0.62rem] bg-accentdim/20 text-accent px-2 py-0.5 rounded font-bold uppercase">{drafts.filter(d => d.status !== 'completed').length} {t("Drafts")}</span>
               </div>
               
-              {drafts.length > 0 ? (
+              {drafts.filter(d => d.status !== 'completed').length > 0 ? (
                 <div className="divide-y divide-bordercolor">
-                  {drafts.map((d, i) => (
+                  {drafts.filter(d => d.status !== 'completed').map((d, i) => (
                     <div key={d.id || i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 text-xs text-textcolor first:pt-0 last:pb-0 gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="font-medium truncate">{d.name}</span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[0.58rem] tracking-wider font-bold uppercase shrink-0 ${
-                          d.status === "completed"
-                            ? "bg-accentdim/20 text-accent border border-accent/20"
-                            : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                        }`}>
-                          {d.status === "completed" ? t("status_completed") : t("status_pending")}
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[0.58rem] tracking-wider font-bold uppercase shrink-0 bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                          {t("status_pending")}
                         </span>
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="text-muted flex items-center gap-1.5 text-[0.68rem]">
                           <Calendar className="w-3.5 h-3.5 text-accent" /> {d.date}
                         </span>
-                        {d.status === "pending" && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => startEditing(d)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider border border-bordercolor hover:border-accent text-textcolor hover:text-accent cursor-pointer transition-all"
-                            >
-                              <Edit2 className="w-2.5 h-2.5" /> {t("Edit & Book") || "Edit & Book"}
-                            </button>
-                            <button
-                              onClick={() => setReceiptDraft(d.id || d.name)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider bg-accent hover:opacity-85 text-white cursor-pointer transition-all"
-                            >
-                              <Upload className="w-3 h-3" /> {t("complete_booking")}
-                            </button>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => startEditing(d)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider border border-bordercolor hover:border-accent text-textcolor hover:text-accent cursor-pointer transition-all"
+                          >
+                            <Edit2 className="w-2.5 h-2.5" /> {t("Edit & Book") || "Edit & Book"}
+                          </button>
+                          <button
+                            onClick={() => setReceiptDraft(d.id || d.name)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[0.6rem] font-bold uppercase tracking-wider bg-accent hover:opacity-85 text-white cursor-pointer transition-all"
+                          >
+                            <Upload className="w-3 h-3" /> {t("complete_booking")}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -317,14 +350,21 @@ export default function Profile() {
                 {t("prof_completed") || "Completed Tours"}
               </div>
               <div className="divide-y divide-bordercolor">
-                <div className="flex items-center justify-between py-3 text-xs md:text-sm first:pt-0">
-                  <span className="font-medium text-textcolor">{t("Cultural Heritage Circuit (10 Days)")}</span>
-                  <span className="inline-flex px-2.5 py-0.5 rounded text-[0.62rem] tracking-wider font-bold border border-accent/20 text-accent bg-accentdim/15 uppercase">{t("Done")}</span>
-                </div>
-                <div className="flex items-center justify-between py-3 text-xs md:text-sm last:pb-0">
-                  <span className="font-medium text-textcolor">{t("Southern Coastal Retreat (7 Days)")}</span>
-                  <span className="inline-flex px-2.5 py-0.5 rounded text-[0.62rem] tracking-wider font-bold border border-accent/20 text-accent bg-accentdim/15 uppercase">{t("Done")}</span>
-                </div>
+                {drafts.filter(d => d.status === 'completed').length > 0 ? drafts.filter(d => d.status === 'completed').map((d, i) => (
+                  <div key={d.id || i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 text-xs md:text-sm text-textcolor first:pt-0 last:pb-0 gap-2">
+                    <span className="font-medium truncate">{d.name}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-muted flex items-center gap-1.5 text-[0.68rem]">
+                        <Calendar className="w-3.5 h-3.5 text-accent" /> {d.date}
+                      </span>
+                      <span className="inline-flex px-2.5 py-0.5 rounded text-[0.62rem] tracking-wider font-bold border border-accent/20 text-accent bg-accentdim/15 uppercase">{t("status_completed") || "Completed"}</span>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="text-center py-6 border border-dashed border-bordercolor rounded-xl bg-bg/20 text-xs text-muted">
+                    {t("No completed tours yet.") || "No completed tours yet."}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -540,48 +580,140 @@ export default function Profile() {
       <div className="modal-overlay open">
         <div className="modal-card max-w-[500px] max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-5 pb-3 border-b border-bordercolor">
-            <h3 className="font-serif text-xl text-textcolor">{t("edit_draft_title") || "Edit Trip Draft"}</h3>
+            <h3 className="font-serif text-xl text-textcolor">{t("edit_draft_title") === "edit_draft_title" ? "Edit Draft" : t("edit_draft_title")}</h3>
             <button onClick={() => setEditingDraft(null)} className="text-muted hover:text-textcolor transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="space-y-4 mb-6 text-left">
+            {/* Destinations */}
             <div>
-              <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("destinations") || "Destinations (comma-separated)"}</label>
-              <input
-                type="text"
-                value={editDestinations}
-                onChange={(e) => setEditDestinations(e.target.value)}
-                className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent"
-              />
+              <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("modal_destinations")}</label>
+              <div className="flex flex-wrap gap-1.5 max-h-[130px] overflow-y-auto pr-1 border border-bordercolor rounded-lg p-2 bg-bg/30">
+                {DESTINATIONS.map((d) => {
+                  const isSelected = editDestinations.includes(d);
+                  return (
+                    <button
+                      key={d} type="button"
+                      onClick={() => toggleArr(editDestinations, setEditDestinations, d)}
+                      className={`px-2 py-1 rounded text-[0.65rem] font-medium border transition-all cursor-pointer ${isSelected
+                        ? "border-accent text-accent bg-accentdim/15"
+                        : "border-bordercolor text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"
+                        }`}
+                    >
+                      {t(d)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Themes */}
+            <div>
+              <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("modal_themes")}</label>
+              <div className="flex flex-wrap gap-1.5">
+                {THEMES.map((theme) => {
+                  const isSelected = editThemes.includes(theme);
+                  return (
+                    <button
+                      key={theme} type="button"
+                      onClick={() => toggleArr(editThemes, setEditThemes, theme)}
+                      className={`px-2.5 py-1.5 rounded-full text-[0.65rem] border transition-all cursor-pointer ${isSelected
+                        ? "border-accent text-accent bg-accentdim/15"
+                        : "border-bordercolor text-muted hover:border-textcolor hover:text-textcolor bg-surface/30"
+                        }`}
+                    >
+                      {t(theme)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Activities & Lodging */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("modal_activities")}</label>
+                <div className="flex flex-col gap-2">
+                  {ACTIVITIES.map((a) => {
+                    const isSelected = editActivities.includes(a);
+                    return (
+                      <div
+                        key={a}
+                        onClick={() => toggleArr(editActivities, setEditActivities, a)}
+                        className={`p-2 rounded-lg border cursor-pointer flex items-center gap-2 transition-colors ${isSelected ? "border-accent/40 bg-accentdim/5" : "border-bordercolor bg-bg/20 hover:border-accent/30"
+                          }`}
+                      >
+                        <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[0.5rem] transition-all shrink-0 ${isSelected ? "bg-accent border-accent text-white" : "border-bordercolor"
+                          }`}>
+                          {isSelected ? "✓" : ""}
+                        </div>
+                        <span className="text-[0.68rem] font-semibold text-textcolor leading-tight">{t(a)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("modal_lodging")}</label>
+                <div className="flex flex-col gap-2">
+                  {LODGE_OPTIONS.map((l) => {
+                    const isSelected = editLodgingStyles.includes(l.key);
+                    return (
+                      <div
+                        key={l.key}
+                        onClick={() => toggleArr(editLodgingStyles, setEditLodgingStyles, l.key)}
+                        className={`p-2 border rounded-lg cursor-pointer transition-all flex gap-2 items-center ${isSelected ? "border-accent bg-accentdim/15" : "border-bordercolor bg-bg/20 hover:border-accent/40"
+                          }`}
+                      >
+                        <div className={`p-1 rounded border shrink-0 ${isSelected ? "bg-accent text-white border-transparent" : "bg-surface border-bordercolor text-muted"
+                          }`}>
+                          <l.Icon className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-[0.65rem] font-semibold text-textcolor truncate">{t(l.name)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("duration_days") || "Duration (Days)"}</label>
-                <input
-                  type="number"
-                  value={editDuration}
-                  onChange={(e) => setEditDuration(parseInt(e.target.value) || 0)}
-                  className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent"
-                />
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("modal_duration")}</label>
+                <div className="flex items-center gap-3 bg-bg/40 border border-bordercolor rounded-lg px-3 py-1 text-xs">
+                    <input
+                      type="range" min="3" max="28"
+                      value={editDuration}
+                      onChange={(e) => setEditDuration(parseInt(e.target.value) || 0)}
+                      className="w-full cursor-pointer"
+                    />
+                    <strong className="text-accent font-serif whitespace-nowrap">{editDuration} {t("days")}</strong>
+                </div>
               </div>
               <div>
-                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("companions") || "Companions"}</label>
-                <input
-                  type="text"
-                  value={editCompanions}
-                  onChange={(e) => setEditCompanions(e.target.value)}
-                  className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent"
-                  placeholder="e.g. 2 Adults, 1 Kid"
-                />
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("modal_companions")}</label>
+                <div className="relative">
+                  <select
+                    value={editCompanions}
+                    onChange={(e) => setEditCompanions(e.target.value)}
+                    className="w-full bg-bg/40 border border-bordercolor rounded-lg px-3 py-2 text-xs text-textcolor outline-none focus:border-accent cursor-pointer appearance-none"
+                  >
+                    <option value="" disabled>{t("plan_cohort_placeholder") || "Select Companions"}</option>
+                    <option value="Solo">{t("plan_cohort_solo") || "Solo Traveller"}</option>
+                    <option value="Couple">{t("plan_cohort_couple") || "Couple"}</option>
+                    <option value="Family">{t("plan_cohort_family") || "Family"}</option>
+                    <option value="Group">{t("plan_cohort_group") || "Group"}</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-2.5 w-4 h-4 text-muted pointer-events-none" />
+                </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("client_name") || "Your Name"}</label>
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("plan_name")}</label>
                 <input
                   type="text"
                   value={editClientName}
@@ -590,7 +722,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("client_email") || "Your Email"}</label>
+                <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("plan_email")}</label>
                 <input
                   type="email"
                   value={editClientEmail}
@@ -601,7 +733,7 @@ export default function Profile() {
             </div>
 
             <div>
-              <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("special_notes") || "Special Notes"}</label>
+              <label className="block text-[0.68rem] uppercase tracking-wider font-semibold text-muted mb-1.5">{t("plan_notes")}</label>
               <textarea
                 value={editNotes}
                 onChange={(e) => setEditNotes(e.target.value)}
@@ -619,17 +751,25 @@ export default function Profile() {
                   : "bg-surface hover:bg-surface2 border-bordercolor text-textcolor"
               }`}
             >
-              {editSaveStatus ? (t("saved") || "Saved ✅") : (t("save_changes") || "Save Changes")}
+              {editSaveStatus ? (t("saved") === "saved" ? "Saved ✅" : t("saved")) : (t("save_changes") === "save_changes" ? "Save Changes" : t("save_changes"))}
             </button>
 
-            <div className="grid grid-cols-1 gap-2">
+            <div className="flex gap-2">
               <button
-                onClick={() => handleApiBooking(editingDraft)}
+                onClick={() => handleApiBooking(editingDraft, "email")}
                 disabled={bookingLoading}
-                className="py-2.5 bg-accent hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-md shadow-accent/25 cursor-pointer disabled:opacity-50"
+                className="flex-1 py-2.5 bg-accent hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-md shadow-accent/25 cursor-pointer disabled:opacity-50"
               >
-                <Send className="w-3.5 h-3.5" />
-                {bookingLoading ? "Sending..." : "Confirm & Book"}
+                <Mail className="w-3.5 h-3.5" />
+                {bookingLoading ? "..." : (t("book_via_email") || "Email")}
+              </button>
+              <button
+                onClick={() => handleApiBooking(editingDraft, "whatsapp")}
+                disabled={bookingLoading}
+                className="flex-1 py-2.5 bg-[#25D366] hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#25D366]/25 cursor-pointer disabled:opacity-50"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                {bookingLoading ? "..." : (t("book_via_whatsapp") || "WhatsApp")}
               </button>
             </div>
           </div>

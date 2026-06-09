@@ -42,6 +42,7 @@ type AppState = {
   updateDraftStatus: (idOrName: string, status: Draft["status"]) => void;
   toggleWishlist: (item: string) => void;
   setUser: (user: any | null) => void;
+  syncUserData: () => Promise<void>;
   addDynamicTranslation: (lang: string, key: string, translation: string) => void;
 };
 
@@ -52,7 +53,7 @@ export const useAppStore = create<AppState>()(
       theme: 'light',
       reviews: INITIAL_REVIEWS,
       drafts: [],
-      wishlist: ['Sigiriya','Arugam Bay','Ella','Jaffna','Mirissa'],
+      wishlist: [],
       user: null,
       dynamicTranslations: {},
       setLang: (lang) => {
@@ -83,7 +84,7 @@ export const useAppStore = create<AppState>()(
               user_id: user.id,
               itinerary_data: newDraft,
               status: newDraft.status
-            }).catch(e => console.error("Failed to sync draft to Supabase", e));
+            }).then(({ error }) => { if (error) console.error("Failed to sync draft to Supabase", error) });
           }
         }
       },
@@ -98,7 +99,7 @@ export const useAppStore = create<AppState>()(
             await supabase.from('trip_drafts').update({
               itinerary_data: draft,
               status: draft.status
-            }).eq('id', id).eq('user_id', user.id).catch(e => console.error("Failed to sync draft update", e));
+            }).eq('id', id).eq('user_id', user.id).then(({ error }) => { if (error) console.error("Failed to sync draft update", error) });
           }
         }
       },
@@ -113,7 +114,7 @@ export const useAppStore = create<AppState>()(
             await supabase.from('trip_drafts').update({
               itinerary_data: draft,
               status: draft.status
-            }).eq('id', draft.id).eq('user_id', user.id).catch(e => console.error("Failed to sync draft status", e));
+            }).eq('id', draft.id).eq('user_id', user.id).then(({ error }) => { if (error) console.error("Failed to sync draft status", error) });
           }
         }
       },
@@ -131,16 +132,32 @@ export const useAppStore = create<AppState>()(
             await supabase.from('wishlists').insert({
               user_id: user.id,
               destination_id: item
-            }).catch(e => console.error("Failed to add wishlist item", e));
+            }).then(({ error }) => { if (error) console.error("Failed to add wishlist item", error) });
           } else {
             await supabase.from('wishlists').delete()
               .eq('user_id', user.id)
               .eq('destination_id', item)
-              .catch(e => console.error("Failed to remove wishlist item", e));
+              .then(({ error }) => { if (error) console.error("Failed to remove wishlist item", error) });
           }
         }
       },
       setUser: (user) => set({ user }),
+      syncUserData: async () => {
+        const { user } = get();
+        if (!user) {
+          set({ drafts: [], wishlist: [] });
+          return;
+        }
+        try {
+          const { data: wlData } = await supabase.from('wishlists').select('destination_id').eq('user_id', user.id);
+          if (wlData) set({ wishlist: wlData.map(w => w.destination_id) });
+
+          const { data: draftsData } = await supabase.from('trip_drafts').select('itinerary_data').eq('user_id', user.id);
+          if (draftsData) set({ drafts: draftsData.map(d => d.itinerary_data as Draft) });
+        } catch (error) {
+          console.error("Failed to sync user data", error);
+        }
+      },
       addDynamicTranslation: (lang, key, translation) => set((state) => ({
         dynamicTranslations: {
           ...state.dynamicTranslations,
