@@ -46,7 +46,7 @@ export default function ExperiencesClient({
         {/* ProfileCard */}
         <div className="shrink-0 flex justify-center w-full lg:w-auto">
           <ProfileCard
-            name="Dineth Senevirathne"
+            name="Dineth Theekshana"
             title="Licensed Tour Guide · Sri Lanka"
             handle="dinethtours"
             status="Available for Tours"
@@ -68,7 +68,7 @@ export default function ExperiencesClient({
             Licensed Tour Guide · Sri Lanka
           </span>
           <h1 className="font-serif text-[2.2rem] md:text-[3rem] leading-tight mb-5 text-textcolor">
-            Dineth Senevirathne
+            Dineth Theekshana
           </h1>
           <p className="text-muted text-[0.9rem] md:text-[1rem] max-w-xl leading-relaxed mb-8">
             A passionate and licensed tour guide dedicated to crafting unforgettable journeys across Sri Lanka. From the misty highlands of Ella to the golden shores of Mirissa, every trip is a story waiting to be told.
@@ -161,11 +161,10 @@ export default function ExperiencesClient({
                       aria-label={`Rate ${val} stars`}
                     >
                       <Star
-                        className={`w-6 h-6 leading-none transition-colors ${
-                          val <= (hoveredStars || selectedStars)
+                        className={`w-6 h-6 leading-none transition-colors ${val <= (hoveredStars || selectedStars)
                             ? "fill-amber-500 text-amber-500"
                             : "text-bordercolor"
-                        }`}
+                          }`}
                       />
                     </button>
                   ))}
