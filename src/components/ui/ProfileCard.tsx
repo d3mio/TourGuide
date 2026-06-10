@@ -39,7 +39,6 @@ interface ProfileCardProps {
   mobileTiltSensitivity?: number;
   miniAvatarUrl?: string;
   name?: string;
-  title?: string;
   handle?: string;
   status?: string;
   contactText?: string;
@@ -61,7 +60,6 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
   mobileTiltSensitivity = 5,
   miniAvatarUrl,
   name = "Tour Guide",
-  title = "Expert Tour Guide",
   handle = "tourguide",
   status = "Available",
   contactText = "Contact",
@@ -343,7 +341,6 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
             <div className="pc-content">
               <div className="pc-details">
                 <h3>{name}</h3>
-                <p>{title}</p>
               </div>
             </div>
           </div>

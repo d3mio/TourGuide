@@ -47,7 +47,6 @@ export default function ExperiencesClient({
         <div className="shrink-0 flex justify-center w-full lg:w-auto">
           <ProfileCard
             name="Dineth Theekshana"
-            title="Licensed Tour Guide · Sri Lanka"
             handle="dinethtours"
             status="Available for Tours"
             contactText="WhatsApp"
@@ -162,8 +161,8 @@ export default function ExperiencesClient({
                     >
                       <Star
                         className={`w-6 h-6 leading-none transition-colors ${val <= (hoveredStars || selectedStars)
-                            ? "fill-amber-500 text-amber-500"
-                            : "text-bordercolor"
+                          ? "fill-amber-500 text-amber-500"
+                          : "text-bordercolor"
                           }`}
                       />
                     </button>
