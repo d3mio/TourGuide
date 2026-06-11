@@ -11,6 +11,8 @@ export default function LoginPage() {
   const router = useRouter();
   
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
@@ -38,7 +40,15 @@ export default function LoginPage() {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    
+    // In forgot password mode, we only need the email
+    if (isForgotPassword && !email) {
+      setError("Please enter your email address.");
+      return;
+    }
+    
+    // In sign up/in mode, we need both
+    if (!isForgotPassword && (!email || !password)) {
       setError("Please fill in both email and password.");
       return;
     }
@@ -48,7 +58,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (isForgotPassword) {
+        // Forgot Password Flow
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/update-password`,
+        });
+
+        if (resetError) throw resetError;
+
+        setSuccessMsg("Password reset link sent! Please check your email inbox (and spam folder) for the link.");
+      } else if (isSignUp) {
         // Sign Up Flow
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
@@ -60,10 +79,8 @@ export default function LoginPage() {
         if (data.session === null) {
           // Supabase requires email confirmation by default
           setSuccessMsg("Account created successfully! Please check your email for a confirmation link to activate your account.");
-          // Clear password but leave email so they see it
           setPassword("");
         } else {
-          // Automatically logged in (if email confirmation is disabled in Supabase)
           router.push("/explore");
         }
       } else {
@@ -86,9 +103,17 @@ export default function LoginPage() {
 
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
+    setIsForgotPassword(false);
     setError(null);
     setSuccessMsg(null);
-    // Optional: clear fields on toggle, or keep them for convenience
+  };
+
+  const toggleForgotPassword = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsForgotPassword(!isForgotPassword);
+    setIsSignUp(false);
+    setError(null);
+    setSuccessMsg(null);
   };
 
   return (
@@ -116,12 +141,14 @@ export default function LoginPage() {
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
           <div className="mb-8">
             <h2 className="text-2xl md:text-3xl font-semibold text-textcolor mb-2">
-              {isSignUp ? "Create an account" : "Welcome back!"}
+              {isForgotPassword ? "Reset your password" : (isSignUp ? "Create an account" : "Welcome back!")}
             </h2>
             <p className="text-sm text-muted leading-relaxed">
-              {isSignUp 
-                ? "Sign up to start planning your perfect Sri Lankan getaway."
-                : "Sign in to your account to manage your trips, access your wishlists, and explore customized Sri Lankan experiences."}
+              {isForgotPassword 
+                ? "Enter your email address and we'll send you a link to reset your password."
+                : (isSignUp 
+                    ? "Sign up to start planning your perfect Sri Lankan getaway."
+                    : "Sign in to your account to manage your trips, access your wishlists, and explore customized Sri Lankan experiences.")}
             </p>
           </div>
 
@@ -165,18 +192,31 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-textdim">Password</label>
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
-                required
-                minLength={6}
-                className="w-full bg-surface2 border border-bordercolor rounded-lg px-4 py-3 text-sm text-textcolor placeholder:text-muted focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all"
-              />
-            </div>
+            {!isForgotPassword && (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-textdim">Password</label>
+                  {!isSignUp && (
+                    <button 
+                      type="button"
+                      onClick={toggleForgotPassword}
+                      className="text-xs text-ambercolor hover:opacity-80 transition-opacity bg-transparent border-none p-0 cursor-pointer"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <input 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
+                  required
+                  minLength={6}
+                  className="w-full bg-surface2 border border-bordercolor rounded-lg px-4 py-3 text-sm text-textcolor placeholder:text-muted focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all"
+                />
+              </div>
+            )}
 
             <button 
               type="submit"
@@ -184,43 +224,57 @@ export default function LoginPage() {
               className="w-full bg-accent hover:bg-accent/80 text-white font-medium rounded-lg px-4 py-3 mt-2 transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {isSignUp ? "Create Account" : "Sign in"}
+              {isForgotPassword ? "Send Reset Link" : (isSignUp ? "Create Account" : "Sign in")}
             </button>
+            
+            {isForgotPassword && (
+              <button
+                type="button"
+                onClick={toggleForgotPassword}
+                className="mt-2 text-sm text-muted hover:text-textcolor transition-colors bg-transparent border-none p-0 cursor-pointer"
+              >
+                Back to Sign in
+              </button>
+            )}
           </form>
 
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex-1 h-[1px] bg-bordercolor"></div>
-            <span className="text-xs text-muted">or</span>
-            <div className="flex-1 h-[1px] bg-bordercolor"></div>
-          </div>
+          {!isForgotPassword && (
+            <>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex-1 h-[1px] bg-bordercolor"></div>
+                <span className="text-xs text-muted">or</span>
+                <div className="flex-1 h-[1px] bg-bordercolor"></div>
+              </div>
 
-          {/* Sign in with Google */}
-          <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              id="google-login-btn"
-              onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-3 bg-surface2 hover:bg-bordercolor border border-bordercolor rounded-lg py-3.5 transition-colors text-sm font-medium text-textdim hover:text-textcolor"
-            >
-              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              Continue with Google
-            </button>
-          </div>
+              {/* Sign in with Google */}
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  id="google-login-btn"
+                  onClick={handleGoogleLogin}
+                  className="w-full flex items-center justify-center gap-3 bg-surface2 hover:bg-bordercolor border border-bordercolor rounded-lg py-3.5 transition-colors text-sm font-medium text-textdim hover:text-textcolor"
+                >
+                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  Continue with Google
+                </button>
+              </div>
 
-          <p className="text-center text-sm text-muted mt-6">
-            {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button 
-              onClick={toggleMode} 
-              className="text-ambercolor hover:opacity-80 font-medium transition-colors bg-transparent border-none p-0 cursor-pointer"
-            >
-              {isSignUp ? "Sign in" : "Sign up"}
-            </button>
-          </p>
+              <p className="text-center text-sm text-muted mt-6">
+                {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+                <button 
+                  onClick={toggleMode} 
+                  className="text-ambercolor hover:opacity-80 font-medium transition-colors bg-transparent border-none p-0 cursor-pointer"
+                >
+                  {isSignUp ? "Sign in" : "Sign up"}
+                </button>
+              </p>
+            </  >
+          )}
         </div>
 
         {/* Right Side: Gradient Feature Card */}
