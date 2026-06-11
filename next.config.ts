@@ -41,6 +41,8 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       // API connections: self + Supabase + Google OAuth + translate API
       "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://accounts.google.com https://translation.googleapis.com",
+      // Media (video/audio): Supabase storage only
+      "media-src 'self' https://*.supabase.co https://*.supabase.in",
       // Frames: only Google OAuth
       "frame-src https://accounts.google.com",
       // Form submissions to self only
