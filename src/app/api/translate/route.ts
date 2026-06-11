@@ -1,15 +1,58 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import translate from "google-translate-api-x";
 
 // Simple in-memory cache for translations to avoid redundant API calls
 const translationCache = new Map<string, string>();
 
-export async function POST(request: Request) {
+// ---------- Rate Limiter (in-memory, per IP) ----------
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 20;     // max requests (generous for real usage)
+const RATE_LIMIT_WINDOW = 60;  // per 60 seconds
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW * 1000 });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+export async function POST(request: NextRequest) {
+  // --- Rate limiting ---
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json(
+      { translatedText: null, fallback: true, error: "Rate limit exceeded." },
+      { status: 429 }
+    );
+  }
+
   try {
     const { text, to } = await request.json();
-    
+
     if (!text || !to) {
       return NextResponse.json({ error: "Missing text or to parameter" }, { status: 400 });
+    }
+
+    // Enforce max text length to prevent quota abuse
+    if (typeof text !== "string" || text.length > 2000) {
+      return NextResponse.json(
+        { translatedText: null, fallback: true, error: "Text too long for translation." },
+        { status: 400 }
+      );
+    }
+
+    // Validate target language code (basic sanity check)
+    if (typeof to !== "string" || !/^[a-z]{2,5}$/.test(to)) {
+      return NextResponse.json({ error: "Invalid language code" }, { status: 400 });
     }
 
     const cacheKey = `${to}:${text}`;
@@ -17,36 +60,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ translatedText: translationCache.get(cacheKey) });
     }
 
-    // Try to use API key if provided, else fallback to scraping (google-translate-api-x default behavior)
-    // Note: If you want to strictly use an official key, you can integrate @google-cloud/translate here.
-    // google-translate-api-x is resilient and works without keys but might hit quotas.
-    
-    // Simulating quota check/error handling
     if (process.env.TRANSLATION_QUOTA_EXCEEDED === "true") {
-       console.warn("Translation quota exceeded, falling back to english.");
-       return NextResponse.json({ translatedText: text }); // Fallback to original
+      console.warn("Translation quota exceeded, falling back to english.");
+      return NextResponse.json({ translatedText: text });
     }
 
     const res = await translate(text, { to });
-    const translatedText = Array.isArray(res) 
-      ? res[0]?.text 
-      : (res as any).text;
+    const translatedText = Array.isArray(res)
+      ? res[0]?.text
+      : (res as unknown as { text?: string }).text;
 
-    // Cache successful translation
     if (translatedText) {
-      translationCache.set(cacheKey, translatedText);
+      translationCache.set(cacheKey, translatedText as string);
     }
 
     return NextResponse.json({ translatedText });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Translation API error:", error);
-    // Graceful fallback to the original string instead of breaking the app
-    // Extracting the text from the request is a bit tricky if the body stream is consumed, 
-    // but the client handles fallback internally as well. Let's return a specific status to indicate fallback.
     return NextResponse.json(
-      { translatedText: null, fallback: true, error: "Translation failed, falling back to original." }, 
-      { status: 200 } // Send 200 so the client doesn't throw, but handles the empty translatedText
+      { translatedText: null, fallback: true, error: "Translation failed, falling back to original." },
+      { status: 200 }
     );
   }
 }
-

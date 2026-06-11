@@ -7,6 +7,7 @@ import { CONTENT_TRANSLATIONS } from './data/contentTranslations';
 import { Review } from './data/mockData';
 import { INITIAL_REVIEWS } from './data/mockData';
 import { supabase } from './lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
 export type Draft = {
   id: string;
@@ -31,7 +32,7 @@ type AppState = {
   reviews: Review[];
   drafts: Draft[];
   wishlist: string[];
-  user: any | null;
+  user: User | null;
   dynamicTranslations: Record<string, Record<string, string>>;
   setLang: (lang: string) => void;
   setTheme: (theme: string) => void;
@@ -43,7 +44,7 @@ type AppState = {
   updateDraft: (id: string, updatedFields: Partial<Omit<Draft, "id">>) => Promise<void>;
   updateDraftStatus: (idOrName: string, status: Draft["status"]) => Promise<void>;
   toggleWishlist: (item: string) => Promise<void>;
-  setUser: (user: any | null) => void;
+  setUser: (user: User | null) => void;
   syncUserData: () => Promise<void>;
   addDynamicTranslation: (lang: string, key: string, translation: string) => void;
 };

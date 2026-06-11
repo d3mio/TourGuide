@@ -47,8 +47,8 @@ export default function Profile() {
   const [editSaveStatus, setEditSaveStatus] = useState<boolean>(false);
   const [bookingLoading, setBookingLoading] = useState(false);
 
-  const GUIDE_EMAIL = "dineth.theekshana2002@gmail.com";
-  const GUIDE_WHATSAPP = "+94705836005";
+  const GUIDE_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "";
+  const GUIDE_WHATSAPP = process.env.NEXT_PUBLIC_ADMIN_WHATSAPP || "";
 
   const startEditing = (draft: Draft) => {
     setEditingDraft(draft);
@@ -152,7 +152,7 @@ export default function Profile() {
     
     // Open default email client
     setTimeout(() => {
-      window.location.href = `mailto:dineth.theekshana2002@gmail.com?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:${GUIDE_EMAIL}?subject=${subject}&body=${body}`;
       setReceiptSubmitted(true);
     }, 300);
   };
@@ -450,7 +450,7 @@ export default function Profile() {
             <div className="w-full text-center bg-surface/30 border border-bordercolor rounded-lg p-4 mb-4">
               <p className="text-xs text-muted mb-2">Please send an email to Dineth with your payment receipt attached to complete the booking process.</p>
               <p className="text-sm font-medium text-textcolor font-mono bg-bg/50 py-1.5 rounded inline-block px-3 border border-bordercolor/50">
-                dineth.theekshana2002@gmail.com
+                {GUIDE_EMAIL || "contact@ceylonluxetravels.com"}
               </p>
             </div>
 
