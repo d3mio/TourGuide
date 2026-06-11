@@ -1,11 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
+  const router = useRouter();
+  
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -16,10 +28,67 @@ export default function LoginPage() {
       });
       if (error) {
         console.error("Error logging in with Google:", error.message);
+        setError(error.message);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
+      setError("An unexpected error occurred. Please try again.");
     }
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setError("Please fill in both email and password.");
+      return;
+    }
+    
+    setError(null);
+    setSuccessMsg(null);
+    setLoading(true);
+
+    try {
+      if (isSignUp) {
+        // Sign Up Flow
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+
+        if (signUpError) throw signUpError;
+
+        if (data.session === null) {
+          // Supabase requires email confirmation by default
+          setSuccessMsg("Account created successfully! Please check your email for a confirmation link to activate your account.");
+          // Clear password but leave email so they see it
+          setPassword("");
+        } else {
+          // Automatically logged in (if email confirmation is disabled in Supabase)
+          router.push("/explore");
+        }
+      } else {
+        // Sign In Flow
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) throw signInError;
+        
+        router.push("/explore");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to authenticate.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp);
+    setError(null);
+    setSuccessMsg(null);
+    // Optional: clear fields on toggle, or keep them for convenience
   };
 
   return (
@@ -46,13 +115,86 @@ export default function LoginPage() {
         {/* Left Side: Login Form */}
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
           <div className="mb-8">
-            <h2 className="text-2xl md:text-3xl font-semibold text-textcolor mb-2">Welcome back!</h2>
+            <h2 className="text-2xl md:text-3xl font-semibold text-textcolor mb-2">
+              {isSignUp ? "Create an account" : "Welcome back!"}
+            </h2>
             <p className="text-sm text-muted leading-relaxed">
-              Sign in to your account to manage your trips, access your wishlists, and explore customized Sri Lankan experiences.
+              {isSignUp 
+                ? "Sign up to start planning your perfect Sri Lankan getaway."
+                : "Sign in to your account to manage your trips, access your wishlists, and explore customized Sri Lankan experiences."}
             </p>
           </div>
 
-          {/* Sign in with Google — sole auth method */}
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginBottom: 20 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg flex items-start gap-2"
+              >
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                <span>{error}</span>
+              </motion.div>
+            )}
+            
+            {successMsg && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginBottom: 20 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                className="bg-green-500/10 border border-green-500/20 text-green-400 text-sm p-3 rounded-lg flex items-start gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+                <span>{successMsg}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Email / Password Form */}
+          <form onSubmit={handleEmailAuth} className="flex flex-col gap-4 mb-6">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-textdim">Email</label>
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="youremail@domain.com"
+                required
+                className="w-full bg-surface2 border border-bordercolor rounded-lg px-4 py-3 text-sm text-textcolor placeholder:text-muted focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-textdim">Password</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
+                required
+                minLength={6}
+                className="w-full bg-surface2 border border-bordercolor rounded-lg px-4 py-3 text-sm text-textcolor placeholder:text-muted focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all"
+              />
+            </div>
+
+            <button 
+              type="submit"
+              disabled={loading}
+              className="w-full bg-accent hover:bg-accent/80 text-white font-medium rounded-lg px-4 py-3 mt-2 transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {isSignUp ? "Create Account" : "Sign in"}
+            </button>
+          </form>
+
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-[1px] bg-bordercolor"></div>
+            <span className="text-xs text-muted">or</span>
+            <div className="flex-1 h-[1px] bg-bordercolor"></div>
+          </div>
+
+          {/* Sign in with Google */}
           <div className="flex flex-col gap-3">
             <button
               type="button"
@@ -71,11 +213,13 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-sm text-muted mt-6">
-            Don&apos;t have an account?{" "}
-            <Link href="/login" className="text-ambercolor hover:opacity-80 font-medium transition-colors">
-              Sign in
-            </Link>{" "}
-            — your account is created automatically on first sign in.
+            {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+            <button 
+              onClick={toggleMode} 
+              className="text-ambercolor hover:opacity-80 font-medium transition-colors bg-transparent border-none p-0 cursor-pointer"
+            >
+              {isSignUp ? "Sign in" : "Sign up"}
+            </button>
           </p>
         </div>
 
