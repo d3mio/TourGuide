@@ -107,9 +107,11 @@ function MediaCard({
             src={item.url}
             alt={item.category}
             fill
+            unoptimized
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             priority={priority}
             onLoad={() => setImgLoaded(true)}
+            onError={() => setImgLoaded(true)}
             className={`object-cover transition-all duration-500 group-hover:scale-105 ${
               imgLoaded ? "opacity-100" : "opacity-0"
             }`}
