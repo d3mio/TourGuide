@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { ItineraryConfirmation } from "@/components/emails/ItineraryConfirmation";
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const resendApiKey = process.env.RESEND_API_KEY || "re_fF6SGRSN_P2rn7NmFnASupTv14UWWdwgv";
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
+const fromEmail = process.env.RESEND_FROM_EMAIL || "Ceylon Luxe Travels <onboarding@resend.dev>";
 const adminEmail = process.env.ADMIN_EMAIL || "";
 
 // ---------- Rate Limiter (in-memory, per IP) ----------
@@ -100,7 +102,7 @@ export async function POST(request: NextRequest) {
 
     // 1. Send confirmation to the client
     await resend.emails.send({
-      from: "Ceylon Luxe Travels <bookings@ceylonluxetravels.com>",
+      from: fromEmail,
       to: clientEmail,
       subject: `Booking Request Received: ${title}`,
       react: ItineraryConfirmation({ clientName, title, details }),
@@ -109,7 +111,7 @@ export async function POST(request: NextRequest) {
     // 2. Send structured alert to the admin (using sanitized values in HTML)
     if (adminEmail) {
       await resend.emails.send({
-        from: "System <bookings@ceylonluxetravels.com>",
+        from: fromEmail,
         to: adminEmail,
         subject: `NEW BOOKING REQUEST: ${safeTitle}`,
         html: `
