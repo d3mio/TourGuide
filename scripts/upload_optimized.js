@@ -20,10 +20,31 @@ const { execSync } = require("child_process");
 const sharp   = require("sharp");
 const { createClient } = require("@supabase/supabase-js");
 
-// ── Supabase credentials (from .env.local) ───────────────────────
-const SUPABASE_URL      = "https://dtfichbgbgyferqumunj.supabase.co";
-const SERVICE_ROLE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0ZmljaGJnYmd5ZmVycXVtdW5qIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDY1NTU4OSwiZXhwIjoyMDk2MjMxNTg5fQ.lE0A6cnRjyckiXNvPXKlY5HC1zyaB5gczeH7onwm0Vg";
+// ── Load .env.local if not already in process.env ───────────────────────
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  try {
+    const envPath = path.join(__dirname, "..", ".env.local");
+    if (fs.existsSync(envPath)) {
+      const envLines = fs.readFileSync(envPath, "utf-8").split("\n");
+      for (const line of envLines) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const eqIdx = trimmed.indexOf("=");
+          if (eqIdx > 0) {
+            const k = trimmed.substring(0, eqIdx).trim();
+            const v = trimmed.substring(eqIdx + 1).trim();
+            process.env[k] = v;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Failed reading .env.local", e.message);
+  }
+}
+
+const SUPABASE_URL      = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://mfqdtxojgutnaciyiigf.supabase.co";
+const SERVICE_ROLE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
