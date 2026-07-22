@@ -28,7 +28,10 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        window.location.href = "/update-password";
+      }
       setUser(session?.user || null);
       syncUserData();
     });
