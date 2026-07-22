@@ -181,11 +181,9 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('tours_media', 'tours_media', true)
 ON CONFLICT (id) DO NOTHING;
 
+-- Public bucket image viewing works automatically via public URL.
+-- Remove broad SELECT RLS policy on storage.objects to prevent unauthorized directory listing.
 DROP POLICY IF EXISTS "Public storage read access" ON storage.objects;
-CREATE POLICY "Public storage read access"
-ON storage.objects FOR SELECT
-TO anon, authenticated
-USING (bucket_id = 'tours_media');
 
 DROP POLICY IF EXISTS "Authenticated storage insert access" ON storage.objects;
 CREATE POLICY "Authenticated storage insert access"
